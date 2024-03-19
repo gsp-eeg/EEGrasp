@@ -1,0 +1,12 @@
+__pycache__/
+datasets
+
+# Visual Studio Code
+.vscode/
+.pytest_cache
+
+# Mac OS files
+.DS_Store
+
+# Jupyter notebook files
+.ipynb_checkpoints/
