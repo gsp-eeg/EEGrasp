@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "EEGraSP"
+version = "0.0.1"
+authors = [
+  { name="Julio Rodino", email="jrodino14@gmail.com" },
+  { name="Alejandro Weinstein", email="alejandro.weinstein@uv.cl"},
+  { name="Andres Herera", email="herrerandresc@gmail.com"}
+]
+description = "Package for EEG Graph signal Processing"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies= [
+  "scipy",
+  "numpy",
+  "mne",
+  "matplotlib",
+  "pygsp"
+]
+
+[project.urls]
+Homepage = "https://gitlab.com/gsp8332409/eegrasp"
+Issues = "https://gitlab.com/gsp8332409/eegrasp/-/issues"
