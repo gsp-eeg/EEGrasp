@@ -1,5 +1,10 @@
+""""
+autor: jrodino14@gmail.com
+description:
+Example script to calculate distance from an electrode montage from MNE.
+Requirements: None
+"""
 # %% Load Packages
-import matplotlib.pyplot
 import mne
 from EEGraSP.EEGraSP import EEGraSP
 import numpy as np
