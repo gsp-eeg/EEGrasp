@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pygsp import graphs,learning
-from EEGraSP import EEGraSP
+from EEGraSP.EEGraSP import EEGraSP
 import mne
 from scipy.stats import zscore
 from tqdm import tqdm
@@ -89,7 +89,7 @@ for ax,t in zip(axs[:,:-1].flatten('F'),times.repeat(2)):
     ax.set_title(r'{} $\pm {}$ s'.format(t,window),size=9)
 
 fig.tight_layout()
-fig.savefig('LR_topoplots.png')
+#fig.savefig('LR_topoplots.png')
 fig.show()
 
 # %% Animate topomaps
@@ -112,8 +112,7 @@ fig.suptitle('Right Motor Imaginery')
 # %% Initialize EEGraph class
 
 eegsp = EEGraSP(right,EEG_pos,ch_names)
-eegsp.compute_weights() # Calculate distance between electrodes
-W = eegsp.W.copy()
+W = eegsp.compute_distance() # Calculate distance between electrodes
 
 # Plot euclidean distance between electrodes
 fig,ax = plt.subplots()

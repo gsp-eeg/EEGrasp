@@ -3,7 +3,8 @@ from pygsp import graphs
 
 class EEGraSP():
 
-    def __init__(self,data,EEG_pos,ch_names):
+    def __init__(self,data=None,EEG_pos=None,ch_names=None):
+        
         self.data = data
         self.EEG_pos = EEG_pos
         self.ch_names = ch_names
@@ -25,16 +26,23 @@ class EEGraSP():
         
         return W
     
-    def compute_distance(self,W=None,method='Euclidean'):
+    def compute_distance(self,pos=None,method='Euclidean'):
         """
-        input: method for computing the distance.
+        descrpition: method for computing the distance.
         output: weight to be used for the graph computation
-        """        
+        """
+
+        # If passed, used the W matrix
+        if type(pos) == type(None):
+            pos = self.EEG_pos
+
         if method == 'Euclidean':
-            W = self.euc_dist(self.EEG_pos)
+            W = self.euc_dist(pos)
             np.fill_diagonal(W,np.nan)
         
         self.W = W
+
+        return W
 
 
     def compute_graph(self,W = None, method='NN',k=5,epsilon=0.1,theta=.2,):
