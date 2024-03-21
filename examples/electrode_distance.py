@@ -16,7 +16,9 @@ EEG_pos = np.array([pos for _,pos in EEG_pos.items()])
 # %% Plot Montage
 
 fig = montage.plot(kind='3d',show=False)
-fig = fig.gca().view_init(azim=70, elev=15)  # set view angle for tutorial
+fig.gca().view_init(azim=70, elev=15)  # set view angle for tutorial
+plt.title('Electrode Positions in 3d')
+plt.show()
 
 # %% Calculate electrode distance
 
@@ -25,5 +27,7 @@ W = eegrasp.compute_distance(EEG_pos,method='Euclidean')
 
 # %% Plot distance matrix
 
-plt.imshow(W,cmap='gray')
+im = plt.imshow(W,cmap='gray')
+plt.title('Electrode Distance Matrix')
 plt.colorbar(label='Euc. Distance [m]')
+plt.show()
