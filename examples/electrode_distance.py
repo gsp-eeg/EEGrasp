@@ -1,4 +1,5 @@
 """"
+creation date: 21/03/2024
 autor: jrodino14@gmail.com
 description:
 Example script to calculate distance from an electrode montage from MNE.

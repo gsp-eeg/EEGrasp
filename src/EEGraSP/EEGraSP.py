@@ -1,3 +1,11 @@
+""""
+creation date: 21/03/2024
+Author: jrodino14@gmail.com
+This script defines the main class in the EEGRraSP package.
+No inputs are required for the class to initialize, though, for the
+computation of graphs and fitting to functional data: EEG_pos,
+data and ch_names are required
+"""
 import numpy as np
 from pygsp import graphs
 
