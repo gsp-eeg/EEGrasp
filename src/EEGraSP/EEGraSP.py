@@ -25,14 +25,17 @@ class EEGraSP():
         output: 2d array of channels by channels with the euclidean distance. 
         description: compute the euclidean distance between every channel in the array 
         """
-        W = np.zeros([pos.shape[0],pos.shape[0]]) # Alocate variable
-
+        W = np.zeros([pos.shape[0],pos.shape[0]],dtype=np.float64) # Alocate variable
+        pos = pos.astype(float)
         for dim in range(pos.shape[1]):
             # Compute the component corresponding to each dimension. Add it to the array
             W += np.power(pos[:,dim][:,None]-pos[:,dim][None,:],2)
         W = np.sqrt(W)
         
         return W
+    
+    def gaussian_kernel(self,X,sigma=0.1):
+        return np.exp(-np.power(X, 2) / float(self.sigma))
     
     def compute_distance(self,pos=None,method='Euclidean'):
         """
