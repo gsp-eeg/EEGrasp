@@ -4,7 +4,7 @@ Author: jrodino14@gmail.com
 This script defines the main class in the EEGRraSP package.
 No inputs are required for the class to initialize, though, for the
 computation of graphs and fitting to functional data: EEG_pos,
-data and ch_names are required
+data and ch_names are required.
 """
 import numpy as np
 from pygsp import graphs
@@ -77,6 +77,7 @@ class EEGraSP():
         try:
             if method=='NN':
                 G = graphs.NNGraph(W,NNtype='knn',k=k)
+
             elif method=='Gaussian':
                 
                 G = graphs.Graph(np.exp(-W**2) / (2*theta**2))
@@ -86,6 +87,37 @@ class EEGraSP():
         except:
             print(f'Check arguments needed for the method: {method}')
 
+    def fit_graph_to_data(self,data=None,W=None,
+                          weight_method='Gaussian',
+                          distance_method='Euclidean',
+                          error_method='MRSE'):
+        """"
+        Description: This method returns the graph that best reconstructed the entire segment of data.
+        It will itterate through all the unique values of the distance matrix.
+        """
+        # Check if values are passed or use the instance's
+        if type(W) == None:
+            W = self.W
+        if type(data) == None:
+            data = self.data
+        
+        if (type(W) == None) or (type(data) == None):
+            raise TypeError('Check data or W arguments.')
+
+        # Vectorize the distance matrix
+        tril_indices = np.tril_indices(len(W),-1)
+        vec_W = W[tril_indices]
+        # Sort and extract unique values
+        distances = np.sort(np.unique(vec_W))
+
+        # Allocate Error array
+        error = np.zeros([len(distances)])
+        
+        # Loop to look for the best parameter
+        
+        # Compute the distance and weight matrix
+    
+    def interpolate_channel(self,data,inter_method=''):
 
         
 if __name__ == '__main__':
