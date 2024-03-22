@@ -7,7 +7,6 @@ import mne
 from scipy.stats import zscore
 from tqdm import tqdm
 import matplotlib.animation as animation 
-%matplotlib qt
 
 #%% Load Electrode montage and dataset
 subjects = np.arange(1,10)
@@ -52,13 +51,13 @@ epochs = mne.Epochs(raw,events,events_id,
 left = epochs['left'].average()
 right = epochs['right'].average()
 
-fig_left = left.plot(gfp=True)
-fig_right = right.plot(gfp=True)
+#fig_left = left.plot(gfp=True)
+#fig_right = right.plot(gfp=True)
 
 #fig_left.savefig('left_erp.png')
 #fig_right.savefig('rihgt_erp.png')
 
-plt.show()
+#plt.show()
 
 # %% Plot topology maps
 
@@ -92,26 +91,9 @@ fig.tight_layout()
 #fig.savefig('LR_topoplots.png')
 fig.show()
 
-# %% Animate topomaps
-    
-times = np.arange(0,1.1,0.01)
-
-# Animation for left-hand imaginery
-fig,anim = left.animate_topomap(times=times,frame_rate=15,blit=False)
-fig.suptitle('Left Motor Imaginery')
-# Uncomment to save
-#anim.save('left.gif',fps=15)
-
-# Animation for right-hand imaginery
-fig,anim = right.animate_topomap(times=times,frame_rate=15,blit=False)
-fig.suptitle('Right Motor Imaginery')
-# Uncomment to save
-#anim.save('right.gif', fps=15)
-
-
 # %% Initialize EEGraph class
-
-eegsp = EEGraSP(right,EEG_pos,ch_names)
+data = right.get_data()
+eegsp = EEGraSP(data,EEG_pos,ch_names)
 W = eegsp.compute_distance() # Calculate distance between electrodes
 
 # Plot euclidean distance between electrodes
@@ -124,145 +106,37 @@ fig.colorbar(im,label='Euclidean Distance')
 #fig.savefig('euc_dist.png')
 fig.show()
 
-# %% Binarize W based on the histogram's probability mass
-
-W = eegsp.W.copy()
-tril_idx = np.tril_indices(len(W),-1)
-vec_W = W[tril_idx] 
-count,bins = np.histogram(vec_W,bins=len(vec_W),density=False)
-
-prob = np.cumsum(count/len(vec_W))
-th_W = W > 0
-
-# Initiate figure
-fig,axs = plt.subplots(2,2,figsize=(10,9))
-axs[0,0].set_title('Cumulative Distribution Function')
-axs[0,0].set_xlabel('Euc. Distance')
-axs[0,0].set_ylabel('Probability')
-
-lines, = axs[0,0].plot(np.sort(vec_W),prob,color='black')
-dot = axs[0,0].scatter(np.sort(vec_W)[0],prob[0],c='red')
-
-hist = axs[1,0].hist(vec_W,bins=20,density=True,color='teal')
-vline = axs[1,0].axvline(np.amin(vec_W),color='purple')
-axs[1,0].set_title('Histogram')
-axs[1,0].set_xlabel('Euc. Distance')
-axs[1,0].set_ylabel('Probability Density')
-
-im = axs[0,1].imshow(th_W,cmap='gray')
-axs[0,1].set_xlabel('Electrode')
-axs[0,1].set_ylabel('Electrode')
-axs[0,1].set_title('Adjacency Matrix')
-cbar = fig.colorbar(im,ax=axs[0,1],ticks = [0,1])
-cbar.ax.set_yticklabels(['Unconnected','Connected'])
-
-fig.tight_layout()
-
-# Define function for animation
-def update(frame):
-    
-    val = np.sort(vec_W)[frame]
-    p = prob[frame]
-
-    th_W = W <= val # Keep distances lower than the threshold
-    np.fill_diagonal(th_W,0) # No self loops
-
-    dot.set_offsets([val,p])  
-    im.set_data(th_W) 
-    vline.set_data([[val,val],[0,1]])
-
-    axs[1,1].clear()
-    G = graphs.Graph(th_W)
-    G.set_coordinates()
-    G.plot(ax=axs[1,1])
-
-    return (dot,im)
-
-anim = animation.FuncAnimation(fig,update,
-                                frames=np.arange(len(prob))[::8],
-                                interval=1,blit=False,
-                                cache_frame_data=False)
-
-# Uncomment to save animation 
-#anim.save('G_thr.gif',fps=30)
-
-
-# %% Compute graph based on nearest neighbors based on euc. distance
-
-data = epochs['left'].get_data()
-
-nchannels = data.shape[1]
-nsamples = data.shape[2]
-nepochs = data.shape[0] 
-
+# %%
 missing_idx = 5
-
-measures = data.copy()
-mask = np.ones(len(EEG_pos)).astype(bool)
-mask[missing_idx] = False
-measures[:,~mask,:] = np.nan
-
-# %% Graph based on gaussian kernel
-
-epsilon = np.sort(np.unique(vec_W))
-for e in epsilon:
-
-    G = graphs.NNGraph(EEG_pos,'radius',rescale=False,epsilon=e)
-    W = G.W.toarray()
-
-    fig,axs = plt.subplots(1,2,figsize=(7,4))
-    
-    im = axs[0].imshow(W,'gray',vmin=0,vmax=1)
-    fig.colorbar(im,cmap='jet')
-
-    G.set_coordinates()
-    G.plot(ax=axs[1])
-
-# %% Graph with distances thresholded
-from scipy import spatial
-
-kdt = spatial.KDTree(EEG_pos)
-epsilon = 0.05
-
-# Method 1. From pygsp (using scipy)
-D, NN = kdt.query(EEG_pos,k=len(EEG_pos),distance_upper_bound=epsilon,
-                    p=2)
-
-# Reorder the matrix into the original shape
-W = np.zeros(D.shape)
-for i,N in enumerate(NN):
-    neighbors = D[i,:] != np.inf
-    W[i,N[neighbors]] = D[i,neighbors]
-np.fill_diagonal(W,np.nan)
-
-# Method 2. Simpler (in-house method)
-
-W2 = eegsp.compute_distance(EEG_pos,method='Euclidean')
-
-W2[W2 > epsilon] = 0
-
-# Don't compare the diagnonal since np.nan == np.nan is false
-# just compare the lowe triangles
+mask = np.ones(len(EEG_pos))
+mask[missing_idx] = 0
+mask = mask.astype(bool)
+G = eegsp.compute_graph(epsilon=0.1)
+plt.spy(G.W)
+learning.regression_tikhonov(G,data[:,50],
+                             mask,tau=0)
+# %%
+W = eegsp.compute_distance(EEG_pos)
+# Vectorize the distance matrix
 tril_indices = np.tril_indices(len(W),-1)
+vec_W = W[tril_indices]
 
-test_result = np.all(W[tril_indices] == W2[tril_indices])
+# Sort and extract unique values
+distances = np.sort(np.unique(vec_W))
+plt.plot(distances)
 
-# Plot the resulting matrices
+# %% Fit to data
+# This process can take a few minutes
+eegsp = EEGraSP(data,EEG_pos,ch_names)
+W = eegsp.compute_distance()
+results = eegsp.fit_graph_to_data(missing_idx=5,
+                                  weight_method='Gaussian')
+# %%
 
-plt.subplot(121)
-plt.title('W1: using KDtree.query\nmethod')
-plt.imshow(W,vmin=0,vmax=epsilon)
-plt.colorbar()
-
-plt.subplot(122)
-plt.title('W2: Manual Method')
-plt.imshow(W2,vmin=0,vmax=epsilon)
-plt.colorbar()
-
-plt.suptitle(f'are W1 and W2 equal?\n{test_result}')
-
-plt.tight_layout()
+tril_indices = np.tril_indices(len(W),-1)
+vec_W = W[tril_indices]
+error = results['Error']
+plt.plot(error)
 plt.show()
 
-
-
+# %%

@@ -7,7 +7,8 @@ computation of graphs and fitting to functional data: EEG_pos,
 data and ch_names are required.
 """
 import numpy as np
-from pygsp import graphs
+from pygsp import graphs,learning
+from tqdm import tqdm
 
 class EEGraSP():
 
@@ -35,7 +36,7 @@ class EEGraSP():
         return W
     
     def gaussian_kernel(self,X,sigma=0.1):
-        return np.exp(-np.power(X, 2) / float(self.sigma))
+        return np.exp(-np.power(X, 2) / (2.*np.power(float(sigma),2)))
     
     def compute_distance(self,pos=None,method='Euclidean'):
         """
@@ -56,68 +57,114 @@ class EEGraSP():
         return W
 
 
-    def compute_graph(self,W = None, method='NN',k=5,epsilon=0.1,theta=.2,):
+    def compute_graph(self,W = None, method='Gaussian',k=5,epsilon=.1,sigma=.1):
         """"
-        input: if W is passed, then the graph is computed. 
-        Otherwise the graph will be computed with self.W
+        W -> if W is passed, then the graph is computed. 
+        Otherwise the graph will be computed with self.W.
+        W should correspond to a non-sparse 2-D array.
+        Epsilon -> maximum distance to threshold the array.
+        sigma -> Sigma parameter for the gaussian kernel.
         
-        output: 
-
         method: NN -> Nearest Neighbor
                 Gaussian -> Gaussian Kernel used based on the self.W matrix
+
+        output: Graph structure from pygsp
+
         
         """
         # If passed, used the W matrix
-        if W != None:
+        if type(W) == type(None):
             W = self.W
 
+        # Threshold matrix
+        W[W>=epsilon] = 0
+
         # Check that there is a weight matrix is not a None
-        if W == None:
+        if type(W) == type(None):
             raise TypeError('Weight matrix cannot be None type')
         try:
             if method=='NN':
                 G = graphs.NNGraph(W,NNtype='knn',k=k)
 
             elif method=='Gaussian':
-                
-                G = graphs.Graph(np.exp(-W**2) / (2*theta**2))
+                weights = self.gaussian_kernel(W,sigma=sigma)
+                weights[W == 0] = 0
+                np.fill_diagonal(weights,0)
+                G = graphs.Graph(weights)
 
             self.G = G
+            return G
 
         except:
-            print(f'Check arguments needed for the method: {method}')
+            raise TypeError(f'Check arguments needed for the method: {method}')
 
-    def fit_graph_to_data(self,data=None,W=None,
+    def fit_graph_to_data(self,data=None,W=None,sigma=0.1,
+                          missing_idx=None,
                           weight_method='Gaussian',
-                          distance_method='Euclidean',
                           error_method='MRSE'):
         """"
         Description: This method returns the graph that best reconstructed the entire segment of data.
         It will itterate through all the unique values of the distance matrix.
+        data -> 2-dimensional array. The first dim. is Channels 
+        and second time. It can be passed to the instance class or the method
+
+        W -> Unthresholded distance matrix (2-dimensional array). It can be passed to the instance of
+        the class or method.
+        sigma -> parameter of the Gaussian Kernel transformation
+        error_method -> string with the error to be used to compare the interpolation results.
         """
         # Check if values are passed or use the instance's
-        if type(W) == None:
+        if type(W) == type(None):
             W = self.W
-        if type(data) == None:
+        if type(data) == type(None):
             data = self.data
         
-        if (type(W) == None) or (type(data) == None):
+        if (type(W) == type(None)) or (type(data) == type(None)):
             raise TypeError('Check data or W arguments.')
+        elif (type(missing_idx)==type(None)):
+            raise TypeError('Parameter missing_idx not specified.')
 
         # Vectorize the distance matrix
         tril_indices = np.tril_indices(len(W),-1)
         vec_W = W[tril_indices]
+
         # Sort and extract unique values
         distances = np.sort(np.unique(vec_W))
 
+        # Create time array
+        time = np.arange(0,data.shape[-1])
+
+        # Mask to ignore missing channel
+        mask = np.ones(data.shape[-2]).astype(bool)
+        mask[missing_idx] = False
+        # Simulate eliminating the missing channel
+        signal = data.copy()
+        signal[:,missing_idx] = np.nan
+
+        # Allocate array to reconstruct the signal
+        recovery = np.zeros([len(distances),len(time)])
+
         # Allocate Error array
         error = np.zeros([len(distances)])
-        
+                
         # Loop to look for the best parameter
+        for i,epsilon in enumerate(tqdm(distances)):
+            # Compute thresholded weight matrix
+            G = self.compute_graph(W,method=weight_method,
+                               epsilon=epsilon,sigma=0.1)
+            # Interpolate signal, iterating over time
+            for t in enumerate(time):
+                recovery[i,t] = learning.regression_tikhonov(G, signal[:,t], mask, tau=0)[missing_idx]
+            
+            error[i] = np.linalg.norm(data[missing_idx,:]-recovery[i,:])
         
-        # Compute the distance and weight matrix
-    
-    def interpolate_channel(self,data,inter_method=''):
+        best_epsilon = distances[np.argmin(error)] 
+        
+        results = {'Error':error,'Signal':recovery,'best_epsilon':best_epsilon}
+        
+        return results
+        
+    #def interpolate_channel(self,data,inter_method=''):
 
         
 if __name__ == '__main__':
