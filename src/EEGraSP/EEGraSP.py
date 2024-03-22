@@ -68,16 +68,15 @@ class EEGraSP():
         method: NN -> Nearest Neighbor
                 Gaussian -> Gaussian Kernel used based on the self.W matrix
 
-        output: Graph structure from pygsp
-
-        
+        output: Graph structure from pygsp        
         """
+
         # If passed, used the W matrix
         if type(W) == type(None):
-            W = self.W
+            W = self.W.copy()
 
         # Threshold matrix
-        W[W>=epsilon] = 0
+        W[W>epsilon] = 0
 
         # Check that there is a weight matrix is not a None
         if type(W) == type(None):
@@ -88,7 +87,7 @@ class EEGraSP():
 
             elif method=='Gaussian':
                 weights = self.gaussian_kernel(W,sigma=sigma)
-                weights[W == 0] = 0
+                weights[W > 0] = 0
                 np.fill_diagonal(weights,0)
                 G = graphs.Graph(weights)
 
@@ -115,7 +114,7 @@ class EEGraSP():
         """
         # Check if values are passed or use the instance's
         if type(W) == type(None):
-            W = self.W
+            W = self.W.copy()
         if type(data) == type(None):
             data = self.data
         
@@ -132,14 +131,14 @@ class EEGraSP():
         distances = np.sort(np.unique(vec_W))
 
         # Create time array
-        time = np.arange(0,data.shape[-1])
+        time = np.arange(data.shape[1])
 
         # Mask to ignore missing channel
-        mask = np.ones(data.shape[-2]).astype(bool)
+        mask = np.ones(data.shape[0]).astype(bool)
         mask[missing_idx] = False
         # Simulate eliminating the missing channel
         signal = data.copy()
-        signal[:,missing_idx] = np.nan
+        signal[missing_idx,:] = np.nan
 
         # Allocate array to reconstruct the signal
         recovery = np.zeros([len(distances),len(time)])
@@ -149,13 +148,16 @@ class EEGraSP():
                 
         # Loop to look for the best parameter
         for i,epsilon in enumerate(tqdm(distances)):
+
             # Compute thresholded weight matrix
             G = self.compute_graph(W,method=weight_method,
-                               epsilon=epsilon,sigma=0.1)
+                               epsilon=epsilon,sigma=sigma)
+            
             # Interpolate signal, iterating over time
             for t in enumerate(time):
-                recovery[i,t] = learning.regression_tikhonov(G, signal[:,t], mask, tau=0)[missing_idx]
-            
+                tmp = learning.regression_tikhonov(G,signal[:,t],
+                                                   mask,tau=0)
+                recovery[i,t] = tmp[missing_idx]
             error[i] = np.linalg.norm(data[missing_idx,:]-recovery[i,:])
         
         best_epsilon = distances[np.argmin(error)] 
