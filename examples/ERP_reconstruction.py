@@ -1,12 +1,8 @@
 #%% Import libraries
 import numpy as np
 import matplotlib.pyplot as plt
-from pygsp import graphs,learning
 from EEGraSP.EEGraSP import EEGraSP
-import mne
-from scipy.stats import zscore
-from tqdm import tqdm
-import matplotlib.animation as animation 
+import mne 
 
 #%% Load Electrode montage and dataset
 subjects = np.arange(1,10)
@@ -51,107 +47,66 @@ epochs = mne.Epochs(raw,events,events_id,
 left = epochs['left'].average()
 right = epochs['right'].average()
 
-#fig_left = left.plot(gfp=True)
-#fig_right = right.plot(gfp=True)
-
-#fig_left.savefig('left_erp.png')
-#fig_right.savefig('rihgt_erp.png')
-
-#plt.show()
-
-# # %% Plot topology maps
-
-# # Times to plot
-# times = np.arange(0.2,1.2,.2).round(1)
-# window = 0.1 # Window length for averaging
-# # Look vor vmin and vmax to share scale
-# all_data = np.hstack([left.get_data(),right.get_data()])
-# vmin = np.amin(all_data.reshape(-1)) * 1e6
-# vmax = np.amax(all_data.reshape(-1)) * 1e6
-# vlim = (vmin,vmax)
-
-# fig,axs = plt.subplots(2,len(times)+1,figsize=(8,4))
-# fig.suptitle('Mental Imaginery',size=16)
-# fontdic = {'size':12}
-
-
-# # Make plots and titles
-# fig.text(.3,.87,'Left Hand',fontdic)
-# fig = left.plot_topomap(times,average=window,axes=axs[0,:],
-#                         vlim=(vmin,vmax))
-# fig.text(.3,.42,'Right Hand',fontdic)
-# fig = right.plot_topomap(times,average=window,axes=axs[1,:],
-#                             vlim=(vmin,vmax))
-
-# # Change subplots titles
-# for ax,t in zip(axs[:,:-1].flatten('F'),times.repeat(2)):
-#     ax.set_title(r'{} $\pm {}$ s'.format(t,window),size=9)
-
-# fig.tight_layout()
-# #fig.savefig('LR_topoplots.png')
-# fig.show()
-
-# %% Initialize EEGraph class
-data = right.get_data()
-eegsp = EEGraSP(data,EEG_pos,ch_names)
-W = eegsp.compute_distance() # Calculate distance between electrodes
-
-# Plot euclidean distance between electrodes
-fig,ax = plt.subplots()
-ax.set_title('Electrode Distance')
-im = ax.imshow(W,cmap='Reds')
-fig.colorbar(im,label='Euclidean Distance')
-
-# Uncomment to save
-#fig.savefig('euc_dist.png')
-plt.show()
-
-# Setup mask
-missing_idx = 5
-mask = np.ones(len(EEG_pos))
-mask[missing_idx] = 0
-mask = mask.astype(bool)
-# Compute the graph with threshold on the
-# distance from
-# electrodes
-G = eegsp.compute_graph(epsilon=0.1)
-
-recovery = np.zeros(data.shape[1])
-signal = data.copy()
-signal[missing_idx,:] = np.nan
-for t in np.arange(data.shape[1]):
-    recovery[t] = learning.regression_tikhonov(G,signal[:,t],
-                                mask,tau=0)[missing_idx]
-
-plt.plot(recovery)
-plt.plot(data[missing_idx,:])
-plt.show()
-
-# %%
-W = eegsp.compute_distance(EEG_pos)
-# Vectorize the distance matrix
-tril_indices = np.tril_indices(len(W),-1)
-vec_W = W[tril_indices]
-
-# Sort and extract unique values
-distances = np.sort(np.unique(vec_W))
-plt.plot(distances)
+# Use only data on the Left condition to find 
+# the best distance (epsilon) value
+data = left.get_data()
 
 # %% Fit to data
-# This process can take a few minutes
+# This process can take a few (~7) minutes
 
-eegsp = EEGraSP(data[:,::8],EEG_pos,ch_names)
+# 1. Define index of the missing channel
+missing_idx = 5
+# 2. Initialize instance of EEGraSP
+eegsp = EEGraSP(data,EEG_pos,ch_names)
+# 3. Compute the electrode distance matrix
 W = eegsp.compute_distance()
-results = eegsp.fit_graph_to_data(missing_idx=5,
+# 4. Find the best parameter for the channel
+results = eegsp.fit_graph_to_data(missing_idx=missing_idx,
                                   weight_method='Gaussian')
-# %% 
+
+# %% Plot error graph and results of the interpolation
 
 tril_indices = np.tril_indices(len(W),-1)
-vec_W = W[tril_indices]
+vec_W = np.unique(np.sort(W[tril_indices]))
 error = results['Error']
-plt.plot(error)
+best_idx = np.argmin(error[~np.isnan(error)])
+signal = results['Signal'][best_idx,:]
+best_epsilon = results['best_epsilon']
+distances = results['Distances']
+
+plt.subplot(211)
+plt.plot(distances,error,color='black')
+plt.scatter(distances,error,color='teal',marker='x',
+            alpha=0.2)
+plt.scatter(best_epsilon,
+            error[distances==best_epsilon],
+            color='red')
+plt.xlabel(r'$\epsilon$')
+plt.ylabel(r'RMSE [$V$]')
+plt.title('Error')
+
+plt.subplot(212)
+plt.title('Reconstructed vs True EEG channel')
+plt.plot(signal)
+plt.plot(data[missing_idx,:])
+plt.xlabel('Time')
+plt.ylabel('V')
+
+plt.tight_layout()
 plt.show()
 
-# %%
-W = eegsp.compute_distance()
-plt.imshow(W)
+# %% Interpolate right ERP based on the left channel
+new_data = right.get_data()
+# Delete information from the missing channel
+new_data[missing_idx,:] = np.nan
+
+# Interpolate channel
+interpolated = eegsp.interpolate_channel(data=new_data,
+                          missing_idx=missing_idx)
+
+# %% Plot Interpolated Channel
+original = right.get_data()
+plt.plot(interpolated[missing_idx,:])
+plt.plot(original[missing_idx,:])
+plt.xlabel('Samples')
+plt.ylabel('Voltage')

@@ -23,7 +23,8 @@ dependencies= [
   "numpy",
   "mne",
   "matplotlib",
-  "pygsp"
+  "pygsp",
+  "tqdm"
 ]
 
 [project.urls]

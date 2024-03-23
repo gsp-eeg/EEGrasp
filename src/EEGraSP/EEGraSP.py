@@ -46,7 +46,7 @@ class EEGraSP():
 
         # If passed, used the W matrix
         if type(pos) == type(None):
-            pos = self.EEG_pos
+            pos = self.EEG_pos.copy()
 
         if method == 'Euclidean':
             W = self.euc_dist(pos)
@@ -76,7 +76,7 @@ class EEGraSP():
             W = self.W.copy()
 
         # Threshold matrix
-        W[W>epsilon] = 0
+        #W[W>epsilon] = 0
 
         # Check that there is a weight matrix is not a None
         if type(W) == type(None):
@@ -87,7 +87,7 @@ class EEGraSP():
 
             elif method=='Gaussian':
                 weights = self.gaussian_kernel(W,sigma=sigma)
-                weights[W > 0] = 0
+                weights[W > epsilon] = 0
                 np.fill_diagonal(weights,0)
                 G = graphs.Graph(weights)
 
@@ -116,7 +116,7 @@ class EEGraSP():
         if type(W) == type(None):
             W = self.W.copy()
         if type(data) == type(None):
-            data = self.data
+            data = self.data.copy()
         
         if (type(W) == type(None)) or (type(data) == type(None)):
             raise TypeError('Check data or W arguments.')
@@ -159,14 +159,56 @@ class EEGraSP():
                                                    mask,tau=0)
                 recovery[i,t] = tmp[missing_idx]
             error[i] = np.linalg.norm(data[missing_idx,:]-recovery[i,:])
-        
-        best_epsilon = distances[np.argmin(error)] 
-        
-        results = {'Error':error,'Signal':recovery,'best_epsilon':best_epsilon}
+
+        # Eliminate invalid distances
+        valid_idx = ~np.isnan(error)
+        error = error[valid_idx]
+        distances = distances[valid_idx]
+        recovery = recovery[valid_idx,:]
+
+        best_epsilon = distances[np.argmin(error)]
+
+        G = self.compute_graph(W,method=weight_method,
+                               epsilon=best_epsilon,
+                               sigma=sigma)
+            
+
+        results = {'Error':error,
+                   'Signal':recovery,
+                   'best_epsilon':best_epsilon,
+                   'Distances':distances}
         
         return results
         
-    #def interpolate_channel(self,data,inter_method=''):
+    def interpolate_channel(self,G=None,data=None,
+                            W=None,missing_idx=None):
+        
+        # Check if values are passed or use the instance's
+        if type(W) == type(None):
+            W = self.W.copy()
+        if type(data) == type(None):
+            data = self.data.copy()
+        if type(G) == type(None):
+            G = self.G
+        
+        
+        if (type(W) == type(None)) or (type(data) == type(None)):
+            raise TypeError('Check data or W arguments.')
+        elif (type(missing_idx)==type(None)):
+            raise TypeError('Parameter missing_idx not specified.')
+        
+        time = np.arange(data.shape[1]) # create time array
+        mask = np.ones(data.shape[0],dtype=bool) # Maksing array
+        mask[missing_idx] = False
+        
+
+        # Allocate new data array
+        recovered = np.zeros(data.shape)
+        # Iterate over each timepoint
+        for t in tqdm(time):
+            recovered[:,t] = learning.regression_tikhonov(G,data[:,t],
+                                                   mask,tau=0)
+        return recovered
 
         
 if __name__ == '__main__':
