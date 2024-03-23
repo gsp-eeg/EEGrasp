@@ -15,7 +15,6 @@ raw_fnames = [mne.datasets.eegbci.load_data(s,runs,path='datasets') for s in sub
 raw_fnames = np.reshape(raw_fnames,-1)
 raws = [mne.io.read_raw_edf(f, preload=True) for f in raw_fnames]
 raw = mne.concatenate_raws(raws)
-#raw = mne.io.read_raw_edf(data_path[0],preload=True)
 mne.datasets.eegbci.standardize(raw)
 raw.annotations.rename(dict(T1="left", T2="right"))
 
@@ -32,7 +31,6 @@ raw.filter(l_freq,h_freq,fir_design='firwin',skip_by_annotation='edge')
 raw,ref_data = mne.set_eeg_reference(raw)
 
 events,events_id = mne.events_from_annotations(raw)
-
 
 # %% Epoch data
 # Exclude bad channels
