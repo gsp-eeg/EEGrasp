@@ -11,7 +11,7 @@ runs = [4,8,12]
 # Download eegbci dataset through MNE
 # Comment the following line if already downloaded
 
-raw_fnames = [mne.datasets.eegbci.load_data(s, runs) for s in subjects]
+raw_fnames = [mne.datasets.eegbci.load_data(s,runs,path='datasets') for s in subjects]
 raw_fnames = np.reshape(raw_fnames,-1)
 raws = [mne.io.read_raw_edf(f, preload=True) for f in raw_fnames]
 raw = mne.concatenate_raws(raws)
