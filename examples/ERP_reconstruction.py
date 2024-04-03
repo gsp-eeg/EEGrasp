@@ -6,8 +6,7 @@ Example on how to interpolate missing channels.
 import numpy as np
 import matplotlib.pyplot as plt
 import mne
-from EEGraSP.EEGraSP import EEGraSP
-
+from EEGraSP.eegrasp import EEGraSP
 
 # %% Load Electrode montage and dataset
 subjects = np.arange(1, 10)
@@ -51,14 +50,14 @@ epochs = mne.Epochs(raw, events, events_id,
 
 # %%
 left = epochs['left']
-left = left.average()
+erp_left = left.average()
 
 right = epochs['right']
-right = right.average()
+erp_right = right.average()
 
 # Use only data on the Left condition to find
 # the best distance (epsilon) value
-data = left.get_data()
+data = erp_left.get_data()
 
 # %% Fit to data
 # This process can take a few (~7) minutes
@@ -68,15 +67,14 @@ MISSING_IDX = 5
 # 2. Initialize instance of EEGraSP
 eegsp = EEGraSP(data, EEG_pos, ch_names)
 # 3. Compute the electrode distance matrix
-W = eegsp.compute_distance()
+dist_mat = eegsp.compute_distance()
 # 4. Find the best parameter for the channel
-results = eegsp.fit_graph_to_data(missing_idx=MISSING_IDX,
-                                  weight_method='Gaussian')
+results = eegsp.fit_graph_to_data(missing_idx=MISSING_IDX)
 
 # %% Plot error graph and results of the interpolation
 
-tril_indices = np.tril_indices(len(W), -1)
-vec_W = np.unique(np.sort(W[tril_indices]))
+tril_indices = np.tril_indices(len(dist_mat), -1)
+vec_W = np.unique(np.sort(dist_mat[tril_indices]))
 error = results['Error']
 best_idx = np.argmin(error[~np.isnan(error)])
 signal = results['Signal'][best_idx, :]
@@ -105,7 +103,7 @@ plt.tight_layout()
 plt.show()
 
 # %% Interpolate right ERP based on the left channel
-new_data = right.get_data()
+new_data = erp_right.get_data()
 # Delete information from the missing channel
 new_data[MISSING_IDX, :] = np.nan
 
@@ -114,7 +112,7 @@ interpolated = eegsp.interpolate_channel(data=new_data,
                                          missing_idx=MISSING_IDX)
 
 # %% Plot Interpolated Channel
-original = right.get_data()
+original = erp_right.get_data()
 plt.plot(interpolated[MISSING_IDX, :])
 plt.plot(original[MISSING_IDX, :])
 plt.xlabel('Samples')
