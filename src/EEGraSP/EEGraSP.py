@@ -212,8 +212,7 @@ class EEGraSP():
     def fit_epsilon(self, data=None, distances=None, sigma=0.1,
                     missing_idx=None):
         """"
-        Returns the graph that best reconstructs the entire
-        segment of data.
+        Find the best distance to use as threshold.
 
         Parameters
         ----------
