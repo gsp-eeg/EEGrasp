@@ -209,8 +209,8 @@ class EEGraSP():
 
         return vec
 
-    def fit_graph_to_data(self, data=None, distances=None, sigma=0.1,
-                          missing_idx=None):
+    def fit_epsilon(self, data=None, distances=None, sigma=0.1,
+                    missing_idx=None):
         """"
         Returns the graph that best reconstructs the entire
         segment of data.
