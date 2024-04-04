@@ -103,7 +103,7 @@ class EEGraSP():
 
         if method == 'Euclidean':
             distances = self.euc_dist(coordinates)
-            np.fill_diagonal(distances, np.nan)
+            np.fill_diagonal(distances, 0)
 
         if normalize:
             # Normalize distances
@@ -300,8 +300,8 @@ class EEGraSP():
         results = self._return_results(error, signal, vdistances, 'epsilon')
         return results
 
-    def fit_epsilon(self, data=None, distances=None, epsilon=0.5,
-                    missing_idx=None, min_sigma=0.1, max_sigma=1, step=0.1):
+    def fit_sigma(self, data=None, distances=None, epsilon=0.5,
+                  missing_idx=None, min_sigma=0.1, max_sigma=1, step=0.1):
         """"
         Find the best parameter for the gaussian kernel.
 

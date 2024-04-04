@@ -60,42 +60,42 @@ erp_right = right.average()
 data = erp_left.get_data()
 
 # %% Fit to data
-# This process can take a few (~7) minutes
 
 # 1. Define index of the missing channel
 MISSING_IDX = 5
 # 2. Initialize instance of EEGraSP
 eegsp = EEGraSP(data, eeg_pos, ch_names)
 # 3. Compute the electrode distance matrix
-dist_mat = eegsp.compute_distance()
+dist_mat = eegsp.compute_distance(normalize=True)
 # 4. Find the best parameter for the channel
-results = eegsp.fit_graph_to_data(missing_idx=MISSING_IDX)
+results = eegsp.fit_sigma(missing_idx=MISSING_IDX, epsilon=0.5,
+                          min_sigma=0.01, max_sigma=0.5, step=0.01)
 
 # %% Plot error graph and results of the interpolation
 
 error = results['error']
 best_idx = np.argmin(error[~np.isnan(error)])
 signal = results['signal'][MISSING_IDX, :]
-best_epsilon = results['best_epsilon']
-vdistances = results['distances']
+best_sigma = results['best_sigma']
+vdistances = results['sigma']
 
 plt.subplot(211)
 plt.plot(vdistances, error, color='black')
 plt.scatter(vdistances, error, color='teal', marker='x',
-            alpha=0.2)
-plt.scatter(best_epsilon,
-            error[vdistances == best_epsilon],
+            alpha=0.5)
+plt.scatter(best_sigma,
+            error[vdistances == best_sigma],
             color='red')
-plt.xlabel(r'$\epsilon$')
+plt.xlabel(r'$\sigma$')
 plt.ylabel(r'RMSE')
 plt.title('Error')
 
 plt.subplot(212)
-plt.title('Reconstructed vs True EEG channel')
+plt.title('Best Reconstruction')
 plt.plot(signal, label='Reconstructed Data')
 plt.plot(data[MISSING_IDX, :], label='Original Data')
 plt.xlabel('samples')
-plt.ylabel('Voltage [mV]')
+plt.ylabel('Voltage')
 plt.legend()
 
 plt.tight_layout()
