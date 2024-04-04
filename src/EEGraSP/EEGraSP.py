@@ -123,6 +123,32 @@ class EEGraSP():
         self.graph_weights = graph_weights
         return graph
 
+    def interpolate_channel(self, graph=None, data=None, missing_idx=None):
+        """"
+        Interpolate missing channel.
+        """
+
+        # Check if values are passed or use the instance's
+        if isinstance(data, type(None)):
+            data = self.data.copy()
+        if isinstance(graph, type(None)):
+            graph = self.graph
+
+        elif isinstance(missing_idx, type(None)):
+            raise TypeError('Parameter missing_idx not specified.')
+
+        time = np.arange(data.shape[1])  # create time array
+        mask = np.ones(data.shape[0], dtype=bool)  # Maksing array
+        mask[missing_idx] = False
+
+        # Allocate new data array
+        reconstructed = np.zeros(data.shape)
+        # Iterate over each timepoint
+        for t in time:
+            reconstructed[:, t] = learning.regression_tikhonov(graph, data[:, t],
+                                                               mask, tau=0)
+        return reconstructed
+
     def fit_graph_to_data(self, data=None, distances=None, sigma=0.1,
                           missing_idx=None):
         """"
@@ -174,7 +200,7 @@ class EEGraSP():
         signal[missing_idx, :] = np.nan
 
         # Allocate array to reconstruct the signal
-        reconstructed = np.zeros([len(vdistances), len(time)])
+        all_reconstructed = np.zeros([len(vdistances), len(time)])
 
         # Allocate Error array
         error = np.zeros([len(vdistances)])
@@ -186,58 +212,35 @@ class EEGraSP():
             graph = self.compute_graph(distances, epsilon=epsilon, sigma=sigma)
 
             # Interpolate signal, iterating over time
-            for t in enumerate(time):
-                tmp = learning.regression_tikhonov(graph, signal[:, t],
-                                                   ch_mask, tau=0)
-                reconstructed[i, t] = tmp[missing_idx]
-            error[i] = np.linalg.norm(data[missing_idx, :]-reconstructed[i, :])
+            reconstructed = self.interpolate_channel(graph, signal,
+                                                     missing_idx=missing_idx)
+            all_reconstructed[i, :] = reconstructed[missing_idx, :]
+
+            # Calculate error
+            error[i] = np.linalg.norm(
+                data[missing_idx, :]-all_reconstructed[i, :])
 
         # Eliminate invalid distances
         valid_idx = ~np.isnan(error)
         error = error[valid_idx]
         vdistances = vdistances[valid_idx]
-        reconstructed = reconstructed[valid_idx, :]
+        all_reconstructed = all_reconstructed[valid_idx, :]
 
-        best_epsilon = vdistances[np.argmin(error)]
+        # Find best reconstruction
+        best_idx = np.argmin(np.abs(error))
+        best_epsilon = vdistances[np.argmin(np.abs(error))]
 
+        # Save best result in the signal array
+        signal[missing_idx, :] = all_reconstructed[best_idx, :]
+
+        # Compute the graph with the best result
         graph = self.compute_graph(distances, epsilon=best_epsilon,
                                    sigma=sigma
                                    )
 
-        results = {'Error': error,
-                   'Signal': reconstructed,
+        results = {'error': error,
+                   'signal': signal,
                    'best_epsilon': best_epsilon,
-                   'Distances': distances}
+                   'distances': vdistances}
 
         return results
-
-    def interpolate_channel(self, graph=None, data=None,
-                            graph_weights=None, missing_idx=None):
-        """"
-        Interpolate missing channel.
-        """
-
-        # Check if values are passed or use the instance's
-        if isinstance(graph_weights, type(None)):
-            graph_weights = self.graph_weights.copy()
-        if isinstance(data, type(None)):
-            data = self.data.copy()
-        if isinstance(graph, type(None)):
-            graph = self.graph
-
-        if isinstance(graph_weights, type(None)) or isinstance(data, type(None)):
-            raise TypeError('Check data or W arguments.')
-        elif isinstance(missing_idx, type(None)):
-            raise TypeError('Parameter missing_idx not specified.')
-
-        time = np.arange(data.shape[1])  # create time array
-        mask = np.ones(data.shape[0], dtype=bool)  # Maksing array
-        mask[missing_idx] = False
-
-        # Allocate new data array
-        recovered = np.zeros(data.shape)
-        # Iterate over each timepoint
-        for t in tqdm(time):
-            recovered[:, t] = learning.regression_tikhonov(graph, data[:, t],
-                                                           mask, tau=0)
-        return recovered

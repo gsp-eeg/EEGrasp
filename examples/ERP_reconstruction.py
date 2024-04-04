@@ -26,7 +26,7 @@ raw.annotations.rename(dict(T1="left", T2="right"))
 
 montage = mne.channels.make_standard_montage('standard_1005')
 raw.set_montage(montage)
-EEG_pos = np.array(
+eeg_pos = np.array(
     [pos for _, pos in raw.get_montage().get_positions()['ch_pos'].items()])
 ch_names = montage.ch_names
 
@@ -65,7 +65,7 @@ data = erp_left.get_data()
 # 1. Define index of the missing channel
 MISSING_IDX = 5
 # 2. Initialize instance of EEGraSP
-eegsp = EEGraSP(data, EEG_pos, ch_names)
+eegsp = EEGraSP(data, eeg_pos, ch_names)
 # 3. Compute the electrode distance matrix
 dist_mat = eegsp.compute_distance()
 # 4. Find the best parameter for the channel
@@ -73,31 +73,30 @@ results = eegsp.fit_graph_to_data(missing_idx=MISSING_IDX)
 
 # %% Plot error graph and results of the interpolation
 
-tril_indices = np.tril_indices(len(dist_mat), -1)
-vec_W = np.unique(np.sort(dist_mat[tril_indices]))
-error = results['Error']
+error = results['error']
 best_idx = np.argmin(error[~np.isnan(error)])
-signal = results['Signal'][best_idx, :]
+signal = results['signal'][MISSING_IDX, :]
 best_epsilon = results['best_epsilon']
-distances = results['Distances']
+vdistances = results['distances']
 
 plt.subplot(211)
-plt.plot(distances, error, color='black')
-plt.scatter(distances, error, color='teal', marker='x',
+plt.plot(vdistances, error, color='black')
+plt.scatter(vdistances, error, color='teal', marker='x',
             alpha=0.2)
 plt.scatter(best_epsilon,
-            error[distances == best_epsilon],
+            error[vdistances == best_epsilon],
             color='red')
 plt.xlabel(r'$\epsilon$')
-plt.ylabel(r'RMSE [$V$]')
+plt.ylabel(r'RMSE')
 plt.title('Error')
 
 plt.subplot(212)
 plt.title('Reconstructed vs True EEG channel')
-plt.plot(signal)
-plt.plot(data[MISSING_IDX, :])
-plt.xlabel('Time')
-plt.ylabel('V')
+plt.plot(signal, label='Reconstructed Data')
+plt.plot(data[MISSING_IDX, :], label='Original Data')
+plt.xlabel('samples')
+plt.ylabel('Voltage [mV]')
+plt.legend()
 
 plt.tight_layout()
 plt.show()
@@ -113,7 +112,9 @@ interpolated = eegsp.interpolate_channel(data=new_data,
 
 # %% Plot Interpolated Channel
 original = erp_right.get_data()
-plt.plot(interpolated[MISSING_IDX, :])
-plt.plot(original[MISSING_IDX, :])
+plt.plot(interpolated[MISSING_IDX, :],
+         label='Interpolated Data', color='purple')
+plt.plot(original[MISSING_IDX, :], label='Original Data', color='teal')
 plt.xlabel('Samples')
 plt.ylabel('Voltage')
+plt.legend()
