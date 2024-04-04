@@ -27,6 +27,13 @@ class EEGraSP():
     """
 
     def __init__(self, data=None, coordenates=None, labels=None):
+        """"
+        Parameters
+        ----------
+        data 2-d array, where the firs dim are channels and the second is samples.
+        coordenates n-dim array of the position of the electrodes.
+        labels 1-d array with the channel names.
+        """
 
         self.data = data
         self.coordenates = coordenates
@@ -41,13 +48,14 @@ class EEGraSP():
 
         Parameters
         ----------
-        input: pos -> 2d or 3d array of channels by dimensions
+        pos -> 2d or 3d array of channels by dimensions
 
         Returns
         -------
         output: 2d array of channels by channels with the euclidean distance. 
         description: compute the euclidean distance between every channel in the array 
         """
+
         distance = np.zeros([pos.shape[0], pos.shape[0]],
                             dtype=np.float64)  # Alocate variable
         pos = pos.astype(float)
@@ -60,17 +68,26 @@ class EEGraSP():
 
     def gaussian_kernel(self, x, sigma=0.1):
         """"
-        Filter ussing a gaussian kernel.
+        Gaussian Kernel Weighting function.
 
         Notes
         -----
         This function is supposed to be used in the pygsp module but
         is repeated here since there is an error in the available version
-        of the toolbox (03/04/2024 dd/mm/yyyy) 
+        of the toolbox (03/04/2024 dd/mm/yyyy)
+
+        References
+        ----------
+        D. I. Shuman, S. K. Narang, P. Frossard, A. Ortega and P. Vandergheynst, 
+        "The emerging field of signal processing on graphs: Extending high-dimensional 
+        data analysis to networks and other irregular domains," in IEEE Signal Processing 
+        Magazine, vol. 30, no. 3, pp. 83-98, May 2013, doi: 10.1109/MSP.2012.2235192.
+
+
         """
         return np.exp(-np.power(x, 2.) / (2.*np.power(float(sigma), 2)))
 
-    def compute_distance(self, coordinates=None, method='Euclidean'):
+    def compute_distance(self, coordinates=None, method='Euclidean', normalize=True):
         """
         Method for computing the distance.
 
@@ -88,11 +105,16 @@ class EEGraSP():
             distances = self.euc_dist(coordinates)
             np.fill_diagonal(distances, np.nan)
 
+        if normalize:
+            # Normalize distances
+            distances = distances - np.amin(distances)
+            distances = distances / np.amax(distances)
+
         self.distances = distances
 
         return distances
 
-    def compute_graph(self, distances=None, epsilon=.1, sigma=.1):
+    def compute_graph(self, distances=None, epsilon=.5, sigma=.1):
         """"
         W -> if W is passed, then the graph is computed. 
         Otherwise the graph will be computed with self.W.
@@ -149,6 +171,44 @@ class EEGraSP():
                                                                mask, tau=0)
         return reconstructed
 
+    def _return_results(self, error, signal, vparameter, param_name):
+        """"Function to wrap results into a dictionary.
+
+        Parameters
+        ----------
+        error ndarray with the errors corresponding to each tried parameter.
+        vparameter: ndarray, values of the parameter used in the fit function.
+        signal: ndarray, reconstructed signal.
+
+        Notes
+        -----
+        In order to keep everyting under the same structure this function should be used
+        to return the results of any self.fit_* function.
+
+        """
+        best_idx = np.argmin(np.abs(error))
+        best_param = vparameter[best_idx]
+
+        results = {'error': error,
+                   'signal': signal,
+                   f'best_{param_name}': best_param,
+                   f'{param_name}': vparameter}
+
+        return results
+
+    def _vectorize_matrix(self, mat):
+        """"
+        Vectorize a simetric matrix using the lower triangle.
+
+        Returns
+        -------
+        vec: ndarray of the lower triangle of mat
+        """
+        tril_indices = np.tril_indices(len(mat), -1)
+        vec = mat[tril_indices]
+
+        return vec
+
     def fit_graph_to_data(self, data=None, distances=None, sigma=0.1,
                           missing_idx=None):
         """"
@@ -182,8 +242,7 @@ class EEGraSP():
             raise TypeError('Parameter missing_idx not specified.')
 
         # Vectorize the distance matrix
-        tril_indices = np.tril_indices(len(distances), -1)
-        dist_tril = distances[tril_indices]
+        dist_tril = self._vectorize_matrix(distances)
 
         # Sort and extract unique values
         vdistances = np.sort(np.unique(dist_tril))
@@ -238,9 +297,89 @@ class EEGraSP():
                                    sigma=sigma
                                    )
 
-        results = {'error': error,
-                   'signal': signal,
-                   'best_epsilon': best_epsilon,
-                   'distances': vdistances}
+        results = self._return_results(error, signal, vdistances, 'epsilon')
+        return results
+
+    def fit_epsilon(self, data=None, distances=None, epsilon=0.5,
+                    missing_idx=None, min_sigma=0.1, max_sigma=1, step=0.1):
+        """"
+        Find the best parameter for the gaussian kernel.
+
+        Parameters
+        ----------
+
+        Notes
+        -----
+        Look for the best parameter of sigma for the gaussian kernel. This is done by interpolating
+        a channel and comparing the interpolated data to the real data. After finding the parameter
+        the graph is saved and computed in the instance class. The distance threshold is maintained.
+
+        """
+
+        # Check if values are passed or use the class instance's
+        if isinstance(distances, type(None)):
+            distances = self.distances.copy()
+        if isinstance(data, type(None)):
+            data = self.data.copy()
+
+        if isinstance(distances, type(None)) or isinstance(data, type(None)):
+            raise TypeError('Check data or W arguments.')
+        if isinstance(missing_idx, type(None)):
+            raise TypeError('Parameter missing_idx not specified.')
+
+        # Create array of parameter values
+        vsigma = np.arange(min_sigma, max_sigma, step=step)
+
+        # Create time array
+        time = np.arange(data.shape[1])
+
+        # Mask to ignore missing channel
+        ch_mask = np.ones(data.shape[0]).astype(bool)
+        ch_mask[missing_idx] = False
+
+        # Simulate eliminating the missing channel
+        signal = data.copy()
+        signal[missing_idx, :] = np.nan
+
+        # Allocate array to reconstruct the signal
+        all_reconstructed = np.zeros([len(vsigma), len(time)])
+
+        # Allocate Error array
+        error = np.zeros([len(vsigma)])
+
+        # Loop to look for the best parameter
+        for i, sigma in enumerate(tqdm(vsigma)):
+
+            # Compute thresholded weight matrix
+            graph = self.compute_graph(distances, epsilon=epsilon, sigma=sigma)
+
+            # Interpolate signal, iterating over time
+            reconstructed = self.interpolate_channel(graph, signal,
+                                                     missing_idx=missing_idx)
+            all_reconstructed[i, :] = reconstructed[missing_idx, :]
+
+            # Calculate error
+            error[i] = np.linalg.norm(
+                data[missing_idx, :]-all_reconstructed[i, :])
+
+        # Eliminate invalid trials
+        valid_idx = ~np.isnan(error)
+        error = error[valid_idx]
+        vsigma = vsigma[valid_idx]
+        all_reconstructed = all_reconstructed[valid_idx, :]
+
+        # Find best reconstruction
+        best_idx = np.argmin(np.abs(error))
+        best_sigma = vsigma[np.argmin(np.abs(error))]
+
+        # Save best result in the signal array
+        signal[missing_idx, :] = all_reconstructed[best_idx, :]
+
+        # Compute the graph with the best result
+        graph = self.compute_graph(distances, epsilon=best_sigma,
+                                   sigma=best_sigma
+                                   )
+
+        results = self._return_results(error, signal, vsigma, 'sigma')
 
         return results
