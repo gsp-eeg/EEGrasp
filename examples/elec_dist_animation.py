@@ -2,6 +2,9 @@
 import matplotlib.pyplot as plt
 import mne
 from matplotlib import animation
+import numpy as np
+from pygsp import graphs
+from EEGraSP.eegrasp import EEGraSP
 # % matplotlib qt
 
 # %% Load Electrode montage and dataset
@@ -53,12 +56,12 @@ right = epochs['right'].average()
 
 eegsp = EEGraSP(right, eeg_pos, ch_names)
 eegsp.compute_distance()  # Calculate distance between electrodes
-weights = eegsp.graph_weights.copy()
+distances = eegsp.distances
 
 # Plot euclidean distance between electrodes
 fig, ax = plt.subplots()
 ax.set_title('Electrode Distance')
-im = ax.imshow(weights, cmap='Reds')
+im = ax.imshow(distances, cmap='Reds')
 fig.colorbar(im, label='Euclidean Distance')
 
 # Uncomment to save
@@ -67,13 +70,12 @@ fig.show()
 
 # %% Binarize W based on the histogram's probability mass
 
-weights = eegsp.graph_weights.copy()
-tril_idx = np.tril_indices(len(weights), -1)
-vec_W = weights[tril_idx]
+tril_idx = np.tril_indices(len(distances), -1)
+vec_W = distances[tril_idx]
 count, bins = np.histogram(vec_W, bins=len(vec_W), density=False)
 
 prob = np.cumsum(count/len(vec_W))
-th_W = weights > 0
+th_W = distances > 0
 
 # Initiate figure
 fig, axs = plt.subplots(2, 2, figsize=(10, 9))
@@ -110,90 +112,29 @@ def update(frame):
     val = np.sort(vec_W)[frame]
     p = prob[frame]
 
-    th_W = weights <= val  # Keep distances lower than the threshold
-    np.fill_diagonal(th_W, 0)  # No self loops
+    epsilon = distances <= val  # Keep distances lower than the threshold
+    np.fill_diagonal(epsilon, 0)  # No self loops
 
     dot.set_offsets([val, p])
-    im.set_data(th_W)
+    im.set_data(epsilon)
     vline.set_data([[val, val], [0, 1]])
 
     axs[1, 1].clear()
-    G = graphs.Graph(th_W)
-    G.set_coordinates()
-    G.plot(ax=axs[1, 1])
+    graph = graphs.Graph(epsilon)
+    graph.set_coordinates()
+    graph.plot(ax=axs[1, 1])
 
     return (dot, im)
 
 
 anim = animation.FuncAnimation(fig, update,
-                               frames=np.arange(len(prob))[::8],
-                               interval=1, blit=False,
+                               frames=np.arange(len(prob))[::16],
+                               interval=.1, blit=False,
                                cache_frame_data=False)
+
+plt.tight_layout()
+plt.show()
+
 
 # Uncomment to save animation
 # anim.save('G_thr.gif',fps=30)
-
-# %% Compute graph based on nearest neighbors based on euc. distance
-
-DATA = epochs['left'].get_data()
-
-nchannels = DATA.shape[1]
-nsamples = DATA.shape[2]
-nepochs = DATA.shape[0]
-
-MISSING_IDX = 5
-
-measures = DATA.copy()
-mask = np.ones(len(eeg_pos)).astype(bool)
-mask[MISSING_IDX] = False
-measures[:, ~mask, :] = np.nan
-
-# %% Graph based on gaussian kernel
-
-v_epsilon = np.arange(0.04, 0.2, 0.01)
-for e in v_epsilon:
-
-    G = graphs.NNGraph(eeg_pos, 'radius', rescale=False, epsilon=e)
-    weights = G.W.toarray()
-
-    fig, axs = plt.subplots(1, 2, figsize=(7, 4))
-
-    im = axs[0].imshow(weights, 'gray', vmin=0, vmax=1)
-    fig.colorbar(im, cmap='jet')
-
-    G.set_coordinates()
-    G.plot(ax=axs[1])
-
-# %% Interpolate signal
-
-vk = np.arange(3, 10)
-# Allocate error matrix of len(vk) x epochs x timepoints
-error = np.zeros([len(vk), measures.shape[0]])
-recovery = np.zeros([len(vk), nepochs, nsamples])
-for i, k in enumerate(tqdm(vk)):
-    # Compute graph from EEG distance
-    eegsp.compute_graph(knn=k)
-
-    # Reconstruct every epoch
-    for ii, epoch in enumerate(measures):
-
-        # Reconstruct every timepoint
-        for iii, t in enumerate(epoch.T):
-
-            # Recover a signal
-            recovery[i, ii, iii] = learning.regression_tikhonov(
-                eegsp.graph, t, mask, tau=0)[MISSING_IDX]
-
-        error[i, ii] = (np.linalg.norm(
-            DATA[ii, MISSING_IDX, :] - recovery[i, ii, :]))
-
-# %% Plot
-ii = 1
-plt.plot(recovery[4, ii, :])
-plt.plot(DATA[ii, MISSING_IDX, :])
-plt.show()
-
-# %% Plot error
-best_k = vk[np.argmin(error, axis=0)]
-plt.plot(vk, error)
-plt.show()
