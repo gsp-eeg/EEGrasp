@@ -75,7 +75,7 @@ results = eegsp.fit_sigma(missing_idx=MISSING_IDX, epsilon=0.5,
 
 error = results['error']
 best_idx = np.argmin(error[~np.isnan(error)])
-signal = results['signal'][MISSING_IDX, :]
+reconstructed_signal = results['signal'][MISSING_IDX, :]
 best_sigma = results['best_sigma']
 vdistances = results['sigma']
 
@@ -92,7 +92,7 @@ plt.title('Error')
 
 plt.subplot(212)
 plt.title('Best Reconstruction')
-plt.plot(signal, label='Reconstructed Data')
+plt.plot(reconstructed_signal, label='Reconstructed Data')
 plt.plot(data[MISSING_IDX, :], label='Original Data')
 plt.xlabel('samples')
 plt.ylabel('Voltage')

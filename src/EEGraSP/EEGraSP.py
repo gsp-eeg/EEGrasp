@@ -376,9 +376,11 @@ class EEGraSP():
         signal[missing_idx, :] = all_reconstructed[best_idx, :]
 
         # Compute the graph with the best result
-        graph = self.compute_graph(distances, epsilon=best_sigma,
+        graph = self.compute_graph(distances, epsilon=epsilon,
                                    sigma=best_sigma
                                    )
+
+        self.graph = graph
 
         results = self._return_results(error, signal, vsigma, 'sigma')
 
