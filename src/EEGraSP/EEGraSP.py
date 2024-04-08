@@ -1,330 +1,386 @@
+""""
+creation date: 21/03/2024
+Author: jrodino14@gmail.com
+This script defines the main class in the EEGRraSP package.
+No inputs are required for the class to initialize, though, for the
+computation of graphs and fitting to functional data: EEG_pos,
+data and ch_names are required.
+"""
 import numpy as np
-from pygsp import graphs
+from pygsp import graphs, learning
+from tqdm import tqdm
+
 
 class EEGraSP():
+    """"
+    Class containing functionality to analyze EEG signals.
 
-    def __init__(self,data,EEG_pos,ch_names):
+    Parameters
+    ----------
+    data
+    eeg_pos
+    ch_names
+
+    Notes
+    -----
+    Gaussian Kernel functionallity overlapping with Pygsp toolbox. This has been purposefully added.
+    """
+
+    def __init__(self, data=None, coordenates=None, labels=None):
+        """"
+        Parameters
+        ----------
+        data 2-d array, where the firs dim are channels and the second is samples.
+        coordenates n-dim array of the position of the electrodes.
+        labels 1-d array with the channel names.
+        """
+
         self.data = data
-        self.EEG_pos = EEG_pos
-        self.ch_names = ch_names
-        self.W = None
-        self.G = None
+        self.coordenates = coordenates
+        self.labels = labels
+        self.distances = None
+        self.graph_weights = None
+        self.graph = None
 
-    def euc_dist(self,pos):
-        """"    
-        input: pos -> 2d array of channels by dimensions
+    def euc_dist(self, pos):
+        """" 
+        Compute the euclidean distance based on a given set of possitions.
+
+        Parameters
+        ----------
+        pos -> 2d or 3d array of channels by dimensions
+
+        Returns
+        -------
         output: 2d array of channels by channels with the euclidean distance. 
         description: compute the euclidean distance between every channel in the array 
         """
-        W = np.zeros([pos.shape[0],pos.shape[0]]) # Alocate variable
 
+        distance = np.zeros([pos.shape[0], pos.shape[0]],
+                            dtype=np.float64)  # Alocate variable
+        pos = pos.astype(float)
         for dim in range(pos.shape[1]):
             # Compute the component corresponding to each dimension. Add it to the array
-            W += np.power(pos[:,dim][:,None]-pos[:,dim][None,:],2)
-        W = np.sqrt(W)
-        
-        return W
-    
-    def compute_distance(self,W=None,method='Euclidean'):
-        """
-        input: method for computing the distance.
-        output: weight to be used for the graph computation
-        """        
-        if method == 'Euclidean':
-            W = self.euc_dist(self.EEG_pos)
-            np.fill_diagonal(W,np.nan)
-        
-        self.W = W
+            distance += np.power(pos[:, dim][:, None]-pos[:, dim][None, :], 2)
+        distance = np.sqrt(distance)
 
+        return distance
 
-    def compute_graph(self,W = None, method='NN',k=5,epsilon=0.1,theta=.2,):
+    def gaussian_kernel(self, x, sigma=0.1):
         """"
-        input: if W is passed, then the graph is computed. 
-        Otherwise the graph will be computed with self.W
-        
-        output: 
+        Gaussian Kernel Weighting function.
+
+        Notes
+        -----
+        This function is supposed to be used in the pygsp module but
+        is repeated here since there is an error in the available version
+        of the toolbox (03/04/2024 dd/mm/yyyy)
+
+        References
+        ----------
+        D. I. Shuman, S. K. Narang, P. Frossard, A. Ortega and P. Vandergheynst, 
+        "The emerging field of signal processing on graphs: Extending high-dimensional 
+        data analysis to networks and other irregular domains," in IEEE Signal Processing 
+        Magazine, vol. 30, no. 3, pp. 83-98, May 2013, doi: 10.1109/MSP.2012.2235192.
+
+
+        """
+        return np.exp(-np.power(x, 2.) / (2.*np.power(float(sigma), 2)))
+
+    def compute_distance(self, coordinates=None, method='Euclidean', normalize=True):
+        """
+        Method for computing the distance.
+
+        Returns
+        -------
+        Distances to be used for the graph computation.
+
+        """
+
+        # If passed, used the coordinates argument
+        if isinstance(coordinates, type(None)):
+            coordinates = self.coordenates.copy()
+
+        if method == 'Euclidean':
+            distances = self.euc_dist(coordinates)
+            np.fill_diagonal(distances, 0)
+
+        if normalize:
+            # Normalize distances
+            distances = distances - np.amin(distances)
+            distances = distances / np.amax(distances)
+
+        self.distances = distances
+
+        return distances
+
+    def compute_graph(self, distances=None, epsilon=.5, sigma=.1):
+        """"
+        W -> if W is passed, then the graph is computed. 
+        Otherwise the graph will be computed with self.W.
+        W should correspond to a non-sparse 2-D array.
+        Epsilon -> maximum distance to threshold the array.
+        sigma -> Sigma parameter for the gaussian kernel.
 
         method: NN -> Nearest Neighbor
                 Gaussian -> Gaussian Kernel used based on the self.W matrix
-        
+
+        output: Graph structure from pygsp        
         """
+
         # If passed, used the W matrix
-        if W != None:
-            W = self.W
+        if isinstance(distances, type(None)):
+            distances = self.distances.copy()
 
         # Check that there is a weight matrix is not a None
-        if W == None:
+        if isinstance(distances, type(None)):
             raise TypeError('Weight matrix cannot be None type')
-        try:
-            if method=='NN':
-                G = graphs.NNGraph(W,NNtype='knn',k=k)
-            elif method=='Gaussian':
-                
-                G = graphs.Graph(np.exp(-W**2) / (2*theta**2))
 
-            self.G = G
+        graph_weights = self.gaussian_kernel(distances, sigma=sigma)
+        graph_weights[distances > epsilon] = 0
+        np.fill_diagonal(graph_weights, 0)
+        graph = graphs.Graph(graph_weights)
 
-        except:
-            print(f'Check arguments needed for the method: {method}')
+        self.graph = graph
+        self.graph_weights = graph_weights
+        return graph
 
+    def interpolate_channel(self, graph=None, data=None, missing_idx=None):
+        """"
+        Interpolate missing channel.
+        """
 
-        
-if __name__ == '__main__':
-    
-    #%% Import libraries
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from pygsp import graphs,learning
-    from EEGraSP import EEGraSP
-    import mne
-    from scipy.stats import zscore
-    from tqdm import tqdm
-    import matplotlib.animation as animation 
-    #%matplotlib qt
-    
-    #%% Load Electrode montage and dataset
-    subjects = np.arange(1,10)
-    runs = [4,8,12]
-    
-    # Download eegbci dataset through MNE
-    # Comment the following line if already downloaded
-    
-    raw_fnames = [mne.datasets.eegbci.load_data(s, runs) for s in subjects]
-    raw_fnames = np.reshape(raw_fnames,-1)
-    raws = [mne.io.read_raw_edf(f, preload=True) for f in raw_fnames]
-    raw = mne.concatenate_raws(raws)
-    #raw = mne.io.read_raw_edf(data_path[0],preload=True)
-    mne.datasets.eegbci.standardize(raw)
-    raw.annotations.rename(dict(T1="left", T2="right"))
+        # Check if values are passed or use the instance's
+        if isinstance(data, type(None)):
+            data = self.data.copy()
+        if isinstance(graph, type(None)):
+            graph = self.graph
 
+        elif isinstance(missing_idx, type(None)):
+            raise TypeError('Parameter missing_idx not specified.')
 
-    montage = mne.channels.make_standard_montage('standard_1005')
-    raw.set_montage(montage)
-    EEG_pos = np.array([pos for _,pos in raw.get_montage().get_positions()['ch_pos'].items()])
-    ch_names = montage.ch_names
-    
-    # %% Filter data and extract events
-    l_freq = 1 # Hz
-    h_freq = 30 # Hz
-    raw.filter(l_freq,h_freq,fir_design='firwin',skip_by_annotation='edge')
-    raw,ref_data = mne.set_eeg_reference(raw)
+        time = np.arange(data.shape[1])  # create time array
+        mask = np.ones(data.shape[0], dtype=bool)  # Maksing array
+        mask[missing_idx] = False
 
-    events,events_id = mne.events_from_annotations(raw)
+        # Allocate new data array
+        reconstructed = np.zeros(data.shape)
+        # Iterate over each timepoint
+        for t in time:
+            reconstructed[:, t] = learning.regression_tikhonov(graph, data[:, t],
+                                                               mask, tau=0)
+        return reconstructed
 
+    def _return_results(self, error, signal, vparameter, param_name):
+        """"Function to wrap results into a dictionary.
 
-    # %% Epoch data
-    # Exclude bad channels
-    tmin, tmax = -1.0, 3.0
-    picks = mne.pick_types(raw.info, meg=False, eeg=True, stim=False, eog=False, exclude="bads")
-    epochs = mne.Epochs(raw,events,events_id,
-                       picks=picks,tmin=tmin,
-                       tmax=tmax,baseline=(-1,0),
-                       detrend=1)
+        Parameters
+        ----------
+        error ndarray with the errors corresponding to each tried parameter.
+        vparameter: ndarray, values of the parameter used in the fit function.
+        signal: ndarray, reconstructed signal.
 
-    # %%
-    left = epochs['left'].average()
-    right = epochs['right'].average()
+        Notes
+        -----
+        In order to keep everyting under the same structure this function should be used
+        to return the results of any self.fit_* function.
 
-    fig_left = left.plot(gfp=True)
-    fig_right = right.plot(gfp=True)
-    
-    fig_left.savefig('left_erp.png')
-    fig_right.savefig('rihgt_erp.png')
+        """
+        best_idx = np.argmin(np.abs(error))
+        best_param = vparameter[best_idx]
 
-    plt.show()
+        results = {'error': error,
+                   'signal': signal,
+                   f'best_{param_name}': best_param,
+                   f'{param_name}': vparameter}
 
-    # %% Plot topology maps
-    
-    # Times to plot
-    times = np.arange(0.2,1.2,.2).round(1)
-    window = 0.1 # Window length for averaging
-    # Look vor vmin and vmax to share scale
-    all_data = np.hstack([left.get_data(),right.get_data()])
-    vmin = np.amin(all_data.reshape(-1)) * 1e6
-    vmax = np.amax(all_data.reshape(-1)) * 1e6
-    vlim = (vmin,vmax)
+        return results
 
-    fig,axs = plt.subplots(2,len(times)+1,figsize=(8,4))
-    fig.suptitle('Mental Imaginery',size=16)
-    fontdic = {'size':12}
+    def _vectorize_matrix(self, mat):
+        """"
+        Vectorize a simetric matrix using the lower triangle.
 
+        Returns
+        -------
+        vec: ndarray of the lower triangle of mat
+        """
+        tril_indices = np.tril_indices(len(mat), -1)
+        vec = mat[tril_indices]
 
-    # Make plots and titles
-    fig.text(.3,.87,'Left Hand',fontdic)
-    fig = left.plot_topomap(times,average=window,axes=axs[0,:],
-                            vlim=(vmin,vmax))
-    fig.text(.3,.42,'Right Hand',fontdic)
-    fig = right.plot_topomap(times,average=window,axes=axs[1,:],
-                             vlim=(vmin,vmax))
-    
-    # Change subplots titles
-    for ax,t in zip(axs[:,:-1].flatten('F'),times.repeat(2)):
-        ax.set_title(r'{} $\pm {}$ s'.format(t,window),size=9)
-    
-    fig.tight_layout()
-    fig.savefig('LR_topoplots.png')
-    fig.show()
+        return vec
 
-    # %% Animate topomaps
-        
-    times = np.arange(0,1.1,0.01)
-    
-    # Animation for left-hand imaginery
-    fig,anim = left.animate_topomap(times=times,frame_rate=15,blit=False)
-    fig.suptitle('Left Motor Imaginery')
-    # Uncomment to save
-    #anim.save('left.gif',fps=15)
-    
-    # Animation for right-hand imaginery
-    fig,anim = right.animate_topomap(times=times,frame_rate=15,blit=False)
-    fig.suptitle('Right Motor Imaginery')
-    # Uncomment to save
-    #anim.save('right.gif', fps=15)
+    def fit_epsilon(self, data=None, distances=None, sigma=0.1,
+                    missing_idx=None):
+        """"
+        Find the best distance to use as threshold.
+
+        Parameters
+        ----------
+        distances -> Unthresholded distance matrix (2-dimensional array). 
+        It can be passed to the instance of
+        the class or as an argument of the method.
+        sigma -> parameter of the Gaussian Kernel transformation
+
+        Notes
+        -----
+        It will itterate through all the unique values of the distance matrix.
+        data -> 2-dimensional array. The first dim. is Channels 
+        and second time. It can be passed to the instance class or the method
 
 
-    # %% Initialize EEGraph class
-    
-    eegsp = EEGraSP(right,EEG_pos,ch_names)
-    eegsp.compute_distance() # Calculate distance between electrodes
-    W = eegsp.W.copy()
+        """
+        # Check if values are passed or use the instance's
+        if isinstance(distances, type(None)):
+            distances = self.distances.copy()
+        if isinstance(data, type(None)):
+            data = self.data.copy()
 
-    # Plot euclidean distance between electrodes
-    fig,ax = plt.subplots()
-    ax.set_title('Electrode Distance')
-    im = ax.imshow(W,cmap='Reds')
-    fig.colorbar(im,label='Euclidean Distance')
-    
-    # Uncomment to save
-    #fig.savefig('euc_dist.png')
-    fig.show()
+        if isinstance(distances, type(None)) or isinstance(data, type(None)):
+            raise TypeError('Check data or W arguments.')
+        if isinstance(missing_idx, type(None)):
+            raise TypeError('Parameter missing_idx not specified.')
 
-    # %% Binarize W based on the histogram's probability mass
-    
-    W = eegsp.W.copy()
-    tril_idx = np.tril_indices(len(W),-1)
-    vec_W = W[tril_idx] 
-    count,bins = np.histogram(vec_W,bins=len(vec_W),density=False)
-    
-    prob = np.cumsum(count/len(vec_W))
-    th_W = W > 0
-    
-    # Initiate figure
-    fig,axs = plt.subplots(2,2,figsize=(10,9))
-    axs[0,0].set_title('Cumulative Distribution Function')
-    axs[0,0].set_xlabel('Euc. Distance')
-    axs[0,0].set_ylabel('Probability')
+        # Vectorize the distance matrix
+        dist_tril = self._vectorize_matrix(distances)
 
-    lines, = axs[0,0].plot(np.sort(vec_W),prob,color='black')
-    dot = axs[0,0].scatter(np.sort(vec_W)[0],prob[0],c='red')
+        # Sort and extract unique values
+        vdistances = np.sort(np.unique(dist_tril))
 
-    hist = axs[1,0].hist(vec_W,bins=20,density=True,color='teal')
-    vline = axs[1,0].axvline(np.amin(vec_W),color='purple')
-    axs[1,0].set_title('Histogram')
-    axs[1,0].set_xlabel('Euc. Distance')
-    axs[1,0].set_ylabel('Probability Density')
+        # Create time array
+        time = np.arange(data.shape[1])
 
-    im = axs[0,1].imshow(th_W,cmap='gray')
-    axs[0,1].set_xlabel('Electrode')
-    axs[0,1].set_ylabel('Electrode')
-    axs[0,1].set_title('Adjacency Matrix')
-    cbar = fig.colorbar(im,ax=axs[0,1],ticks = [0,1])
-    cbar.ax.set_yticklabels(['Unconnected','Connected'])
+        # Mask to ignore missing channel
+        ch_mask = np.ones(data.shape[0]).astype(bool)
+        ch_mask[missing_idx] = False
 
-    fig.tight_layout()
+        # Simulate eliminating the missing channel
+        signal = data.copy()
+        signal[missing_idx, :] = np.nan
 
-    # Define function for animation
-    def update(frame):
-        
-        val = np.sort(vec_W)[frame]
-        p = prob[frame]
+        # Allocate array to reconstruct the signal
+        all_reconstructed = np.zeros([len(vdistances), len(time)])
 
-        th_W = W <= val # Keep distances lower than the threshold
-        np.fill_diagonal(th_W,0) # No self loops
+        # Allocate Error array
+        error = np.zeros([len(vdistances)])
 
-        dot.set_offsets([val,p])  
-        im.set_data(th_W) 
-        vline.set_data([[val,val],[0,1]])
+        # Loop to look for the best parameter
+        for i, epsilon in enumerate(tqdm(vdistances)):
 
-        axs[1,1].clear()
-        G = graphs.Graph(th_W)
-        G.set_coordinates()
-        G.plot(ax=axs[1,1])
+            # Compute thresholded weight matrix
+            graph = self.compute_graph(distances, epsilon=epsilon, sigma=sigma)
 
-        return (dot,im)
+            # Interpolate signal, iterating over time
+            reconstructed = self.interpolate_channel(graph, signal,
+                                                     missing_idx=missing_idx)
+            all_reconstructed[i, :] = reconstructed[missing_idx, :]
 
-    anim = animation.FuncAnimation(fig,update,
-                                   frames=np.arange(len(prob))[::8],
-                                   interval=1,blit=False,
-                                   cache_frame_data=False)
-    
-    # Uncomment to save animation 
-    #anim.save('G_thr.gif',fps=30)
+            # Calculate error
+            error[i] = np.linalg.norm(
+                data[missing_idx, :]-all_reconstructed[i, :])
 
-    
-    # %% Compute graph based on nearest neighbors based on euc. distance
-    
-    data = epochs['left'].get_data()
+        # Eliminate invalid distances
+        valid_idx = ~np.isnan(error)
+        error = error[valid_idx]
+        vdistances = vdistances[valid_idx]
+        all_reconstructed = all_reconstructed[valid_idx, :]
 
-    nchannels = data.shape[1]
-    nsamples = data.shape[2]
-    nepochs = data.shape[0] 
-    
-    missing_idx = 5
-    
-    measures = data.copy()
-    mask = np.ones(len(EEG_pos)).astype(bool)
-    mask[missing_idx] = False
-    measures[:,~mask,:] = np.nan
-    
-    # %% Graph based on gaussian kernel
+        # Find best reconstruction
+        best_idx = np.argmin(np.abs(error))
+        best_epsilon = vdistances[np.argmin(np.abs(error))]
 
-    epsilon = np.arange(0.04,0.2,0.01)
-    for e in epsilon:
+        # Save best result in the signal array
+        signal[missing_idx, :] = all_reconstructed[best_idx, :]
 
-        G = graphs.NNGraph(EEG_pos,'radius',rescale=False,epsilon=e)
-        W = G.W.toarray()
+        # Compute the graph with the best result
+        graph = self.compute_graph(distances, epsilon=best_epsilon,
+                                   sigma=sigma
+                                   )
 
-        fig,axs = plt.subplots(1,2,figsize=(7,4))
-        
-        im = axs[0].imshow(W,'gray',vmin=0,vmax=1)
-        fig.colorbar(im,cmap='jet')
+        results = self._return_results(error, signal, vdistances, 'epsilon')
+        return results
 
-        G.set_coordinates()
-        G.plot(ax=axs[1])
+    def fit_sigma(self, data=None, distances=None, epsilon=0.5,
+                  missing_idx=None, min_sigma=0.1, max_sigma=1, step=0.1):
+        """"
+        Find the best parameter for the gaussian kernel.
 
-    # %% Interpolate signal
+        Parameters
+        ----------
 
-    vk = np.arange(3,10)
-    # Allocate error matrix of len(vk) x epochs x timepoints
-    error = np.zeros([len(vk),measures.shape[0]])
-    recovery = np.zeros([len(vk),nepochs,nsamples])
-    for i,k in enumerate(tqdm(vk)):
-        # Compute graph from EEG distance
-        eegsp.compute_graph(k=k)
+        Notes
+        -----
+        Look for the best parameter of sigma for the gaussian kernel. This is done by interpolating
+        a channel and comparing the interpolated data to the real data. After finding the parameter
+        the graph is saved and computed in the instance class. The distance threshold is maintained.
 
-        # Reconstruct every epoch
-        for ii,epoch in enumerate(measures):
+        """
 
-            # Reconstruct every timepoint
-            for iii,t in enumerate(epoch.T):
+        # Check if values are passed or use the class instance's
+        if isinstance(distances, type(None)):
+            distances = self.distances.copy()
+        if isinstance(data, type(None)):
+            data = self.data.copy()
 
-                # Recover a signal
-                recovery[i,ii,iii] = learning.regression_tikhonov(eegsp.G, t, mask, tau=0)[missing_idx]
-            
-            error[i,ii] = (np.linalg.norm(data[ii,missing_idx,:] - recovery[i,ii,:]))
+        if isinstance(distances, type(None)) or isinstance(data, type(None)):
+            raise TypeError('Check data or W arguments.')
+        if isinstance(missing_idx, type(None)):
+            raise TypeError('Parameter missing_idx not specified.')
 
-    # %% Plot
-    ii = 1
-    plt.plot(recovery[4,ii,:])
-    plt.plot(data[ii,missing_idx,:])
-    plt.show()
+        # Create array of parameter values
+        vsigma = np.arange(min_sigma, max_sigma, step=step)
 
-# %% Plot error
-    best_k = vk[np.argmin(error,axis=0)]
-    plt.plot(vk,error)
-    plt.show()
+        # Create time array
+        time = np.arange(data.shape[1])
 
+        # Mask to ignore missing channel
+        ch_mask = np.ones(data.shape[0]).astype(bool)
+        ch_mask[missing_idx] = False
 
+        # Simulate eliminating the missing channel
+        signal = data.copy()
+        signal[missing_idx, :] = np.nan
 
+        # Allocate array to reconstruct the signal
+        all_reconstructed = np.zeros([len(vsigma), len(time)])
 
+        # Allocate Error array
+        error = np.zeros([len(vsigma)])
 
+        # Loop to look for the best parameter
+        for i, sigma in enumerate(tqdm(vsigma)):
+
+            # Compute thresholded weight matrix
+            graph = self.compute_graph(distances, epsilon=epsilon, sigma=sigma)
+
+            # Interpolate signal, iterating over time
+            reconstructed = self.interpolate_channel(graph, signal,
+                                                     missing_idx=missing_idx)
+            all_reconstructed[i, :] = reconstructed[missing_idx, :]
+
+            # Calculate error
+            error[i] = np.linalg.norm(
+                data[missing_idx, :]-all_reconstructed[i, :])
+
+        # Eliminate invalid trials
+        valid_idx = ~np.isnan(error)
+        error = error[valid_idx]
+        vsigma = vsigma[valid_idx]
+        all_reconstructed = all_reconstructed[valid_idx, :]
+
+        # Find best reconstruction
+        best_idx = np.argmin(np.abs(error))
+        best_sigma = vsigma[np.argmin(np.abs(error))]
+
+        # Save best result in the signal array
+        signal[missing_idx, :] = all_reconstructed[best_idx, :]
+
+        # Compute the graph with the best result
+        graph = self.compute_graph(distances, epsilon=epsilon,
+                                   sigma=best_sigma
+                                   )
+
+        self.graph = graph
+
+        results = self._return_results(error, signal, vsigma, 'sigma')
+
+        return results
