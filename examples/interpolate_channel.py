@@ -1,8 +1,11 @@
-
+"""" Show how to interpolate channel.
+"""
 # %% Import libraries
 import numpy as np
 import mne
+import matplotlib.pyplot as plt
 from EEGraSP.EEGraSP import EEGraSP
+
 
 # %% Load Electrode montage and dataset
 subjects = np.arange(1, 10)
@@ -44,13 +47,26 @@ epochs = mne.Epochs(raw, events, events_id,
                     tmax=TMAX, baseline=(-1, 0),
                     detrend=1)
 
-data = epochs.get_data()
+data = epochs.average().get_data()
 
 # %% Initialize and interpolate channel
 
 # 1. Define index of the missing channel
 MISSING_IDX = 5
+lost_ch = data[MISSING_IDX, :].copy()
+data[MISSING_IDX, :] = np.nan  # delete channel info from array
 # 2. Initialize instance of EEGraSP
 eegsp = EEGraSP(data, eeg_pos, ch_names)
 # 3. Compute the electrode distance matrix
 dist_mat = eegsp.compute_distance(normalize=True)
+# 4. Compute the graph weights and make graph strucutre
+eegsp.compute_graph(epsilon=0.5, sigma=0.1)
+
+# 5. Interpolate missing channel
+interpolated = eegsp.interpolate_channel(missing_idx=MISSING_IDX)
+
+# %% Plot channel
+plt.plot(lost_ch, label='original')
+plt.plot(interpolated[MISSING_IDX], label='Interpolated')
+plt.legend()
+plt.show()
