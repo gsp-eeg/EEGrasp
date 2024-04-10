@@ -10,3 +10,6 @@ datasets
 
 # Jupyter notebook files
 .ipynb_checkpoints/
+
+# Dont include distribution files
+dist/
