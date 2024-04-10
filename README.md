@@ -54,7 +54,7 @@ graph_weights = eegsp.compute_graph(epsilon=0.5,sigma=0.1)
 
 4. Interpolate the missing channel.
 
-````
+```
 MISSING_IDX = 5
 interpolated = egsp.interpolate_channel(missing_idx=MISSING_IDX)
 ```
@@ -62,8 +62,7 @@ interpolated = egsp.interpolate_channel(missing_idx=MISSING_IDX)
 To interpolate a channel of your choice the ```MISSING_IDX``` variable should be changed to the index of the corresponding channel. Remember that python indices start from 0.
 
 ## License
-For open source projects, say how it is licensed.
+MIT licence
 
 ## Project status
-
 Still in developement.
