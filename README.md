@@ -7,10 +7,39 @@ https://gitlab.com/gsp8332409/eegrasp
 EEGraSP package uses other libraries like pygsp and mne for most of the processing and graph signal analysis.
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+
+The repository has not been officially released yet. In order to install the python package you can use:
+
+```
+pip install -i https://test.pypi.org/simple/ EEGraSP==0.0.1
+```
+
+Which will download the package from the testpypi repository (https://test.pypi.org/project/EEGraSP/).
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+
+Examples are provided in the examples folder of the repository:
+
+https://gitlab.com/gsp8332409/eegrasp/-/tree/main/examples?ref_type=heads
+
+* The ```electrode_distance.py``` script computes the electrode distance from the standard biosemi64 montage provided in the MNE package.
+
+* The ```ERP_reconstruction.py``` script computes an example ERP from a database provided by MNE. Then, one of the channels is eliminated and reconstructed through Tikhonov Regression. 
+
+Basic steps for the package ussage are:
+
+1. Load the Package
+
+```
+from EEGraSP.eegrasp import EEGraSP
+```
+
+2. Initialize the EEGraSP class instance.
+
+```
+eegsp = EEGraSP(data, eeg_pos, ch_names)
+```
+where ````
 
 ## Support
 Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
