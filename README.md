@@ -11,7 +11,7 @@ EEGraSP package uses other libraries like pygsp and mne for most of the processi
 The repository has not been officially released yet. In order to install the python package you can use:
 
 ```
-pip install -i https://test.pypi.org/simple/ EEGraSP==0.0.1
+pip install -i https://test.pypi.org/simple/ EEGraSP==0.0.2
 pip install git+https://github.com/epfl-lts2/pygsp.git
 ```
 
