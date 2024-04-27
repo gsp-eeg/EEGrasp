@@ -1,0 +1,29 @@
+﻿EEGraSP.eegrasp
+===============
+
+.. automodule:: EEGraSP.eegrasp
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      EEGraSP
+   
+   
+
+   
+   
+   
+
+
+

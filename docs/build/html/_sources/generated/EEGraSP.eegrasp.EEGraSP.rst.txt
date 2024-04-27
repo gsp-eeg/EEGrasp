@@ -1,0 +1,29 @@
+﻿EEGraSP.eegrasp.EEGraSP
+=======================
+
+.. currentmodule:: EEGraSP.eegrasp
+
+.. autoclass:: EEGraSP
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EEGraSP.__init__
+      ~EEGraSP.compute_distance
+      ~EEGraSP.compute_graph
+      ~EEGraSP.euc_dist
+      ~EEGraSP.fit_epsilon
+      ~EEGraSP.fit_sigma
+      ~EEGraSP.gaussian_kernel
+      ~EEGraSP.interpolate_channel
+   
+   
+
+   
+   
+   
