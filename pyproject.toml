@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "EEGraSP"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
   { name="Julio Rodino", email="jrodino14@gmail.com" },
   { name="Alejandro Weinstein", email="alejandro.weinstein@uv.cl"},
