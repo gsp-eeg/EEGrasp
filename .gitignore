@@ -13,3 +13,4 @@ datasets
 
 # Dont include distribution files
 dist/
+docs/build

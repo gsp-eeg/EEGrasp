@@ -1,7 +1,0 @@
-autosummary
-===========
-
-.. autosummary::
-   :toctree: generated
-
-   EEGraSP.eegrasp.EEGraSP
