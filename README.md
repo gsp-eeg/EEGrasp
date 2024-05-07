@@ -12,7 +12,7 @@ The repository has not been officially released yet. In order to install the pyt
 
 ```
 pip install git+https://github.com/epfl-lts2/pygsp.git
-pip install -i https://test.pypi.org/simple/ EEGraSP==0.0.2
+pip install --extra-index-url https://test.pypi.org/simple/ EEGraSP==0.0.2
 ```
 
 Which will download the package from the testpypi repository (https://test.pypi.org/project/EEGraSP/). Also, since a lot of the used functions come from the PyGSP it is important to install from the PyGSP github repository to avoid version issues.
