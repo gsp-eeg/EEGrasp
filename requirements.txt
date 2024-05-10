@@ -1,0 +1,8 @@
+numpy
+matplotlib
+pylint
+tqdm
+mne
+scipy
+# Most updated version of pygsp publicly available
+git+https://github.com/epfl-lts2/pygsp

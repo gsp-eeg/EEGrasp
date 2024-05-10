@@ -6,7 +6,7 @@ Example on how to interpolate missing channels.
 import numpy as np
 import matplotlib.pyplot as plt
 import mne
-from EEGraSP.eegrasp import EEGraSP
+from eegrasp import EEGraSP
 
 # %% Load Electrode montage and dataset
 subjects = np.arange(1, 10)
