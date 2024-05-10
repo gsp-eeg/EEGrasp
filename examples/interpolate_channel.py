@@ -4,7 +4,7 @@
 import numpy as np
 import mne
 import matplotlib.pyplot as plt
-from EEGraSP.EEGraSP import EEGraSP
+from eegrasp import EEGraSP
 
 
 # %% Load Electrode montage and dataset

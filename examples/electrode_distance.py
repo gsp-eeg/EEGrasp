@@ -9,7 +9,7 @@ Requirements: None
 import mne
 import numpy as np
 import matplotlib.pyplot as plt
-from EEGraSP.eegrasp import EEGraSP
+from eegrasp import EEGraSP
 
 # %%
 
