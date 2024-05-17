@@ -6,7 +6,7 @@ https://gitlab.com/gsp8332409/eegrasp
 
 EEGraSP package uses other libraries like pygsp and mne for most of the processing and graph signal analysis.
 
-## Installation
+## Installation with pip (User Installation)
 
 The repository has not been officially released yet. In order to install the python package you can use:
 
@@ -15,7 +15,25 @@ pip install git+https://github.com/epfl-lts2/pygsp.git
 pip install --extra-index-url https://test.pypi.org/simple/ EEGraSP==0.0.2
 ```
 
-Which will download the package from the testpypi repository (https://test.pypi.org/project/EEGraSP/). Also, since a lot of the used functions come from the PyGSP it is important to install from the PyGSP github repository to avoid version issues.
+Which will download the package from the testpypi repository (https://test.pypi.org/project/EEGraSP/). Also, since a lot of the used functions come from the PyGSP it is important to install 
+from the PyGSP github repository to avoid version issues.
+
+## Installation from source (Developers and Contribuitors)
+
+You may want to contribute to the project or build functions on top of what we've built here. This installation will always be the most updated version but could also contain some errors or bugs. To install from the repository first you'll have to install the Pygsp fork that we have modified, follow the steps below:
+
+1. Clone the Pygsp fork we've made into a local directory with git: ```git clone https://gitlab.com/gsp8332409/pygsp.git```
+2. Change the current directory to the directory of the downloaded repository. ```cd pygsp```
+3. Install the cloned repository in your prefered Python enviorment through pip. Use: ```pip install -e .```. If you want the static version of this installation, and are not planning on making changes to the pygsp toolbox, you can drop the "-e" option.
+
+**Now you are ready to install EEGraSP**. Follow the same steps but with the EEGRaSP repository (SUGGESTION: don't clone the repository inside the pygsp repository):
+
+1. Clone the EEGraSP repository into a local directory with git: ```git clone https://gitlab.com/gsp8332409/eegrasp.git```
+2. Change the current directory to the directory of the downloaded repository. ```cd eegrasp```
+3. Install the cloned repository in your prefered Python enviorment through git. Use: ```pip install -e .```.
+
+Now you are ready to contribute!
+
 
 ## Usage
 
