@@ -16,9 +16,9 @@ EEG_pos = montage.get_positions()['ch_pos']
 EEG_pos = np.array([pos for _, pos in EEG_pos.items()])
 
 kdt = spatial.KDTree(EEG_pos)
-epsilon = 0.05
+epsilon = 0.5
 # %% Method 2
-% % timeit
+# % timeit
 # Method 1. From pygsp (using scipy)
 D, NN = kdt.query(EEG_pos, k=len(EEG_pos), distance_upper_bound=epsilon,
                   p=2, workers=-1)
@@ -31,7 +31,7 @@ for i, N in enumerate(NN):
 np.fill_diagonal(W, np.nan)
 
 # %%
-% % timeit
+# % timeit
 # Method 2. Simpler (in-house method)
 W2 = eegsp.euc_dist(EEG_pos)
 W2[W2 > epsilon] = 0
@@ -68,7 +68,8 @@ error = (W[tril_indices]-W2[tril_indices])[not_equal_idx]
 
 plt.title('Error')
 plt.bar(range(len(not_equal_idx)), error)
-# plt.xticks(not_equal_idx)
+plt.xticks(range(len(not_equal_idx)), labels=not_equal_idx)
+plt.xlabel('Lower Triangle Index')
 plt.ylabel('pygsp - inhouse')
 plt.show()
 # %%
