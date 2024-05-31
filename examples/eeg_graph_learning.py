@@ -1,83 +1,120 @@
 """Using the algorithm proposed in Kalofolias et al. 2019,
-and implemented in Pygsp2, learn the graph from EEG signals. This example follows
-the methods described in Miri et al."""
+and implemented in Pygsp2, learn the graph from EEG signals.
+This example follows the methods described in Miri et al."""
 
 # %% Import libraries
 
 import numpy as np
 import matplotlib.pyplot as plt
 import mne
-from pygsp import graph_learning
+from pygsp import graph_learning, graphs
+from scipy.io import loadmat
+from scipy.signal import butter, sosfiltfilt
 from eegrasp import EEGraSP
 
+plt.switch_backend('qtagg')
+gsp = EEGraSP()
+
 # %% Load Electrode montage and dataset
-subjects = np.arange(1, 15)
-runs = [4, 8, 12]
+data = loadmat('data/data_set_IVa_aa.mat')
+eeg = (data['cnt']).astype(float) * 0.1  # Recomendation: to set to uV
+events = np.squeeze(data['mrk'][0, 0][0])
+info = data['nfo'][0, 0]
+FS = info[1][0, 0]
+pos = np.array([info[3][:, 0], info[4][:, 0]]) / 10
 
-# Download eegbci dataset through MNE
-# Comment the following line if already downloaded
+times = np.array([0.5, 2.5])  # Trial window times
+samples = times * FS  # Convert window to samples
+s_len = int(np.diff(np.abs(samples))[0])  # Set window length in samples
 
-raw_fnames = [mne.datasets.eegbci.load_data(
-    s, runs, path='datasets') for s in subjects]
-raw_fnames = np.reshape(raw_fnames, -1)
-raws = [mne.io.read_raw_edf(f, preload=True) for f in raw_fnames]
-raw = mne.concatenate_raws(raws)
-mne.datasets.eegbci.standardize(raw)
-raw.annotations.rename(dict(T1="left", T2="right"))
+# %% Filter signal
+sos = butter(N=3, Wn=[8, 30], fs=FS, btype='bandpass', output='sos')
+filt_eeg = sosfiltfilt(sos, eeg, axis=0)
 
+# %% Create matrix with erps
+trials = np.zeros((len(events), s_len, eeg.shape[1]))
+for i, event in enumerate(events):
+    t_idx = (samples+event).astype(int)
+    trials[i, :, :] = filt_eeg[t_idx[0]:t_idx[1], :]
 
-montage = mne.channels.make_standard_montage('standard_1005')
-raw.set_montage(montage)
-eeg_pos = np.array(
-    [pos for _, pos in raw.get_montage().get_positions()['ch_pos'].items()])
-ch_names = montage.ch_names
+Z = []
+for trial in trials:
+    Z.append(gsp.euc_dist(trial.T))
+Z = np.array(Z)
+Z = np.mean(Z, axis=0)
 
-# %% Filter data and extract events
-L_FREQ = 8  # Hz
-H_FREQ = 30  # Hz
-raw.filter(L_FREQ, H_FREQ, fir_design='firwin', skip_by_annotation='edge')
-raw, ref_data = mne.set_eeg_reference(raw)
+tril_idx = np.tril_indices(len(Z), -1)
 
-events, events_id = mne.events_from_annotations(raw)
-
-# %% Epoch data
-# Exclude bad channels
-TMIN, TMAX = (0, 1)
-picks = mne.pick_types(raw.info, meg=False, eeg=True,
-                       stim=False, eog=False, exclude="bads")
-epochs = mne.Epochs(raw, events, events_id,
-                    picks=picks, tmin=TMIN,
-                    tmax=TMAX, detrend=1, baseline=(0, 0.5))
-
-# %%
-left = epochs['left']
-erp_left = left.average()
-
-right = epochs['right']
-erp_right = right.average()
-
-# %% Instantiate EEGraSP and load trials
-eegsp = EEGraSP()
-trials = left.get_data()
-
-# %% Compute distance
-Zs = np.zeros([trials.shape[0], len(eeg_pos), len(eeg_pos)])
-for i, trial in enumerate(trials):
-    Zs[i] = eegsp.euc_dist(trial)
-
-# %% Learn graph
-
-Z = np.mean(Zs, axis=0)
-a, b = (0.1, 0.1)
-W = graph_learning.graph_log_degree(Z, a, b, w_max=1, gamma=0.03, maxiter=1000)
-W[W < 1e-5] = 0
-
-plt.figure(figsize=(10, 3))
+# %% Plot Z
+plt.figure(figsize=(10, 4))
 plt.subplot(121)
 plt.imshow(Z, cmap='hot')
-plt.colorbar(label='Distance')
+plt.colorbar(label='Distance [uV]')
+plt.title('Distance Matrix, Z')
+
+
 plt.subplot(122)
-plt.imshow(W, cmap='hot')
-plt.colorbar(label='Weight')
+plt.hist(Z[tril_idx], 10)
+plt.xlabel('Distance')
+plt.ylabel('N° Count')
+plt.title('Histogram')
 
 plt.tight_layout()
+plt.show()
+
+# %% Learn Graph Weights
+
+W = graph_learning.graph_log_degree(Z, 0.3, 0.5,
+                                    maxiter=1000,
+                                    gamma=0.01,
+                                    w_max=np.inf)
+W[W < 1e-5] = 0
+
+plt.figure(figsize=(10, 4))
+plt.subplot(121)
+plt.imshow(W, cmap='hot')
+plt.colorbar(label='Weights')
+plt.title('Adjacency Matrix, W')
+
+plt.subplot(122)
+plt.hist(W[tril_idx], bins=10, log=True)
+plt.xlabel('Distance')
+plt.ylabel('N° Count')
+plt.title('Histogram')
+
+plt.tight_layout()
+plt.show()
+
+# %% Create graph and compute fourier basis
+
+G = graphs.Graph(W, coords=pos.T)
+G.compute_laplacian()
+G.compute_fourier_basis()
+eigenvectors = np.array(G.U)
+eigenvalues = np.array(G.e)
+
+# %%
+plt.scatter(eigenvalues, np.arange(0, len(eigenvalues)), color='purple')
+plt.plot(eigenvalues, np.arange(0, len(eigenvalues)),
+         linewidth=2, color='black')
+plt.xlabel('Eigenvalue')
+plt.ylabel('Eigenvalue Index')
+
+# %%
+scale = 0.2
+vlim = (-np.amax(np.abs(eigenvectors))*scale,
+        np.amax(np.abs(eigenvectors))*scale)
+
+fig, axs = plt.subplots(2, 11, figsize=(14, 4))
+for i, ax in enumerate(axs.flatten()):
+    im, cn = mne.viz.plot_topomap(eigenvectors[:, i], pos.T,
+                                  sensors=True, axes=ax, cmap='RdBu_r',
+                                  vlim=vlim, show=True)
+    ax.text(-0.1, -0.15, r'$\lambda_{} = $'.format(i+1) +
+            f'{eigenvalues[i]:.3f}')
+
+# plt.tight_layout()
+
+fig.subplots_adjust(0, 0, 0.85, 1, 0, -0.5)
+cbar = fig.add_axes([0.87, 0.1, 0.05, 0.8])
+plt.colorbar(im, cax=cbar)
