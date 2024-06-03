@@ -139,6 +139,7 @@ class EEGraSP():
             np.fill_diagonal(graph_weights, 0)
             graph = graphs.Graph(graph_weights)
         else:
+            graph_weights = W
             graph = graphs.Graph(W)
 
         if not isinstance(self.coordenates, type(None)):
