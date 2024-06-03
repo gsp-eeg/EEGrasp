@@ -2,7 +2,8 @@
 and implemented in Pygsp2, learn the graph from EEG signals.
 This example follows the methods described in Miri et al.
 to run this example you will need to download the data 
-described in the paper"""
+described in the paper. You can download it here:
+https://www.bbci.de/competition/iii/#data_set_iva"""
 
 # %% Import libraries
 
