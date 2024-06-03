@@ -12,13 +12,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mne
 from scipy.io import loadmat
-from eegrasp import EEGraSP
+from eegrasp import EEGrasp
 
 # Set working directory to the file directory
 os.chdir(os.path.dirname(__file__))
 
 # Instantiate EEGraSP
-gsp = EEGraSP()
+gsp = EEGrasp()
 
 # %% Load Electrode montage and dataset
 data = loadmat('data/data_set_IVa_aa.mat')
@@ -142,5 +142,3 @@ fig.subplots_adjust(0, 0, 0.85, 1, 0, -0.5)
 cbar = fig.add_axes([0.87, 0.1, 0.05, 0.8])
 plt.colorbar(im, cax=cbar)
 plt.show()
-
-# %%
