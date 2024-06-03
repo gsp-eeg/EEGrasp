@@ -29,10 +29,6 @@ ch_names = [ch_name[0] for ch_name in info[2][0, :]]
 FS = info[1][0, 0]
 pos = np.array([info[3][:, 0], info[4][:, 0]])  # Weird behavior from MNE
 
-times = np.array([0.5, 2.5])  # Trial window times
-samples = times * FS  # Convert window to samples
-s_len = int(np.diff(np.abs(samples))[0])  # Set window length in samples
-
 # %% Preprocessing in MNE
 
 # Create structure
