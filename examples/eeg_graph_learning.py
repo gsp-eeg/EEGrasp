@@ -27,7 +27,7 @@ events = np.squeeze(data['mrk'][0, 0][0])
 info = data['nfo'][0, 0]
 ch_names = [ch_name[0] for ch_name in info[2][0, :]]
 FS = info[1][0, 0]
-pos = np.array([info[3][:, 0], info[4][:, 0]]) / 10  # Weird behavior from MNE
+pos = np.array([info[3][:, 0], info[4][:, 0]])  # Weird behavior from MNE
 
 times = np.array([0.5, 2.5])  # Trial window times
 samples = times * FS  # Convert window to samples
@@ -130,15 +130,17 @@ fig, axs = plt.subplots(2, 11, figsize=(14, 4))
 for i, ax in enumerate(axs.flatten()):
     im, cn = mne.viz.plot_topomap(eigenvectors[:, i], pos.T,
                                   sensors=True, axes=ax, cmap='RdBu_r',
-                                  vlim=vlim, show=False)
+                                  vlim=vlim, show=False,
+                                  sphere=0.9)
     CORE = r'\u208'
     SUBSCRIPT = [(CORE+i+'').encode().decode('unicode_escape')
                  for i in str(i+1)]
     SUBSCRIPT = ''.join(SUBSCRIPT)
-    ax.text(-0.1, -0.15, r'$\lambda$' + SUBSCRIPT +
+    ax.text(-0.9, -1.3, r'$\lambda$' + SUBSCRIPT +
             ' = ' + f'{eigenvalues[i]:.3f}')
 
 fig.subplots_adjust(0, 0, 0.85, 1, 0, -0.5)
 cbar = fig.add_axes([0.87, 0.1, 0.05, 0.8])
 plt.colorbar(im, cax=cbar)
+fig.text(0.35, 0.85, 'Eigenmodes', size=20)
 plt.show()
