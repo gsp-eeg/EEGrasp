@@ -9,7 +9,7 @@ import pandas as pd
 import scipy.interpolate as interp
 import matplotlib.pyplot as plt
 from pygsp import graphs, learning
-from eegrasp import EEGraSP
+from eegrasp import EEGrasp
 
 # %% Load Data
 df_pos = pd.read_pickle('df_pos.pkl')
@@ -47,7 +47,7 @@ for i, sigma in enumerate(sigmas):
 
 # %% Inhouse Method
 
-eeggsp = EEGraSP(measures[:, None], X)
+eeggsp = EEGrasp(measures[:, None], X)
 distance = eeggsp.compute_distance()
 
 sigmas2 = np.sqrt(sigmas/2)
@@ -65,7 +65,7 @@ plt.plot(sigmas, errors2, color='magenta', label='EEGRASP')
 plt.xlabel(r'$\sigma$')
 plt.xticks(sigmas[::22],
            labels=[f'{s:0.2f}\n{s2:0.2f}' for s, s2 in zip(sigmas[::22],
-                                                         sigmas2[::22])])
+                                                           sigmas2[::22])])
 plt.axhline(error_rbf, color='red', label='RBF interpolation', linestyle='--')
 plt.axhline(0.02, color='purple', label='y = 0.0003', linestyle='--')
 plt.grid()
@@ -100,7 +100,7 @@ plt.plot(sigmas, errors2, color='magenta', label='EEGRASP')
 plt.xlabel(r'$\sigma$')
 plt.xticks(sigmas[::22],
            labels=[f'{s:0.2f}\n{s2:0.2f}' for s, s2 in zip(sigmas[::22],
-                                                                     sigmas2[::22])])
+                                                           sigmas2[::22])])
 plt.axhline(error_rbf, color='red', label='RBF interpolation', linestyle='--')
 plt.axhline(0.02, color='purple', label='y = 0.02', linestyle='--')
 plt.grid()

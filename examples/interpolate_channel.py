@@ -4,7 +4,7 @@
 import numpy as np
 import mne
 import matplotlib.pyplot as plt
-from eegrasp import EEGraSP
+from eegrasp import EEGrasp
 
 
 # %% Load Electrode montage and dataset
@@ -55,8 +55,8 @@ data = epochs.average().get_data()
 MISSING_IDX = 5
 lost_ch = data[MISSING_IDX, :].copy()
 data[MISSING_IDX, :] = np.nan  # delete channel info from array
-# 2. Initialize instance of EEGraSP
-eegsp = EEGraSP(data, eeg_pos, ch_names)
+# 2. Initialize instance of EEGrasp
+eegsp = EEGrasp(data, eeg_pos, ch_names)
 # 3. Compute the electrode distance matrix
 dist_mat = eegsp.compute_distance(normalize=True)
 # 4. Compute the graph weights and make graph strucutre

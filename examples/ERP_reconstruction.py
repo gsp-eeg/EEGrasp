@@ -6,7 +6,7 @@ Example on how to interpolate missing channels.
 import numpy as np
 import matplotlib.pyplot as plt
 import mne
-from eegrasp import EEGraSP
+from eegrasp import EEGrasp
 
 # %% Load Electrode montage and dataset
 subjects = np.arange(1, 10)
@@ -63,8 +63,8 @@ data = erp_left.get_data()
 
 # 1. Define index of the missing channel
 MISSING_IDX = 5
-# 2. Initialize instance of EEGraSP
-eegsp = EEGraSP(data, eeg_pos, ch_names)
+# 2. Initialize instance of EEGrasp
+eegsp = EEGrasp(data, eeg_pos, ch_names)
 # 3. Compute the electrode distance matrix
 dist_mat = eegsp.compute_distance(normalize=True)
 # 4. Find the best parameter for the channel

@@ -10,4 +10,4 @@ See https://to.be.defined for complete documentation.
 
 __version__ = '0.0.2'
 
-from .eegrasp import EEGraSP
+from .eegrasp import EEGrasp

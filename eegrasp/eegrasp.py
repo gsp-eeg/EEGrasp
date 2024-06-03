@@ -4,10 +4,10 @@ EEGRasP
 
 import numpy as np
 from pygsp import graphs, learning
-from tqdm import tqdm # TODO: Does it belong here?
+from tqdm import tqdm  # TODO: Does it belong here?
 
 
-class EEGraSP():
+class EEGrasp():
     """
     Class containing functionality to analyze EEG signals.
 
@@ -22,6 +22,7 @@ class EEGraSP():
     Gaussian Kernel functionallity overlapping with Pygsp toolbox. This has
     been purposefully added.
     """
+
     def __init__(self, data=None, coordenates=None, labels=None):
         """
         Parameters
@@ -37,7 +38,6 @@ class EEGraSP():
         self.distances = None
         self.graph_weights = None
         self.graph = None
-
 
     def euc_dist(self, pos):
         """
@@ -64,7 +64,6 @@ class EEGraSP():
 
         return distance
 
-
     def gaussian_kernel(self, x, sigma=0.1):
         """
         Gaussian Kernel Weighting function.
@@ -84,7 +83,6 @@ class EEGraSP():
         # no. 3, pp. 83-98, May 2013, doi: 10.1109/MSP.2012.2235192.
         """
         return np.exp(-np.power(x, 2.) / (2.*np.power(float(sigma), 2)))
-
 
     def compute_distance(self, coordinates=None, method='Euclidean', normalize=True):
         """
@@ -112,10 +110,9 @@ class EEGraSP():
 
         return distances
 
-
     def compute_graph(self, distances=None, epsilon=.5, sigma=.1):
         """
-        W -> if W is passed, then the graph is computed. 
+        W -> if W is passed, then the graph is computed.
         Otherwise the graph will be computed with self.W.
         W should correspond to a non-sparse 2-D array.
         Epsilon -> maximum distance to threshold the array.
@@ -124,7 +121,7 @@ class EEGraSP():
         method: NN -> Nearest Neighbor
                 Gaussian -> Gaussian Kernel used based on the self.W matrix
 
-        output: Graph structure from pygsp        
+        output: Graph structure from pygsp
         """
 
         # If passed, used the W matrix
@@ -143,7 +140,6 @@ class EEGraSP():
         self.graph = graph
         self.graph_weights = graph_weights
         return graph
-
 
     def interpolate_channel(self, graph=None, data=None, missing_idx=None):
         """
@@ -171,7 +167,6 @@ class EEGraSP():
                                                                mask, tau=0)
         return reconstructed
 
-
     def _return_results(self, error, signal, vparameter, param_name):
         """Function to wrap results into a dictionary.
 
@@ -196,7 +191,6 @@ class EEGraSP():
 
         return results
 
-
     def _vectorize_matrix(self, mat):
         """
         Vectorize a simetric matrix using the lower triangle.
@@ -210,7 +204,6 @@ class EEGraSP():
 
         return vec
 
-
     def fit_epsilon(self, data=None, distances=None, sigma=0.1,
                     missing_idx=None):
         """
@@ -218,7 +211,7 @@ class EEGraSP():
 
         Parameters
         ----------
-        distances -> Unthresholded distance matrix (2-dimensional array). 
+        distances -> Unthresholded distance matrix (2-dimensional array).
         It can be passed to the instance of
         the class or as an argument of the method.
         sigma -> parameter of the Gaussian Kernel transformation
@@ -226,7 +219,7 @@ class EEGraSP():
         Notes
         -----
         It will itterate through all the unique values of the distance matrix.
-        data -> 2-dimensional array. The first dim. is Channels 
+        data -> 2-dimensional array. The first dim. is Channels
         and second time. It can be passed to the instance class or the method
         """
         # Check if values are passed or use the instance's
@@ -298,7 +291,6 @@ class EEGraSP():
 
         results = self._return_results(error, signal, vdistances, 'epsilon')
         return results
-
 
     def fit_sigma(self, data=None, distances=None, epsilon=0.5,
                   missing_idx=None, min_sigma=0.1, max_sigma=1, step=0.1):
