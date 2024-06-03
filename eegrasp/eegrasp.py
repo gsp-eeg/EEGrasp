@@ -3,8 +3,8 @@ EEGRasP
 """
 
 import numpy as np
-from pygsp import graphs, learning
-from tqdm import tqdm # TODO: Does it belong here?
+from pygsp import graphs, learning, graph_learning
+from tqdm import tqdm  # TODO: Does it belong here?
 
 
 class EEGraSP():
@@ -22,6 +22,7 @@ class EEGraSP():
     Gaussian Kernel functionallity overlapping with Pygsp toolbox. This has
     been purposefully added.
     """
+
     def __init__(self, data=None, coordenates=None, labels=None):
         """
         Parameters
@@ -37,7 +38,6 @@ class EEGraSP():
         self.distances = None
         self.graph_weights = None
         self.graph = None
-
 
     def euc_dist(self, pos):
         """
@@ -64,7 +64,6 @@ class EEGraSP():
 
         return distance
 
-
     def gaussian_kernel(self, x, sigma=0.1):
         """
         Gaussian Kernel Weighting function.
@@ -84,7 +83,6 @@ class EEGraSP():
         # no. 3, pp. 83-98, May 2013, doi: 10.1109/MSP.2012.2235192.
         """
         return np.exp(-np.power(x, 2.) / (2.*np.power(float(sigma), 2)))
-
 
     def compute_distance(self, coordinates=None, method='Euclidean', normalize=True):
         """
@@ -112,9 +110,10 @@ class EEGraSP():
 
         return distances
 
-
-    def compute_graph(self, distances=None, epsilon=.5, sigma=.1):
+    def compute_graph(self, W=None, epsilon=.5, sigma=.1):
         """
+        Parameters
+        ----------
         W -> if W is passed, then the graph is computed. 
         Otherwise the graph will be computed with self.W.
         W should correspond to a non-sparse 2-D array.
@@ -124,26 +123,31 @@ class EEGraSP():
         method: NN -> Nearest Neighbor
                 Gaussian -> Gaussian Kernel used based on the self.W matrix
 
-        output: Graph structure from pygsp        
+        Returns
+        -------
+        G: Graph structure from pygsp        
         """
 
         # If passed, used the W matrix
-        if isinstance(distances, type(None)):
-            distances = self.distances.copy()
+        if isinstance(W, type(None)):
+            distances = self.distances
+            # Check that there is a weight matrix is not a None
+            if isinstance(distances, type(None)):
+                raise TypeError('Weight matrix cannot be None type')
+            graph_weights = self.gaussian_kernel(distances, sigma=sigma)
+            graph_weights[distances > epsilon] = 0
+            np.fill_diagonal(graph_weights, 0)
+            graph = graphs.Graph(graph_weights)
+        else:
+            graph = graphs.Graph(W)
 
-        # Check that there is a weight matrix is not a None
-        if isinstance(distances, type(None)):
-            raise TypeError('Weight matrix cannot be None type')
-
-        graph_weights = self.gaussian_kernel(distances, sigma=sigma)
-        graph_weights[distances > epsilon] = 0
-        np.fill_diagonal(graph_weights, 0)
-        graph = graphs.Graph(graph_weights)
+        if not isinstance(self.coordenates, type(None)):
+            graph.set_coordinates()
 
         self.graph = graph
         self.graph_weights = graph_weights
-        return graph
 
+        return graph
 
     def interpolate_channel(self, graph=None, data=None, missing_idx=None):
         """
@@ -171,7 +175,6 @@ class EEGraSP():
                                                                mask, tau=0)
         return reconstructed
 
-
     def _return_results(self, error, signal, vparameter, param_name):
         """Function to wrap results into a dictionary.
 
@@ -196,7 +199,6 @@ class EEGraSP():
 
         return results
 
-
     def _vectorize_matrix(self, mat):
         """
         Vectorize a simetric matrix using the lower triangle.
@@ -209,7 +211,6 @@ class EEGraSP():
         vec = mat[tril_indices]
 
         return vec
-
 
     def fit_epsilon(self, data=None, distances=None, sigma=0.1,
                     missing_idx=None):
@@ -299,7 +300,6 @@ class EEGraSP():
         results = self._return_results(error, signal, vdistances, 'epsilon')
         return results
 
-
     def fit_sigma(self, data=None, distances=None, epsilon=0.5,
                   missing_idx=None, min_sigma=0.1, max_sigma=1, step=0.1):
         """
@@ -385,3 +385,45 @@ class EEGraSP():
         results = self._return_results(error, signal, vsigma, 'sigma')
 
         return results
+
+    def learn_graph(self, Z=None, a=0.1, b=0.1,
+                    gamma=0.04, maxiter=1000, w_max=np.inf):
+        """Learn the graph based on smooth signals.
+
+        Parameters
+        ----------
+        Z: ndarra. Distance between the nodes. If not passed, 
+        the function will try to compute the euclidean distance
+        between the data. If self.data is a 2d array it will compute the
+        euclidean distance between the channels. If the data is a 3d array 
+        it will compute the average distance using the 2nd and 3rd dimensions,
+        averaging over the 1st one.
+
+        Returns
+        -------
+
+        W: ndarray. Weighted adjacency matrix between electrodes.
+        Z: ndarray. Used distance matrix to compute the weights.
+        """
+
+        # If no distance matrix is given compute based on
+        # data's euclidean distance
+        if isinstance(Z, type(None)):
+            data = self.data.copy()
+
+            # Average over trials
+            if len(data.shape) == 3:
+
+                Zs = np.zeros((data.shape[0], data.shape[1], data.shape[1]))
+                for i, d in enumerate(tqdm(data)):
+                    Zs[i, :, :] = self.euc_dist(d)
+                Z = np.mean(Zs, axis=0)
+            # Euclidean distance between data channels
+            else:
+                Z = self.euc_dist(data)
+
+        W = graph_learning.graph_log_degree(
+            Z, a, b, gamma=gamma, w_max=w_max, maxiter=maxiter)
+        W[W < 1e-5] = 0
+
+        return W, Z
