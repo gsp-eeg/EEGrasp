@@ -101,7 +101,7 @@ plt.title('Histogram')
 plt.tight_layout()
 plt.show()
 
-# %% Create graph and compute fourier basis
+# %% Extract eigenvalues and eigenvectors/eigenmodes
 
 G = gsp.graph
 G.compute_laplacian()
@@ -109,7 +109,7 @@ G.compute_fourier_basis()
 eigenvectors = np.array(G.U)
 eigenvalues = np.array(G.e)
 
-# %%
+# %% Plot Eigenvalue index vs eivenvalue
 plt.scatter(eigenvalues, np.arange(0, len(eigenvalues)),
             s=50, color='purple')
 plt.plot(eigenvalues, np.arange(0, len(eigenvalues)),
@@ -118,7 +118,8 @@ plt.xlabel('Eigenvalue')
 plt.ylabel('Eigenvalue Index')
 plt.show()
 
-# %%
+# %% Plot eigenmodes
+
 SCALE = 0.2
 vlim = (-np.amax(np.abs(eigenvectors))*SCALE,
         np.amax(np.abs(eigenvectors))*SCALE)
