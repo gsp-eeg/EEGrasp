@@ -1,6 +1,6 @@
 # %% Load Packages
 import mne
-from eegrasp import EEGraSP
+from eegrasp import EEGrasp
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import spatial
@@ -8,7 +8,7 @@ from timeit import timeit
 # %matplotlib qt
 # %%
 
-eegsp = EEGraSP()
+eegsp = EEGrasp()
 montage = mne.channels.make_standard_montage('standard_1005')
 ch_names = montage.ch_names
 EEG_pos = montage.get_positions()['ch_pos']

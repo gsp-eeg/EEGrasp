@@ -9,7 +9,7 @@ Requirements: None
 import mne
 import numpy as np
 import matplotlib.pyplot as plt
-from eegrasp import EEGraSP
+from eegrasp import EEGrasp
 
 # %%
 
@@ -28,7 +28,7 @@ plt.show()
 
 # %% Calculate electrode distance
 
-eegrasp = EEGraSP()
+eegrasp = EEGrasp()
 W = eegrasp.compute_distance(EEG_pos, method='Euclidean')
 
 # %% Plot distance matrix
