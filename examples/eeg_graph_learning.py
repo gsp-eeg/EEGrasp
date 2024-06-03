@@ -130,11 +130,11 @@ for i, ax in enumerate(axs.flatten()):
     im, cn = mne.viz.plot_topomap(eigenvectors[:, i], pos.T,
                                   sensors=True, axes=ax, cmap='RdBu_r',
                                   vlim=vlim, show=False)
-    core = r'\u208'
-    subscript = [(core+i+'').encode().decode('unicode_escape')
+    CORE = r'\u208'
+    SUBSCRIPT = [(CORE+i+'').encode().decode('unicode_escape')
                  for i in str(i+1)]
-    subscript = ''.join(subscript)
-    ax.text(-0.1, -0.15, r'$\lambda$' + subscript +
+    SUBSCRIPT = ''.join(SUBSCRIPT)
+    ax.text(-0.1, -0.15, r'$\lambda$' + SUBSCRIPT +
             ' = ' + f'{eigenvalues[i]:.3f}')
 
 fig.subplots_adjust(0, 0, 0.85, 1, 0, -0.5)
