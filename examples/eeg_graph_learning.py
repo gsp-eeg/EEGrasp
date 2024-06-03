@@ -4,6 +4,7 @@ This example follows the methods described in Miri et al."""
 
 # %% Import libraries
 
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import mne
@@ -12,7 +13,11 @@ from scipy.io import loadmat
 from scipy.signal import butter, sosfiltfilt
 from eegrasp import EEGraSP
 
-plt.switch_backend('qtagg')
+# Set working directory to the file directory
+os.chdir(os.path.dirname(__file__))
+# plt.switch_backend('QtAgg')
+
+# Instantiate EEGraSP
 gsp = EEGraSP()
 
 # %% Load Electrode montage and dataset
@@ -21,7 +26,7 @@ eeg = (data['cnt']).astype(float) * 0.1  # Recomendation: to set to uV
 events = np.squeeze(data['mrk'][0, 0][0])
 info = data['nfo'][0, 0]
 FS = info[1][0, 0]
-pos = np.array([info[3][:, 0], info[4][:, 0]]) / 10
+pos = np.array([info[3][:, 0], info[4][:, 0]]) / 10  # Weird behavior from MNE
 
 times = np.array([0.5, 2.5])  # Trial window times
 samples = times * FS  # Convert window to samples
@@ -31,7 +36,7 @@ s_len = int(np.diff(np.abs(samples))[0])  # Set window length in samples
 sos = butter(N=3, Wn=[8, 30], fs=FS, btype='bandpass', output='sos')
 filt_eeg = sosfiltfilt(sos, eeg, axis=0)
 
-# %% Create matrix with erps
+# %% Create matrix with trials
 trials = np.zeros((len(events), s_len, eeg.shape[1]))
 for i, event in enumerate(events):
     t_idx = (samples+event).astype(int)
@@ -64,10 +69,10 @@ plt.show()
 
 # %% Learn Graph Weights
 
-W = graph_learning.graph_log_degree(Z, 0.3, 0.5,
-                                    maxiter=1000,
+W = graph_learning.graph_log_degree(Z, 0.3, 0.6,
+                                    maxiter=10000,
                                     gamma=0.01,
-                                    w_max=np.inf)
+                                    w_max=1)
 W[W < 1e-5] = 0
 
 plt.figure(figsize=(10, 4))
@@ -99,22 +104,27 @@ plt.plot(eigenvalues, np.arange(0, len(eigenvalues)),
          linewidth=2, color='black')
 plt.xlabel('Eigenvalue')
 plt.ylabel('Eigenvalue Index')
+plt.show()
 
 # %%
-scale = 0.2
-vlim = (-np.amax(np.abs(eigenvectors))*scale,
-        np.amax(np.abs(eigenvectors))*scale)
+SCALE = 0.2
+vlim = (-np.amax(np.abs(eigenvectors))*SCALE,
+        np.amax(np.abs(eigenvectors))*SCALE)
+
 
 fig, axs = plt.subplots(2, 11, figsize=(14, 4))
 for i, ax in enumerate(axs.flatten()):
     im, cn = mne.viz.plot_topomap(eigenvectors[:, i], pos.T,
                                   sensors=True, axes=ax, cmap='RdBu_r',
-                                  vlim=vlim, show=True)
-    ax.text(-0.1, -0.15, r'$\lambda_{} = $'.format(i+1) +
-            f'{eigenvalues[i]:.3f}')
-
-# plt.tight_layout()
+                                  vlim=vlim, show=False)
+    core = r'\u208'
+    subscript = [(core+i+'').encode().decode('unicode_escape')
+                 for i in str(i+1)]
+    subscript = ''.join(subscript)
+    ax.text(-0.1, -0.15, r'$\lambda$' + subscript +
+            ' = ' + f'{eigenvalues[i]:.3f}')
 
 fig.subplots_adjust(0, 0, 0.85, 1, 0, -0.5)
 cbar = fig.add_axes([0.87, 0.1, 0.05, 0.8])
 plt.colorbar(im, cax=cbar)
+plt.show()
