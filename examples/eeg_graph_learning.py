@@ -21,7 +21,7 @@ gsp = EEGraSP()
 
 # %% Load Electrode montage and dataset
 data = loadmat('data/data_set_IVa_aa.mat')
-eeg = (data['cnt']).astype(float) * 0.1  # Recomendation: to set to uV
+eeg = (data['cnt']).astype(float) * 1e-7  # Recomendation: to set to V
 events = np.squeeze(data['mrk'][0, 0][0])
 info = data['nfo'][0, 0]
 ch_names = [ch_name[0] for ch_name in info[2][0, :]]
@@ -54,14 +54,14 @@ data = data.filter(l_freq=8, h_freq=30, n_jobs=-1)
 # Epoch and Crop epochs
 epochs = mne.Epochs(data, events2, tmin=0.0, tmax=2.5,
                     baseline=(0, 0.5), preload=True)
-# epochs = epochs.crop(0.5, None)
+epochs = epochs.crop(0.5, None)
 
 epochs_data = epochs.get_data()
 
 # %%% Compute the average euclidean distance between the channels
 gsp.data = epochs_data
 gsp.coordenates = pos
-W, Z = gsp.learn_graph(a=0.4, b=0.4)
+W, Z = gsp.learn_graph(a=0.34, b=0.4)
 
 gsp.compute_graph(W)
 
@@ -141,3 +141,5 @@ fig.subplots_adjust(0, 0, 0.85, 1, 0, -0.5)
 cbar = fig.add_axes([0.87, 0.1, 0.05, 0.8])
 plt.colorbar(im, cax=cbar)
 plt.show()
+
+# %%
