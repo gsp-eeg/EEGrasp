@@ -63,7 +63,7 @@ epochs_data = epochs.get_data()
 
 # %%% Compute the average euclidean distance between the channels
 gsp.data = epochs_data
-gsp.coordenates = pos
+gsp.coordinates = pos
 W, Z = gsp.learn_graph(a=0.34, b=0.4)
 
 gsp.compute_graph(W)

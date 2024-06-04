@@ -23,17 +23,18 @@ class EEGrasp():
     been purposefully added.
     """
 
-    def __init__(self, data=None, coordenates=None, labels=None):
+    def __init__(self, data=None, coordinates=None, labels=None):
         """
         Parameters
         ----------
-        data 2-d array, where the firs dim are channels and the second is
-        samples.  coordenates n-dim array of the position of the electrodes.
-        labels 1-d array with the channel names.
+        data: 2-d array, where the first dim are channels and the second is
+        samples.  
+        Coordenates: ndim array with position of the electrodes.
+        labels: 1-d array with the channel names.
         """
 
         self.data = data
-        self.coordenates = coordenates
+        self.coordinates = coordinates
         self.labels = labels
         self.distances = None
         self.graph_weights = None
@@ -95,7 +96,7 @@ class EEGrasp():
 
         # If passed, used the coordinates argument
         if isinstance(coordinates, type(None)):
-            coordinates = self.coordenates.copy()
+            coordinates = self.coordinates.copy()
 
         if method == 'Euclidean':
             distances = self.euc_dist(coordinates)
@@ -143,8 +144,8 @@ class EEGrasp():
             graph_weights = W
             graph = graphs.Graph(W)
 
-        if self.coordenates is not None:
-            graph.set_coordinates(self.coordenates)
+        if self.coordinates is not None:
+            graph.set_coordinates(self.coordinates)
 
         self.graph = graph
         self.graph_weights = graph_weights
