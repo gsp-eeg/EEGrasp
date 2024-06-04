@@ -26,7 +26,7 @@ if os.path.exists(DATA_PATH):
     data = loadmat(DATA_PATH)
 else:
     raise FileNotFoundError(
-        'Data could not be loaded.')
+        'Data file not found.')
 
 eeg = (data['cnt']).astype(float) * 1e-7  # Recomendation: to set to V
 events = np.squeeze(data['mrk'][0, 0][0])
