@@ -1,10 +1,8 @@
-"""Using the algorithm proposed in Kalofolias et al. 2019,
-and implemented in Pygsp2, learn the graph from EEG signals.
-This example follows the methods described in Miri et al. 2024
-to run this example you will need to download the data 
-described in the paper. You can download it here:
-https://www.bbci.de/competition/iii/#data_set_iva"""
-
+"""Learn the graph from EEG signals using the algorithm proposed by
+Kalofolias et al. (2019) and implemented in Pygsp2. This example
+follows the methods described in Miri et al. (2024). To run this 
+example, you will need to download the data used in the paper
+(download it from https://www.bbci.de/competition/iii/#data_set_iva)."""
 # %% Import libraries
 
 import os
@@ -21,7 +19,12 @@ os.chdir(os.path.dirname(__file__))
 gsp = EEGrasp()
 
 # %% Load Electrode montage and dataset
-data = loadmat('data/data_set_IVa_aa.mat')
+try:
+    data = loadmat('data/data_set_IVa_aa.mat')
+except FileNotFoundError:
+    print('Data could not be loaded. Change directory or download \
+          the data from the link at the begining of the file')
+
 eeg = (data['cnt']).astype(float) * 1e-7  # Recomendation: to set to V
 events = np.squeeze(data['mrk'][0, 0][0])
 info = data['nfo'][0, 0]

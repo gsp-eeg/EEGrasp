@@ -129,11 +129,12 @@ class EEGrasp():
         """
 
         # If passed, used the W matrix
-        if isinstance(W, type(None)):
+        if W is None:
             distances = self.distances
             # Check that there is a weight matrix is not a None
-            if isinstance(distances, type(None)):
-                raise TypeError('Weight matrix cannot be None type')
+            if distances is None:
+                raise TypeError(
+                    'No distances found. Distances have to be computed if W is not provided')
             graph_weights = self.gaussian_kernel(distances, sigma=sigma)
             graph_weights[distances > epsilon] = 0
             np.fill_diagonal(graph_weights, 0)
@@ -142,8 +143,8 @@ class EEGrasp():
             graph_weights = W
             graph = graphs.Graph(W)
 
-        if not isinstance(self.coordenates, type(None)):
-            graph.set_coordinates()
+        if self.coordenates is not None:
+            graph.set_coordinates(self.coordenates)
 
         self.graph = graph
         self.graph_weights = graph_weights
@@ -409,11 +410,11 @@ class EEGrasp():
 
         # If no distance matrix is given compute based on
         # data's euclidean distance
-        if isinstance(Z, type(None)):
+        if Z is None:
             data = self.data.copy()
 
             # Average over trials
-            if len(data.shape) == 3:
+            if data.ndim == 3:
 
                 Zs = np.zeros((data.shape[0], data.shape[1], data.shape[1]))
                 for i, d in enumerate(tqdm(data)):
