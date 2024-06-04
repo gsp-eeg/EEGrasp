@@ -19,11 +19,14 @@ os.chdir(os.path.dirname(__file__))
 gsp = EEGrasp()
 
 # %% Load Electrode montage and dataset
-try:
-    data = loadmat('data/data_set_IVa_aa.mat')
-except FileNotFoundError:
-    print('Data could not be loaded. Change directory or download \
-          the data from the link at the begining of the file')
+
+DATA_PATH = 'data/data_set_IVa_aa.mat'
+
+if os.path.exists(DATA_PATH):
+    data = loadmat(DATA_PATH)
+else:
+    raise FileNotFoundError(
+        'Data could not be loaded.')
 
 eeg = (data['cnt']).astype(float) * 1e-7  # Recomendation: to set to V
 events = np.squeeze(data['mrk'][0, 0][0])
