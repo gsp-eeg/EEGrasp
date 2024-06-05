@@ -3,6 +3,7 @@ matplotlib
 pylint
 tqdm
 mne
+joblib
 scipy
 pandas
 # Most updated version of pygsp publicly available 
