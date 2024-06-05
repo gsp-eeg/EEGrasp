@@ -24,7 +24,8 @@ dependencies= [
   "mne",
   "matplotlib",
   "pygsp >= 0.5.1",
-  "tqdm"
+  "tqdm",
+  "joblib"
 ]
 
 [project.urls]
