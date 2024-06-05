@@ -390,7 +390,8 @@ class EEGrasp():
         return results
 
     def learn_graph(self, Z=None, a=0.1, b=0.1,
-                    gamma=0.04, maxiter=1000, w_max=np.inf):
+                    gamma=0.04, maxiter=1000, w_max=np.inf,
+                    mode='Average'):
         """Learn the graph based on smooth signals.
 
         Parameters
@@ -401,6 +402,10 @@ class EEGrasp():
         euclidean distance between the channels. If the data is a 3d array 
         it will compute the average distance using the 2nd and 3rd dimensions,
         averaging over the 1st one.
+
+        mode: string. Options are: 'Average', 'Trials'. If average, 
+        the function returns a single W and Z. If 'Trials' the function returns
+        a generator list of Ws and Zs.
 
         Returns
         -------
@@ -414,19 +419,46 @@ class EEGrasp():
         if Z is None:
             data = self.data.copy()
 
-            # Average over trials
-            if data.ndim == 3:
+        # Check if data contains trials
+        if data.ndim == 3:
 
-                Zs = np.zeros((data.shape[0], data.shape[1], data.shape[1]))
+            Zs = np.zeros((data.shape[0], data.shape[1], data.shape[1]))
+
+            # Check if we want to return average or trials
+            if mode == 'Trials':
+
+                Ws = np.zeros(
+                    (data.shape[0], data.shape[1], data.shape[1]))
                 for i, d in enumerate(tqdm(data)):
+                    # Compute euclidean distance
+                    Z = self.euc_dist(d)
+
+                    W = graph_learning.graph_log_degree(
+                        Z, a, b, gamma=gamma, w_max=w_max, maxiter=maxiter)
+                    W[W < 1e-5] = 0
+
+                    Ws[i, :, :] = W.copy()
+                    Zs[i, :, :] = Z.copy()
+
+                return Ws, Zs
+
+            elif mode == 'Average':
+
+                for i, d in enumerate(tqdm(data)):
+                    # Compute euclidean distance
                     Zs[i, :, :] = self.euc_dist(d)
+
                 Z = np.mean(Zs, axis=0)
-            # Euclidean distance between data channels
-            else:
-                Z = self.euc_dist(data)
+                W = graph_learning.graph_log_degree(
+                    Z, a, b, gamma=gamma, w_max=w_max, maxiter=maxiter)
+                W[W < 1e-5] = 0
 
-        W = graph_learning.graph_log_degree(
-            Z, a, b, gamma=gamma, w_max=w_max, maxiter=maxiter)
-        W[W < 1e-5] = 0
+                return W, Z
+        else:
+            Z = self.euc_dist(d)
 
-        return W, Z
+            W = graph_learning.graph_log_degree(
+                Z, a, b, gamma=gamma, w_max=w_max, maxiter=maxiter)
+            W[W < 1e-5] = 0
+
+            return W, Z

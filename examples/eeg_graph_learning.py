@@ -135,7 +135,7 @@ vlim = (-np.amax(np.abs(eigenvectors))*SCALE,
 
 fig, axs = plt.subplots(2, 11, figsize=(14, 4))
 for i, ax in enumerate(axs.flatten()):
-    im, cn = mne.viz.plot_topomap(eigenvectors[:, i], pos.T,
+    im, cn = mne.viz.plot_topomap(eigenvectors[:, i], pos,
                                   sensors=True, axes=ax, cmap='RdBu_r',
                                   vlim=vlim, show=False,
                                   sphere=0.9)
