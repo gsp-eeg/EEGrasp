@@ -1,8 +1,13 @@
 """Learn the graph from EEG signals using the algorithm proposed by
 Kalofolias et al. (2019) and implemented in Pygsp2. This example
-follows the methods described in Miri et al. (2024). To run this 
-example, you will need to download the data used in the paper
-(download it from https://www.bbci.de/competition/iii/#data_set_iva)."""
+follows the methods described in Miri et al. (2024). To run this
+example download the following data file `data_set_IVa_aa.mat`
+from the BCI Competition III:
+
+https://www.bbci.de/competition/download/competition_iii/berlin/100Hz/data_set_IVa_aa_mat.zip
+
+You need to decompress the file and place the file in a directory named `data`.
+"""
 # %% Import libraries
 
 import os
