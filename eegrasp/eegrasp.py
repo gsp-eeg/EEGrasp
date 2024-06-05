@@ -410,8 +410,13 @@ class EEGrasp():
         Returns
         -------
 
-        W: ndarray. Weighted adjacency matrix between electrodes.
-        Z: ndarray. Used distance matrix to compute the weights.
+        W: ndarray. Weighted adjacency matrix or matrices depending on 
+        mode parameter used. If run in 'Trials' mode then Z is a 
+        3d array where the first dim corresponds to trials.
+        Z: ndarray. Used distance matrix or matrices depending on 
+        mode parameter used. If run in 'Trials' mode then Z is a 
+        3d array where the first dim corresponds to trials.
+
         """
 
         # If no distance matrix is given compute based on
