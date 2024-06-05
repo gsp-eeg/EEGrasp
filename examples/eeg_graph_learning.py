@@ -22,18 +22,18 @@ gsp = EEGrasp()
 
 DATA_PATH = 'data/data_set_IVa_aa.mat'
 
-if os.path.exists(DATA_PATH):
+try:
     data = loadmat(DATA_PATH)
-else:
-    raise FileNotFoundError(
-        'Data file not found.')
+except FileNotFoundError as exc:
+    print('File not found')
+    raise exc
 
 eeg = (data['cnt']).astype(float) * 1e-7  # Recomendation: to set to V
 events = np.squeeze(data['mrk'][0, 0][0])
 info = data['nfo'][0, 0]
 ch_names = [ch_name[0] for ch_name in info[2][0, :]]
 FS = info[1][0, 0]
-pos = np.array([info[3][:, 0], info[4][:, 0]])  # Weird behavior from MNE
+pos = np.array([info[3][:, 0], info[4][:, 0]]).T
 
 # %% Preprocessing in MNE
 
