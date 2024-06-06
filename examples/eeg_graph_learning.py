@@ -9,6 +9,7 @@ https://www.bbci.de/competition/download/competition_iii/berlin/100Hz/data_set_I
 You need to decompress the file and place the file in a directory named `data`.
 """
 # %% Import libraries
+import sys
 import os
 from pathlib import Path
 import numpy as np
@@ -28,9 +29,9 @@ file_name = Path('data') / 'data_set_IVa_aa.mat'
 
 try:
     data = loadmat(file_name)
-except FileNotFoundError as exc:
-    print('File not found')
-    raise exc
+except (FileNotFoundError,OSError):
+    print(f'File {file_name} not found')
+    sys.exit(-1)
 
 eeg = (data['cnt']).astype(float) * 1e-7  # Recomendation: to set to V
 events = np.squeeze(data['mrk'][0, 0][0])
