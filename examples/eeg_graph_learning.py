@@ -29,7 +29,7 @@ file_name = Path('data') / 'data_set_IVa_aa.mat'
 
 try:
     data = loadmat(file_name)
-except (FileNotFoundError,OSError):
+except (FileNotFoundError, OSError):
     print(f'File {file_name} not found')
     sys.exit(-1)
 
@@ -76,7 +76,7 @@ gsp.compute_graph(W)
 tril_idx = np.tril_indices(len(Z), -1)
 
 # %% Plot Z
-plt.figure(figsize=(10, 4))
+plt.figure(figsize=(12, 4))
 plt.subplot(121)
 plt.imshow(Z, cmap='hot')
 plt.colorbar(label='Distance [uV]')
