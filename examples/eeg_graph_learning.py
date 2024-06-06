@@ -9,8 +9,8 @@ https://www.bbci.de/competition/download/competition_iii/berlin/100Hz/data_set_I
 You need to decompress the file and place the file in a directory named `data`.
 """
 # %% Import libraries
-
 import os
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 import mne
@@ -24,11 +24,10 @@ os.chdir(os.path.dirname(__file__))
 gsp = EEGrasp()
 
 # %% Load Electrode montage and dataset
-
-DATA_PATH = 'data/data_set_IVa_aa.mat'
+file_name = Path('data') / 'data_set_IVa_aa.mat'
 
 try:
-    data = loadmat(DATA_PATH)
+    data = loadmat(file_name)
 except FileNotFoundError as exc:
     print('File not found')
     raise exc
