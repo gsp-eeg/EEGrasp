@@ -82,15 +82,12 @@ plt.imshow(Z, cmap='hot')
 plt.colorbar(label='Distance [uV]')
 plt.title('Distance Matrix, Z')
 
-
 plt.subplot(122)
 plt.hist(Z[tril_idx], 10)
 plt.xlabel('Distance')
 plt.ylabel('N° Count')
 plt.title('Histogram')
-
 plt.tight_layout()
-plt.show()
 
 # %% Plot W
 
@@ -107,7 +104,6 @@ plt.ylabel('N° Count')
 plt.title('Histogram')
 
 plt.tight_layout()
-plt.show()
 
 # %% Extract eigenvalues and eigenvectors/eigenmodes
 
@@ -124,14 +120,12 @@ plt.plot(eigenvalues, np.arange(0, len(eigenvalues)),
          linewidth=3, color='black')
 plt.xlabel('Eigenvalue')
 plt.ylabel('Eigenvalue Index')
-plt.show()
 
 # %% Plot eigenmodes
 
 SCALE = 0.2
 vlim = (-np.amax(np.abs(eigenvectors))*SCALE,
         np.amax(np.abs(eigenvectors))*SCALE)
-
 
 fig, axs = plt.subplots(2, 11, figsize=(14, 4))
 for i, ax in enumerate(axs.flatten()):
