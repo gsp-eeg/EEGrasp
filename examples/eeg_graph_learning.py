@@ -54,7 +54,7 @@ data = data.set_annotations(annotations)
 events2, events_id = mne.events_from_annotations(data)
 
 # Reference data to average
-data, ref_data = mne.set_eeg_reference(data, ref_channels='average')
+data, _ = mne.set_eeg_reference(data, ref_channels='average')
 
 # Filter between 8 and 30 Hz
 data = data.filter(l_freq=8, h_freq=30, n_jobs=-1)
