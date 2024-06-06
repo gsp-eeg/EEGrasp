@@ -3,7 +3,7 @@ EEGRasP
 """
 
 import numpy as np
-from pygsp import graphs, learning
+from pygsp import graphs, learning, graph_learning
 from tqdm import tqdm  # TODO: Does it belong here?
 
 
@@ -23,17 +23,18 @@ class EEGrasp():
     been purposefully added.
     """
 
-    def __init__(self, data=None, coordenates=None, labels=None):
+    def __init__(self, data=None, coordinates=None, labels=None):
         """
         Parameters
         ----------
-        data 2-d array, where the firs dim are channels and the second is
-        samples.  coordenates n-dim array of the position of the electrodes.
-        labels 1-d array with the channel names.
+        data: 2-d array, where the first dim are channels and the second is
+        samples.  
+        Coordenates: ndim array with position of the electrodes.
+        labels: 1-d array with the channel names.
         """
 
         self.data = data
-        self.coordenates = coordenates
+        self.coordinates = coordinates
         self.labels = labels
         self.distances = None
         self.graph_weights = None
@@ -95,7 +96,7 @@ class EEGrasp():
 
         # If passed, used the coordinates argument
         if isinstance(coordinates, type(None)):
-            coordinates = self.coordenates.copy()
+            coordinates = self.coordinates.copy()
 
         if method == 'Euclidean':
             distances = self.euc_dist(coordinates)
@@ -110,9 +111,11 @@ class EEGrasp():
 
         return distances
 
-    def compute_graph(self, distances=None, epsilon=.5, sigma=.1):
+    def compute_graph(self, W=None, epsilon=.5, sigma=.1):
         """
-        W -> if W is passed, then the graph is computed.
+        Parameters
+        ----------
+        W -> if W is passed, then the graph is computed. 
         Otherwise the graph will be computed with self.W.
         W should correspond to a non-sparse 2-D array.
         Epsilon -> maximum distance to threshold the array.
@@ -121,24 +124,32 @@ class EEGrasp():
         method: NN -> Nearest Neighbor
                 Gaussian -> Gaussian Kernel used based on the self.W matrix
 
-        output: Graph structure from pygsp
+        Returns
+        -------
+        G: Graph structure from pygsp        
         """
 
         # If passed, used the W matrix
-        if isinstance(distances, type(None)):
-            distances = self.distances.copy()
+        if W is None:
+            distances = self.distances
+            # Check that there is a weight matrix is not a None
+            if distances is None:
+                raise TypeError(
+                    'No distances found. Distances have to be computed if W is not provided')
+            graph_weights = self.gaussian_kernel(distances, sigma=sigma)
+            graph_weights[distances > epsilon] = 0
+            np.fill_diagonal(graph_weights, 0)
+            graph = graphs.Graph(graph_weights)
+        else:
+            graph_weights = W
+            graph = graphs.Graph(W)
 
-        # Check that there is a weight matrix is not a None
-        if isinstance(distances, type(None)):
-            raise TypeError('Weight matrix cannot be None type')
-
-        graph_weights = self.gaussian_kernel(distances, sigma=sigma)
-        graph_weights[distances > epsilon] = 0
-        np.fill_diagonal(graph_weights, 0)
-        graph = graphs.Graph(graph_weights)
+        if self.coordinates is not None:
+            graph.set_coordinates(self.coordinates)
 
         self.graph = graph
         self.graph_weights = graph_weights
+
         return graph
 
     def interpolate_channel(self, graph=None, data=None, missing_idx=None):
@@ -377,3 +388,82 @@ class EEGrasp():
         results = self._return_results(error, signal, vsigma, 'sigma')
 
         return results
+
+    def learn_graph(self, Z=None, a=0.1, b=0.1,
+                    gamma=0.04, maxiter=1000, w_max=np.inf,
+                    mode='Average'):
+        """Learn the graph based on smooth signals.
+
+        Parameters
+        ----------
+        Z: ndarra. Distance between the nodes. If not passed, 
+        the function will try to compute the euclidean distance
+        between the data. If self.data is a 2d array it will compute the
+        euclidean distance between the channels. If the data is a 3d array 
+        it will compute the average distance using the 2nd and 3rd dimensions,
+        averaging over the 1st one.
+
+        mode: string. Options are: 'Average', 'Trials'. If average, 
+        the function returns a single W and Z. If 'Trials' the function returns
+        a generator list of Ws and Zs.
+
+        Returns
+        -------
+
+        W: ndarray. Weighted adjacency matrix or matrices depending on 
+        mode parameter used. If run in 'Trials' mode then Z is a 
+        3d array where the first dim corresponds to trials.
+        Z: ndarray. Used distance matrix or matrices depending on 
+        mode parameter used. If run in 'Trials' mode then Z is a 
+        3d array where the first dim corresponds to trials.
+
+        """
+
+        # If no distance matrix is given compute based on
+        # data's euclidean distance
+        if Z is None:
+            data = self.data.copy()
+
+        # Check if data contains trials
+        if data.ndim == 3:
+
+            Zs = np.zeros((data.shape[0], data.shape[1], data.shape[1]))
+
+            # Check if we want to return average or trials
+            if mode == 'Trials':
+
+                Ws = np.zeros(
+                    (data.shape[0], data.shape[1], data.shape[1]))
+                for i, d in enumerate(tqdm(data)):
+                    # Compute euclidean distance
+                    Z = self.euc_dist(d)
+
+                    W = graph_learning.graph_log_degree(
+                        Z, a, b, gamma=gamma, w_max=w_max, maxiter=maxiter)
+                    W[W < 1e-5] = 0
+
+                    Ws[i, :, :] = W.copy()
+                    Zs[i, :, :] = Z.copy()
+
+                return Ws, Zs
+
+            elif mode == 'Average':
+
+                for i, d in enumerate(tqdm(data)):
+                    # Compute euclidean distance
+                    Zs[i, :, :] = self.euc_dist(d)
+
+                Z = np.mean(Zs, axis=0)
+                W = graph_learning.graph_log_degree(
+                    Z, a, b, gamma=gamma, w_max=w_max, maxiter=maxiter)
+                W[W < 1e-5] = 0
+
+                return W, Z
+        else:
+            Z = self.euc_dist(d)
+
+            W = graph_learning.graph_log_degree(
+                Z, a, b, gamma=gamma, w_max=w_max, maxiter=maxiter)
+            W[W < 1e-5] = 0
+
+            return W, Z
