@@ -64,7 +64,7 @@ epochs = mne.Epochs(data, events2, tmin=0.0, tmax=2.5,
                     baseline=(0, 0.5), preload=True)
 epochs = epochs.crop(0.5, None)
 
-epochs_data = epochs.get_data()
+epochs_data = epochs.get_data(copy=False)
 
 # %%% Compute the average euclidean distance between the channels
 gsp.data = epochs_data
