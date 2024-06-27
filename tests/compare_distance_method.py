@@ -19,7 +19,7 @@ kdt = spatial.KDTree(EEG_pos)
 epsilon = 0.5
 # %% Method 2
 # % timeit
-# Method 1. From pygsp (using scipy)
+# Method 1. From pygsp2 (using scipy)
 D, NN = kdt.query(EEG_pos, k=len(EEG_pos), distance_upper_bound=epsilon,
                   p=2, workers=-1)
 
@@ -70,6 +70,6 @@ plt.title('Error')
 plt.bar(range(len(not_equal_idx)), error)
 plt.xticks(range(len(not_equal_idx)), labels=not_equal_idx)
 plt.xlabel('Lower Triangle Index')
-plt.ylabel('pygsp - inhouse')
+plt.ylabel('pygsp2 - inhouse')
 plt.show()
 # %%
