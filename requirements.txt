@@ -7,4 +7,4 @@ joblib
 scipy
 pandas
 # Most updated version of pygsp2 publicly available 
-pygsp2>=2.0.3
+pygsp2>=2.0.4
