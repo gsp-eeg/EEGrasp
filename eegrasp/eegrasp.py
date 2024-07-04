@@ -3,7 +3,15 @@ EEGRasP
 """
 
 import numpy as np
-from pygsp import graphs, learning, graph_learning
+from pygsp2 import graphs, learning, graph_learning
+
+from eegrasp.connectivity_measures import (
+    phase_locking_value,
+    phase_lag_index,
+    phase_coherence, 
+    imaginary_coherence
+)
+
 from tqdm import tqdm  # TODO: Does it belong here?
 
 
@@ -77,13 +85,77 @@ class EEGrasp():
 
         References
         ----------
-        # D. I. Shuman, S. K. Narang, P. Frossard, A. Ortega and
-        # P. Vandergheynst, "The emerging field of signal processing on graphs:
-        # Extending high-dimensional data analysis to networks and other
-        # irregular domains," in IEEE Signal Processing Magazine, vol. 30,
-        # no. 3, pp. 83-98, May 2013, doi: 10.1109/MSP.2012.2235192.
+        [1] D. I. Shuman, S. K. Narang, P. Frossard, A. Ortega and
+        P. Vandergheynst, "The emerging field of signal processing on graphs:
+        Extending high-dimensional data analysis to networks and other
+        irregular domains," in IEEE Signal Processing Magazine, vol. 30,
+        no. 3, pp. 83-98, May 2013, doi: 10.1109/MSP.2012.2235192.
         """
         return np.exp(-np.power(x, 2.) / (2.*np.power(float(sigma), 2)))
+
+    def compute_connectivity(self, data=None, method='PLV', mode='Average'):
+        """
+        Compute the connectivity matrix.
+
+        Parameters
+        ----------
+        data: 2d array of channels by samples or 3d array of trials by channels by samples.
+        method: string. Options are: 'PLV', 'PLI', 'IC'.
+        mode: string. Options are: 'Average', 'Trials'. 
+            If 'Average', the function returns a single connectivity matrix. 
+            If 'Trials' the function returns a list of connectivity matrices.
+
+        Returns
+        -------
+        connectivity: 2d array of channels by channels with the connectivity
+        values.
+        """
+
+        if isinstance(data, type(None)):
+            data = self.data.copy()
+
+        if data.ndim == 3:
+            if mode == 'Trials':
+                connectivity = np.zeros([data.shape[0], data.shape[1], data.shape[1]])
+                for i, trial in enumerate(data):
+                    connectivity[i, :, :] = self.compute_connectivity(
+                        trial, method=method)
+
+            if mode == 'Average':
+                connectivity = np.zeros([data.shape[1], data.shape[1]])
+                for i, trial in enumerate(data):
+                    connectivity += self.compute_connectivity(
+                        trial, method=method)
+
+                connectivity = connectivity / data.shape[0]
+        
+        elif data.ndim == 2:
+            connectivity = np.zeros([data.shape[0], data.shape[0]])
+            if method == "corr":
+                connectivity = np.corrcoef(data)
+            else:
+                for i in range(data.shape[0]):
+                    for j in range(i, data.shape[0]):
+                        if i != j:
+                            if method == 'PLV':
+                                connectivity[i, j] = phase_locking_value(
+                                    data[i, :], data[j, :])
+                            elif method == 'PLI':
+                                connectivity[i, j] = phase_lag_index(
+                                    data[i, :], data[j, :])
+                            elif method == 'PC':
+                                connectivity[i, j] = phase_coherence(
+                                    data[i, :], data[j, :])
+                            elif method == 'IC':
+                                connectivity[i, j] = imaginary_coherence(
+                                    data[i, :], data[j, :])
+                            else:
+                                raise ValueError(f'Method {method} not available. Available methods are: PLV, PLI, PC, IC.')
+                            connectivity[j, i] = connectivity[i, j]
+        else:
+            raise ValueError('Data should be 2d or 3d array.')
+
+        return connectivity
 
     def compute_distance(self, coordinates=None, method='Euclidean', normalize=True):
         """
@@ -139,16 +211,15 @@ class EEGrasp():
             graph_weights = self.gaussian_kernel(distances, sigma=sigma)
             graph_weights[distances > epsilon] = 0
             np.fill_diagonal(graph_weights, 0)
-            graph = graphs.Graph(graph_weights)
-        else:
-            graph_weights = W
-            graph = graphs.Graph(W)
+            W = graph_weights
+        
+        graph = graphs.Graph(W)
 
         if self.coordinates is not None:
             graph.set_coordinates(self.coordinates)
 
         self.graph = graph
-        self.graph_weights = graph_weights
+        self.graph_weights = W
 
         return graph
 
