@@ -5,7 +5,7 @@ EEGRasP
 import numpy as np
 from pygsp import graphs, learning, graph_learning
 from tqdm import tqdm  # TODO: Does it belong here?
-
+from scipy import spatial
 
 class EEGrasp():
     """
@@ -451,14 +451,29 @@ class EEGrasp():
 
                 for i, d in enumerate(tqdm(data)):
                     # Compute euclidean distance
-                    Zs[i, :, :] = self.euc_dist(d)
+                    #Zs[i, :, :] = self.euc_dist(d)
+                    kdt = spatial.KDTree(d)
+                    epsilon = 0.5
+                    # %% Method 2
+                    # % timeit
+                    # Method 1. From pygsp2 (using scipy)
+                    D, NN = kdt.query(d, k=len(d), distance_upper_bound=epsilon,
+                                    p=2, workers=-1)
+                    #Zs[i, :, :] = np.zeros(D.shape)
+                    for j, N in enumerate(NN):
+                        neighbors = D[j, :] != np.inf
+                        Zs[i, j, N[neighbors]] = D[j, neighbors]
+
+                    np.fill_diagonal(Zs[i], 0)
 
                 Z = np.mean(Zs, axis=0)
+
                 W = graph_learning.graph_log_degree(
                     Z, a, b, gamma=gamma, w_max=w_max, maxiter=maxiter)
                 W[W < 1e-5] = 0
 
                 return W, Z
+            
         else:
             Z = self.euc_dist(d)
 
