@@ -19,7 +19,7 @@ class EEGrasp():
 
     Notes
     -----
-    Gaussian Kernel functionallity overlapping with pygsp2 toolbox. This has
+    Gaussian Kernel functionallity overlapping with PyGSP2 toolbox. This has
     been purposefully added.
     """
 
@@ -71,7 +71,7 @@ class EEGrasp():
 
         Notes
         -----
-        This function is supposed to be used in the pygsp2 module but
+        This function is supposed to be used in the PyGSP2 module but
         is repeated here since there is an error in the available version
         of the toolbox (03/04/2024 dd/mm/yyyy)
 
@@ -126,7 +126,7 @@ class EEGrasp():
 
         Returns
         -------
-        G: Graph structure from pygsp2        
+        G: Graph structure from PyGSP2        
         """
 
         # If passed, used the W matrix
@@ -451,23 +451,9 @@ class EEGrasp():
 
                 for i, d in enumerate(tqdm(data)):
                     # Compute euclidean distance
-                    #Zs[i, :, :] = self.euc_dist(d)
-                    kdt = spatial.KDTree(d)
-                    epsilon = 0.5
-                    # %% Method 2
-                    # % timeit
-                    # Method 1. From pygsp2 (using scipy)
-                    D, NN = kdt.query(d, k=len(d), distance_upper_bound=epsilon,
-                                    p=2, workers=-1)
-                    #Zs[i, :, :] = np.zeros(D.shape)
-                    for j, N in enumerate(NN):
-                        neighbors = D[j, :] != np.inf
-                        Zs[i, j, N[neighbors]] = D[j, neighbors]
-
-                    np.fill_diagonal(Zs[i], 0)
+                    Zs[i, :, :] = self.euc_dist(d)
 
                 Z = np.mean(Zs, axis=0)
-
                 W = graph_learning.graph_log_degree(
                     Z, a, b, gamma=gamma, w_max=w_max, maxiter=maxiter)
                 W[W < 1e-5] = 0

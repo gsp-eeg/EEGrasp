@@ -23,7 +23,7 @@ dependencies= [
   "numpy",
   "mne",
   "matplotlib",
-  "pygsp2 >= 2.0.3",
+  "pygsp2",
   "tqdm",
   "joblib"
 ]
