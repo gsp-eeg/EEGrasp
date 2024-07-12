@@ -114,23 +114,19 @@ G.compute_fourier_basis()
 eigenvectors = np.array(G.U)
 eigenvalues = np.array(G.e)
 
-
-#print(edgest)
 size = np.sum(G.W.toarray(), axis=0) / max(np.sum(G.W.toarray(), axis=0))
 weights = G.W.toarray()
-tril_idx = np.tril_indices(len(weights),-1)
+tril_idx = np.tril_indices(len(weights), -1)
 
 wh = []
 for i in range(len(tril_idx[0])):
-    x,y= tril_idx[0][i], tril_idx[1][i]
-    if weights[x,y] != 0:
-        wh.append(weights[x,y])
-    
+    x, y = tril_idx[0][i], tril_idx[1][i]
+    if weights[x, y] != 0:
+        wh.append(weights[x, y])
 
-#G.plot(vertex_color=eigenvectors[:,1], vertex_size=size, cmap="viridis", alphan=1, alphav=1)
-#G.plot(vertex_size=size, cmap="viridis", alphan=1, alphav=1, edge_weights=wh)
 
-G.plot(vertex_color=eigenvectors[:,5], vertex_size=size, cmap="magma", alphan=0.9, alphav=0.5, edge_weights=wh)
+G.plot(vertex_color=eigenvectors[:, 5], vertex_size=size, cmap="magma",
+       alphan=0.9, alphav=0.5, edge_weights=wh)
 
 # %% Plot Eigenvalue index vs eivenvalue
 plt.figure()
