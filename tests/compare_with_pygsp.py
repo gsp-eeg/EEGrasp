@@ -1,6 +1,6 @@
 """"
 This code tests the graph construction by comparing to the results
-obtained with pygsp.
+obtained with PyGSP2.
 """
 
 # %% Load libraries
@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import scipy.interpolate as interp
 import matplotlib.pyplot as plt
-from pygsp import graphs, learning
+from pygsp2 import graphs, learning
 from eegrasp import EEGrasp
 
 # %% Load Data
@@ -33,7 +33,7 @@ measures[~mask] = np.nan
 rbfi = interp.Rbf(X[mask, 0], X[mask, 1], measures[mask])
 error_rbf = np.abs(rbfi(X[~mask, 0], X[~mask, 1]) - signal[~mask])[0]
 
-# %% Pygsp NNGraph
+# %% PyGSP2 NNGraph
 sigmas = np.linspace(0.02, 0.08, 200)
 errors = np.zeros(len(sigmas))
 for i, sigma in enumerate(sigmas):
@@ -60,7 +60,7 @@ for i, sigma in enumerate(sigmas2):
 
 # %% Plot error
 plt.close('all')
-plt.plot(sigmas, errors, color='blue', label='PyGSP')
+plt.plot(sigmas, errors, color='blue', label='PyGSP2')
 plt.plot(sigmas, errors2, color='magenta', label='EEGRASP')
 plt.xlabel(r'$\sigma$')
 plt.xticks(sigmas[::22],
@@ -73,7 +73,7 @@ plt.legend()
 plt.show()
 
 # %% Error
-print(f'PyGSP: {np.amin(errors):.1e}')
+print(f'PyGSP2: {np.amin(errors):.1e}')
 print(f'EEGRASP: {np.amin(errors2):.1e}')
 print(f'Error percentage: {(np.amin(errors2)/np.amin(errors) * 100):.1f}%')
 
@@ -95,7 +95,7 @@ for i, sigma in enumerate(sigmas):
 
 # %% Plot error
 plt.figure()
-plt.plot(sigmas, errors, color='blue', label='PyGSP - No rescale, No Center')
+plt.plot(sigmas, errors, color='blue', label='PyGSP2 - No rescale, No Center')
 plt.plot(sigmas, errors2, color='magenta', label='EEGRASP')
 plt.xlabel(r'$\sigma$')
 plt.xticks(sigmas[::22],
@@ -108,6 +108,6 @@ plt.legend()
 plt.show()
 
 # %% Error
-print(f'PyGSP: {np.amin(errors):.1e}')
+print(f'PyGSP2: {np.amin(errors):.1e}')
 print(f'EEGRASP: {np.amin(errors2):.1e}')
 print(f'Error percentage: {(np.amin(errors2)/np.amin(errors) * 100):.1f}%')

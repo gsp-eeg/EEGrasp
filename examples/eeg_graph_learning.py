@@ -1,5 +1,5 @@
 """Learn the graph from EEG signals using the algorithm proposed by
-Kalofolias et al. (2019) and implemented in Pygsp2. This example
+Kalofolias et al. (2019) and implemented in PyGSP2. This example
 follows the methods described in Miri et al. (2024). To run this
 example download the following data file `data_set_IVa_aa.mat`
 from the BCI Competition III:
