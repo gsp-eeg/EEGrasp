@@ -6,5 +6,5 @@ mne
 joblib
 scipy
 pandas
-# Most updated version of pygsp publicly available 
-git+https://github.com/epfl-lts2/pygsp
+# Most updated version of PyGSP2 publicly available 
+pygsp2

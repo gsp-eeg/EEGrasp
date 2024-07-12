@@ -3,9 +3,9 @@ EEGRasP
 """
 
 import numpy as np
-from pygsp import graphs, learning, graph_learning
+from pygsp2 import graphs, learning, graph_learning
 from tqdm import tqdm  # TODO: Does it belong here?
-
+from scipy import spatial
 
 class EEGrasp():
     """
@@ -19,7 +19,7 @@ class EEGrasp():
 
     Notes
     -----
-    Gaussian Kernel functionallity overlapping with Pygsp toolbox. This has
+    Gaussian Kernel functionallity overlapping with PyGSP2 toolbox. This has
     been purposefully added.
     """
 
@@ -71,7 +71,7 @@ class EEGrasp():
 
         Notes
         -----
-        This function is supposed to be used in the pygsp module but
+        This function is supposed to be used in the PyGSP2 module but
         is repeated here since there is an error in the available version
         of the toolbox (03/04/2024 dd/mm/yyyy)
 
@@ -126,7 +126,7 @@ class EEGrasp():
 
         Returns
         -------
-        G: Graph structure from pygsp        
+        G: Graph structure from PyGSP2        
         """
 
         # If passed, used the W matrix
