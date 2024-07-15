@@ -27,14 +27,14 @@ setup(
     test_suite='eegrasp.tests.suite',
     python_requires='>=3.7',
     install_requires=[
-        'numpy'
-        'matplotlib'
-        'pylint'
-        'tqdm'
-        'mne'
-        'joblib'
-        'scipy'
-        'pandas'
+        'numpy',
+        'matplotlib',
+        'pylint',
+        'tqdm',
+        'mne',
+        'joblib',
+        'scipy',
+        'pandas',
         'pygsp2'
 
     ],
@@ -42,15 +42,15 @@ setup(
         # Optional dependencies for development. Some bring additional
         # functionalities, others are for testing, documentation, or packaging.
         'dev': [
-            'numpy'
-            'matplotlib'
-            'pylint'
-            'tqdm'
-            'mne'
-            'joblib'
-            'scipy'
-            'pandas'
-            'pygsp2'
+            'numpy',
+            'matplotlib',
+            'pylint',
+            'tqdm',
+            'mne',
+            'joblib',
+            'scipy',
+            'pandas',
+            'pygsp2',
             # Import and export.
             'networkx',
             #'json',
