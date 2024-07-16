@@ -1,4 +1,5 @@
-"""" Show how to interpolate channel.
+"""
+Channel interpolation example.
 """
 # %% Import libraries
 import numpy as np
@@ -21,7 +22,6 @@ raws = [mne.io.read_raw_edf(f, preload=True) for f in raw_fnames]
 raw = mne.concatenate_raws(raws)
 mne.datasets.eegbci.standardize(raw)
 raw.annotations.rename(dict(T1="left", T2="right"))
-
 
 montage = mne.channels.make_standard_montage('standard_1005')
 raw.set_montage(montage)
@@ -50,7 +50,6 @@ epochs = mne.Epochs(raw, events, events_id,
 data = epochs.average().get_data()
 
 # %% Initialize and interpolate channel
-
 # 1. Define index of the missing channel
 MISSING_IDX = 5
 lost_ch = data[MISSING_IDX, :].copy()
@@ -66,7 +65,15 @@ eegsp.compute_graph(epsilon=0.5, sigma=0.1)
 interpolated = eegsp.interpolate_channel(missing_idx=MISSING_IDX)
 
 # %% Plot channel
-plt.plot(lost_ch, label='original')
-plt.plot(interpolated[MISSING_IDX], label='Interpolated')
+fs = epochs.info['sfreq']
+t = np.arange(0, len(lost_ch) / fs, 1 / fs)
+plt.close('all')
+plt.figure(figsize=(6.5, 3.5))
+plt.plot(t, lost_ch * 1e6, label='Original')
+plt.plot(t, interpolated[MISSING_IDX] * 1e6, label='Interpolated')
 plt.legend()
+plt.xlabel('tiempo [s]')
+plt.ylabel('voltaje [uV]')
+plt.title('Imputación de datos faltantes de un electrodo')
+plt.tight_layout()
 plt.show()
