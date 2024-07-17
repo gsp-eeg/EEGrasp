@@ -1,22 +1,32 @@
 # EEGraSP: EEG GRaph Signal Processing
 
-This module is meant to be used as a tool for EEG signal analysis based on graph signal analysis methods. The developement of this toolbox takes place in Gitlab:
+This module is meant to be used as a tool for EEG signal analysis based on graph signal analysis methods. The developement of this toolbox takes place in GitHub:
 
-https://gitlab.com/gsp8332409/eegrasp
+https://github.com/gsp-eeg/EEGraSP
 
 EEGraSP package uses other libraries like PyGSP2 and mne for most of the processing and graph signal analysis.
 
+
 ## Installation with pip (User Installation)
 
-The repository has not been officially released yet. In order to install the python package you can use:
+The PyGSP2 is available on PyPI:
+
+```
+pip install pygsp2
+```
+
+Which will download the package from the pypi repository. Also, since a lot of the used functions come from the PyGSP2 it is possible to install 
+from the PyGSP2 github repository to avoid version issues.
+
+## Installation from source (User Installation)
+
+In order to install the python package direct from source you can use:
 
 ```
 pip install git+https://github.com/gsp-eeg/pygsp2
-pip install --extra-index-url https://test.pypi.org/simple/ EEGraSP==0.0.2
 ```
 
-Which will download the package from the testpypi repository (https://test.pypi.org/project/EEGraSP/). Also, since a lot of the used functions come from the PyGSP2 it is important to install 
-from the PyGSP2 github repository to avoid version issues.
+Which will download the latest version of the package from the git repository.
 
 ## Installation from source (Developers and Contribuitors)
 
@@ -27,6 +37,17 @@ You may want to contribute to the project or build functions on top of what we'v
 3. Install the cloned repository in your prefered Python enviorment through pip. Use: ```pip install -e .```. If you want the static version of this installation, and are not planning on making changes to the PyGSP2 toolbox, you can drop the "-e" option.
 
 **Now you are ready to install EEGraSP**. Follow the same steps but with the EEGRaSP repository (SUGGESTION: don't clone the repository inside the PyGSP2 repository):
+
+
+## Installation with pip (User Installation)
+
+The EEGraSP is available on PyPI:
+
+```
+pip install EEGraSP
+```
+
+## Installation from source (User Installation)
 
 1. Clone the EEGraSP repository into a local directory with git: ```git clone https://github.com/gsp-eeg/eegrasp```
 2. Change the current directory to the directory of the downloaded repository. ```cd eegrasp```
@@ -39,7 +60,7 @@ Now you are ready to contribute!
 
 Examples are provided in the examples folder of the repository:
 
-https://gitlab.com/gsp8332409/eegrasp/-/tree/main/examples?ref_type=heads
+https://github.com/gsp-eeg/EEGraSP/tree/main/examples
 
 * The ```electrode_distance.py``` script computes the electrode distance from the standard biosemi64 montage provided in the MNE package.
 
