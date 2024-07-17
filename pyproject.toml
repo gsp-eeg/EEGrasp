@@ -7,9 +7,9 @@ name = "EEGraSP"
 version = "0.0.3"
 authors = [
   { name="Julio Rodino", email="jrodino14@gmail.com" },
-  { name="Alejandro Weinstein", email="alejandro.weinstein@uv.cl"},
-  { name="Andres Herera", email="herrerandresc@gmail.com"},
-  { name="Camilo Jara", email="herrerandresc@gmail.com"},
+  { name="Alejandro Weinstein", email="alejandro.weinstein@gmail.com"},
+  { name="Andres Herrera", email="herrerandresc@gmail.com"},
+  { name="Camilo Jara", email="camilo.jara@ug.uchile.cl"},
   { name="Lucas Cortés", email="lucascortesg@gmail.com"}
 ]
 description = "Package for EEG Graph signal Processing"
@@ -31,5 +31,5 @@ dependencies= [
 ]
 
 [project.urls]
-Homepage = "https://gitlab.com/gsp8332409/eegrasp"
-Issues = "https://gitlab.com/gsp8332409/eegrasp/-/issues"
+Homepage = "https://github.com/gsp-eeg/EEGraSP"
+Issues = "https://github.com/gsp-eeg/EEGraSP/issues"
