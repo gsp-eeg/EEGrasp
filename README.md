@@ -44,7 +44,7 @@ You may want to contribute to the project or build functions on top of what we'v
 The EEGraSP is available on PyPI:
 
 ```
-pip install EEGraSP
+pip install eegrasp
 ```
 
 ## Installation from source (User Installation)
