@@ -9,5 +9,6 @@ See https://to.be.defined for complete documentation.
 """
 
 __version__ = '0.0.2'
+__release_date__ = '2024-07-15'
 
 from .eegrasp import EEGrasp

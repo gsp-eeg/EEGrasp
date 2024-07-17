@@ -8,3 +8,4 @@ scipy
 pandas
 # Most updated version of PyGSP2 publicly available 
 pygsp2
+decorator
