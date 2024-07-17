@@ -18,6 +18,14 @@ pip install pygsp2
 Which will download the package from the pypi repository. Also, since a lot of the used functions come from the PyGSP2 it is possible to install 
 from the PyGSP2 github repository to avoid version issues.
 
+## Installation with conda (User Installation)
+
+The PyGSP2 is available on Conda Forge:
+
+```
+conda install conda-forge::pygsp2
+```
+
 ## Installation from source (User Installation)
 
 In order to install the python package direct from source you can use:
@@ -45,6 +53,14 @@ The EEGraSP is available on PyPI:
 
 ```
 pip install eegrasp
+```
+
+## Installation with conda (User Installation)
+
+The EEGraSP is available on Conda Forge:
+
+```
+conda install conda-forge::eegrasp
 ```
 
 ## Installation from source (User Installation)
