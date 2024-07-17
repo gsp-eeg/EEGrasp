@@ -1,11 +1,11 @@
 """
-EEGRasP
-"""
+EEGRasP module. Contains the class EEGrasp which is used to analyze EEG signals based graph
+signal processing."""
 
 import numpy as np
 from pygsp2 import graphs, learning, graph_learning
 from tqdm import tqdm  # TODO: Does it belong here?
-from scipy import spatial
+
 
 class EEGrasp():
     """
@@ -13,9 +13,12 @@ class EEGrasp():
 
     Parameters
     ----------
-    data
-    eeg_pos
-    ch_names
+    data : numpy ndarray.
+        2D or 3D array. Where the first dim are channels and the second is samples.
+    eeg_pos : numpy ndarray.
+        Position of the electrodes.
+    ch_names : list or numpy array.
+        Channel names.
 
     Notes
     -----
@@ -27,10 +30,12 @@ class EEGrasp():
         """
         Parameters
         ----------
-        data: 2-d array, where the first dim are channels and the second is
-        samples.  
-        Coordenates: ndim array with position of the electrodes.
-        labels: 1-d array with the channel names.
+        data : ndarray.
+            2D array. Where the first dim are channels and the second is samples.  
+        Coordenates : ndarray
+            N-dim array with position of the electrodes.
+        labels : ndarray.
+            Channel names.
         """
 
         self.data = data
@@ -46,7 +51,8 @@ class EEGrasp():
 
         Parameters
         ----------
-        pos -> 2d or 3d array of channels by dimensions
+        pos : numpy array.
+            2d or 3d array of channels by dimensions
 
         Returns
         -------
@@ -396,26 +402,29 @@ class EEGrasp():
 
         Parameters
         ----------
-        Z: ndarra. Distance between the nodes. If not passed, 
-        the function will try to compute the euclidean distance
-        between the data. If self.data is a 2d array it will compute the
-        euclidean distance between the channels. If the data is a 3d array 
-        it will compute the average distance using the 2nd and 3rd dimensions,
-        averaging over the 1st one.
-
-        mode: string. Options are: 'Average', 'Trials'. If average, 
-        the function returns a single W and Z. If 'Trials' the function returns
-        a generator list of Ws and Zs.
+        Z : ndarray.
+            Distance between the nodes. If not passed, 
+            the function will try to compute the euclidean distance
+            between the data. If self.data is a 2d array it will compute the
+            euclidean distance between the channels. If the data is a 3d array 
+            it will compute the average distance using the 2nd and 3rd dimensions,
+            averaging over the 1st one.
+        mode : string.
+            Options are: 'Average', 'Trials'. If average, 
+            the function returns a single W and Z. If 'Trials' the function returns
+            a generator list of Ws and Zs.
 
         Returns
         -------
 
-        W: ndarray. Weighted adjacency matrix or matrices depending on 
-        mode parameter used. If run in 'Trials' mode then Z is a 
-        3d array where the first dim corresponds to trials.
-        Z: ndarray. Used distance matrix or matrices depending on 
-        mode parameter used. If run in 'Trials' mode then Z is a 
-        3d array where the first dim corresponds to trials.
+        W : ndarray. 
+            Weighted adjacency matrix or matrices depending on 
+            mode parameter used. If run in 'Trials' mode then Z is a 
+            3d array where the first dim corresponds to trials.
+        Z : ndarray.
+            Used distance matrix or matrices depending on 
+            mode parameter used. If run in 'Trials' mode then Z is a 
+            3d array where the first dim corresponds to trials.
 
         """
 
