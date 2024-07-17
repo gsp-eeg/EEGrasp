@@ -270,6 +270,7 @@ class EEGrasp():
         -------
         results : dict.
             Dictionary containing the error, signal, best_epsilon and epsilon values.
+
         Notes
         -----
         It will itterate through all the unique values of the distance matrix.
