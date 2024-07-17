@@ -25,7 +25,7 @@ setup(
     ],
     package_data={'eegrasp': ['data/pointclouds/*.mat']},
     test_suite='eegrasp.tests.suite',
-    python_requires='>=3.7',
+    python_requires='>=3.11',
     install_requires=[
         'numpy',
         'matplotlib',
