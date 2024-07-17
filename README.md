@@ -6,45 +6,20 @@ https://github.com/gsp-eeg/EEGraSP
 
 EEGraSP package uses other libraries like PyGSP2 and mne for most of the processing and graph signal analysis.
 
-
-## Installation with pip (User Installation)
-
-The PyGSP2 is available on PyPI:
-
-```
-pip install pygsp2
-```
-
-Which will download the package from the pypi repository. Also, since a lot of the used functions come from the PyGSP2 it is possible to install 
-from the PyGSP2 github repository to avoid version issues.
-
-## Installation from source (User Installation)
-
-In order to install the python package direct from source you can use:
-
-```
-pip install git+https://github.com/gsp-eeg/pygsp2
-```
-
-Which will download the latest version of the package from the git repository.
-
-## Installation from source (Developers and Contribuitors)
-
-You may want to contribute to the project or build functions on top of what we've built here. This installation will always be the most updated version but could also contain some errors or bugs. To install from the repository first you'll have to install the PyGSP2 fork that we have modified, follow the steps below:
-
-1. Clone the PyGSP2 fork we've made into a local directory with git: ```git clone https://github.com/gsp-eeg/pygsp2```
-2. Change the current directory to the directory of the downloaded repository. ```cd pygsp2```
-3. Install the cloned repository in your prefered Python enviorment through pip. Use: ```pip install -e .```. If you want the static version of this installation, and are not planning on making changes to the PyGSP2 toolbox, you can drop the "-e" option.
-
-**Now you are ready to install EEGraSP**. Follow the same steps but with the EEGRaSP repository (SUGGESTION: don't clone the repository inside the PyGSP2 repository):
-
-
 ## Installation with pip (User Installation)
 
 The EEGraSP is available on PyPI:
 
 ```
 pip install eegrasp
+```
+
+## Installation with conda (User Installation)
+
+The EEGraSP is available on Conda Forge:
+
+```
+conda install conda-forge::eegrasp
 ```
 
 ## Installation from source (User Installation)
