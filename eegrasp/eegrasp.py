@@ -31,11 +31,14 @@ class EEGrasp():
         """
         Parameters
         ----------
-        data : ndarray | None.
-            2D array. Where the first dim are channels and the second is samples.  
-        Coordenates : ndarray | None.
+        data : ndarray | mne object | None.
+            2D array. Where the first dim are channels and the second is samples. If 3D, the first
+            dimension is trials. If an mne object is passed, the data will be extracted from it
+            along with the coordinates and labels of the channels. If None, the class will be
+            initialized without data. 
+        Coordenates : ndarray | list | None.
             N-dim array with position of the electrodes.
-        labels : ndarray | None.
+        labels : ndarray | list | None.
             Channel names.
         """
 
