@@ -216,8 +216,10 @@ class EEGrasp():
         ----------
         error : ndarray.
             Errors corresponding to each tried parameter.
-        vparameter : ndarray, values of the parameter used in the fit function.
-        signal : ndarray, reconstructed signal.
+        vparameter : ndarray.
+            Values of the parameter used in the fit function.
+        signal : ndarray.
+            Reconstructed signal.
 
         Notes
         -----
@@ -240,7 +242,7 @@ class EEGrasp():
 
         Returns
         -------
-        vec : ndarray.
+        mat : ndarray.
             lower triangle of mat
         """
         tril_indices = np.tril_indices(len(mat), -1)
@@ -255,12 +257,19 @@ class EEGrasp():
 
         Parameters
         ----------
-        distances : numpy array. 
+        data : ndarray | None.
+        distances : ndarray | None. 
             Unthresholded distance matrix (2-dimensional array). It can be passed to the instance
             of the class or as an argument of the method.
         sigma : float.
             Parameter of the Gaussian Kernel transformation
+        missing_idx : int.
+            Index of the missing channel.
 
+        Returns
+        -------
+        results : dict.
+            Dictionary containing the error, signal, best_epsilon and epsilon values.
         Notes
         -----
         It will itterate through all the unique values of the distance matrix.
@@ -344,6 +353,21 @@ class EEGrasp():
 
         Parameters
         ----------
+        data : ndarray | None.
+            2d array of channels by samples.
+        distances : ndarray | None.
+            Distance matrix (2-dimensional array). It can be passed to the instance
+            of the class or as an argument of the method.
+        epsilon : float.
+            Maximum distance to threshold the array.
+        missing_idx : int.
+            Index of the missing channel.
+        min_sigma : float.
+            Minimum value for the sigma parameter.
+        max_sigma : float.
+            Maximum value for the sigma parameter.
+        step : float.
+            Step for the sigma parameter.
 
         Notes
         -----
@@ -431,12 +455,10 @@ class EEGrasp():
         Parameters
         ----------
         Z : ndarray.
-            Distance between the nodes. If not passed, 
-            the function will try to compute the euclidean distance
-            between the data. If self.data is a 2d array it will compute the
-            euclidean distance between the channels. If the data is a 3d array 
-            it will compute the average distance using the 2nd and 3rd dimensions,
-            averaging over the 1st one.
+            Distance between the nodes. If not passed, the function will try to compute the
+            euclidean distance between the data. If self.data is a 2d array it will compute the
+            euclidean distance between the channels. If the data is a 3d array it will compute the
+            average distance using the 2nd and 3rd dimensions, and averaging over the 1st one.
         mode : string.
             Options are: 'Average', 'Trials'. If average, the function returns a single W and Z.
             If 'Trials' the function returns a generator list of Ws and Zs.
@@ -445,13 +467,11 @@ class EEGrasp():
         -------
 
         W : ndarray. 
-            Weighted adjacency matrix or matrices depending on 
-            mode parameter used. If run in 'Trials' mode then Z is a 
-            3d array where the first dim corresponds to trials.
+            Weighted adjacency matrix or matrices depending on mode parameter used. If run in
+            'Trials' mode then Z is a 3d array where the first dim corresponds to trials.
         Z : ndarray.
-            Used distance matrix or matrices depending on 
-            mode parameter used. If run in 'Trials' mode then Z is a 
-            3d array where the first dim corresponds to trials.
+            Used distance matrix or matrices depending on mode parameter used. If run in 'Trials'
+            mode then Z is a 3d array where the first dim corresponds to trials.
 
         """
 
