@@ -46,3 +46,7 @@ epochs = mne.Epochs(raw, events, events_id,
                     picks=picks, tmin=TMIN,
                     tmax=TMAX, baseline=(-1, 0),
                     detrend=1)
+
+# %% Load to eegrasp
+
+gsp = EEGrasp(epochs)

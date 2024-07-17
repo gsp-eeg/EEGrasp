@@ -7,6 +7,7 @@ from pygsp2 import graphs, learning, graph_learning
 from tqdm import tqdm  # TODO: Does it belong here?
 from scipy import spatial
 
+
 class EEGrasp():
     """
     Class containing functionality to analyze EEG signals.
@@ -33,9 +34,18 @@ class EEGrasp():
         labels: 1-d array with the channel names.
         """
 
-        self.data = data
-        self.coordinates = coordinates
-        self.labels = labels
+        # detect if data is a mne object
+        if hasattr(data, 'get_data'):
+            data = data.get_data()
+            info = data.info
+            labels = info.ch_names
+            coordinates = np.array(
+                [pos for _, pos in info.get_montage().get_positions()['ch_pos'].items()])
+        else:
+            self.data = data
+            self.coordinates = coordinates
+            self.labels = labels
+
         self.distances = None
         self.graph_weights = None
         self.graph = None
