@@ -35,17 +35,16 @@ class EEGrasp():
         """
 
         # detect if data is a mne object
-        if hasattr(data, 'get_data'):
-            data = data.get_data()
+        if hasattr(data, 'get_data') and hasattr(data, 'info'):
             info = data.info
+            data = data.get_data()
             labels = info.ch_names
             coordinates = np.array(
                 [pos for _, pos in info.get_montage().get_positions()['ch_pos'].items()])
-        else:
-            self.data = data
-            self.coordinates = coordinates
-            self.labels = labels
 
+        self.data = data
+        self.coordinates = coordinates
+        self.labels = labels
         self.distances = None
         self.graph_weights = None
         self.graph = None
