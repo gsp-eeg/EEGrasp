@@ -30,7 +30,7 @@ class EEGrasp():
         """
         Parameters
         ----------
-        data : ndarray.
+        data : ndarray | None.
             2D array. Where the first dim are channels and the second is samples.  
         Coordenates : ndarray
             N-dim array with position of the electrodes.
@@ -56,9 +56,9 @@ class EEGrasp():
 
         Returns
         -------
-        output: 2d array of channels by channels with the euclidean distance.
-        description: compute the euclidean distance between every channel in
-        the array
+        output: numpy array.
+            Dimension of the array is Channels by Channels with the euclidean distance between
+            channels.
         """
 
         distance = np.zeros([pos.shape[0], pos.shape[0]],
@@ -83,11 +83,10 @@ class EEGrasp():
 
         References
         ----------
-        # D. I. Shuman, S. K. Narang, P. Frossard, A. Ortega and
-        # P. Vandergheynst, "The emerging field of signal processing on graphs:
-        # Extending high-dimensional data analysis to networks and other
-        # irregular domains," in IEEE Signal Processing Magazine, vol. 30,
-        # no. 3, pp. 83-98, May 2013, doi: 10.1109/MSP.2012.2235192.
+        * D. I. Shuman, S. K. Narang, P. Frossard, A. Ortega and P. Vandergheynst, "The emerging
+        field of signal processing on graphs: Extending high-dimensional data analysis to networks
+        and other irregular domains," in IEEE Signal Processing Magazine, vol. 30, no. 3,
+        pp. 83-98, May 2013, doi: 10.1109/MSP.2012.2235192.
         """
         return np.exp(-np.power(x, 2.) / (2.*np.power(float(sigma), 2)))
 
@@ -121,18 +120,21 @@ class EEGrasp():
         """
         Parameters
         ----------
-        W -> if W is passed, then the graph is computed. 
-        Otherwise the graph will be computed with self.W.
-        W should correspond to a non-sparse 2-D array.
-        Epsilon -> maximum distance to threshold the array.
-        sigma -> Sigma parameter for the gaussian kernel.
-
-        method: NN -> Nearest Neighbor
-                Gaussian -> Gaussian Kernel used based on the self.W matrix
+        W : numpy ndarray. 
+            if W is passed, then the graph is computed. 
+            Otherwise the graph will be computed with self.W.
+            W should correspond to a non-sparse 2-D array.
+        epsilon : float.
+            Maximum distance to threshold the array.
+        sigma : float.
+            Sigma parameter for the gaussian kernel.
+        method: string. 
+            Options are: "NN" or "Gaussian". Nearest Neighbor or Gaussian Kernel used based on the
+            self.W matrix respectively depending on the method used.
 
         Returns
         -------
-        G: Graph structure from PyGSP2        
+        G: Graph structure from PyGSP2.
         """
 
         # If passed, used the W matrix
@@ -189,9 +191,10 @@ class EEGrasp():
 
         Parameters
         ----------
-        error ndarray with the errors corresponding to each tried parameter.
-        vparameter: ndarray, values of the parameter used in the fit function.
-        signal: ndarray, reconstructed signal.
+        error : ndarray.
+            Errors corresponding to each tried parameter.
+        vparameter : ndarray, values of the parameter used in the fit function.
+        signal : ndarray, reconstructed signal.
 
         Notes
         -----
@@ -214,7 +217,8 @@ class EEGrasp():
 
         Returns
         -------
-        vec: ndarray of the lower triangle of mat
+        vec : ndarray.
+            lower triangle of mat
         """
         tril_indices = np.tril_indices(len(mat), -1)
         vec = mat[tril_indices]
@@ -228,16 +232,17 @@ class EEGrasp():
 
         Parameters
         ----------
-        distances -> Unthresholded distance matrix (2-dimensional array).
-        It can be passed to the instance of
-        the class or as an argument of the method.
-        sigma -> parameter of the Gaussian Kernel transformation
+        distances : numpy array. 
+            Unthresholded distance matrix (2-dimensional array). It can be passed to the instance
+            of the class or as an argument of the method.
+        sigma : float.
+            Parameter of the Gaussian Kernel transformation
 
         Notes
         -----
         It will itterate through all the unique values of the distance matrix.
-        data -> 2-dimensional array. The first dim. is Channels
-        and second time. It can be passed to the instance class or the method
+        data : 2-dimensional array. The first dim. is Channels
+        and second is time. It can be passed to the instance class or the method
         """
         # Check if values are passed or use the instance's
         if isinstance(distances, type(None)):
@@ -410,9 +415,8 @@ class EEGrasp():
             it will compute the average distance using the 2nd and 3rd dimensions,
             averaging over the 1st one.
         mode : string.
-            Options are: 'Average', 'Trials'. If average, 
-            the function returns a single W and Z. If 'Trials' the function returns
-            a generator list of Ws and Zs.
+            Options are: 'Average', 'Trials'. If average, the function returns a single W and Z.
+            If 'Trials' the function returns a generator list of Ws and Zs.
 
         Returns
         -------
