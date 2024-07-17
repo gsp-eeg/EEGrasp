@@ -13,11 +13,12 @@ class EEGrasp():
 
     Parameters
     ----------
-    data : numpy ndarray.
-        2D or 3D array. Where the first dim are channels and the second is samples.
+    data : ndarray.
+        2D or 3D array. Where the first dim are channels and the second is samples. If 3D, the
+        first dimension is trials.
     eeg_pos : numpy ndarray.
         Position of the electrodes.
-    ch_names : list or numpy array.
+    ch_names : ndarray | list.
         Channel names.
 
     Notes
@@ -32,9 +33,9 @@ class EEGrasp():
         ----------
         data : ndarray | None.
             2D array. Where the first dim are channels and the second is samples.  
-        Coordenates : ndarray
+        Coordenates : ndarray | None.
             N-dim array with position of the electrodes.
-        labels : ndarray.
+        labels : ndarray | None.
             Channel names.
         """
 
@@ -51,12 +52,12 @@ class EEGrasp():
 
         Parameters
         ----------
-        pos : numpy array.
+        pos : ndarray.
             2d or 3d array of channels by dimensions
 
         Returns
         -------
-        output: numpy array.
+        output: ndarray.
             Dimension of the array is Channels by Channels with the euclidean distance between
             channels.
         """
@@ -77,9 +78,8 @@ class EEGrasp():
 
         Notes
         -----
-        This function is supposed to be used in the PyGSP2 module but
-        is repeated here since there is an error in the available version
-        of the toolbox (03/04/2024 dd/mm/yyyy)
+        This function is supposed to be used in the PyGSP2 module but is repeated here since there
+        is an error in the available version of the toolbox.
 
         References
         ----------
@@ -92,11 +92,21 @@ class EEGrasp():
 
     def compute_distance(self, coordinates=None, method='Euclidean', normalize=True):
         """
-        Method for computing the distance.
+        Computing the distance based on electrode coordinates.
+
+        Parameters
+        ----------
+        coordinates : ndarray | None.
+            N-dim array with position of the electrodes.
+        method : string.
+            Options are: 'Euclidean'. Method used to compute the distance matrix.
+        normalize : bool.
+            If True, the distance matrix will be normalized before being returned.
 
         Returns
         -------
-        Distances to be used for the graph computation.
+        distances : ndarray.
+            Distances to be used for the graph computation.
         """
 
         # If passed, used the coordinates argument
@@ -121,16 +131,15 @@ class EEGrasp():
         Parameters
         ----------
         W : numpy ndarray. 
-            if W is passed, then the graph is computed. 
-            Otherwise the graph will be computed with self.W.
-            W should correspond to a non-sparse 2-D array.
+            if W is passed, then the graph is computed. Otherwise the graph will be computed with
+            `self.W`. `W` should correspond to a non-sparse 2-D array.
         epsilon : float.
             Maximum distance to threshold the array.
         sigma : float.
             Sigma parameter for the gaussian kernel.
         method: string. 
             Options are: "NN" or "Gaussian". Nearest Neighbor or Gaussian Kernel used based on the
-            self.W matrix respectively depending on the method used.
+            `self.W` matrix respectively depending on the method used.
 
         Returns
         -------
@@ -163,6 +172,20 @@ class EEGrasp():
     def interpolate_channel(self, graph=None, data=None, missing_idx=None):
         """
         Interpolate missing channel.
+
+        Parameters
+        ----------
+        graph : PyGSP2 Graph | None.
+            Graph structure from PyGSP2.
+        data : ndarray | None.
+            2d array of channels by samples.
+        missing_idx : int | None.
+            Index of the missing channel.
+
+        Returns
+        -------
+        reconstructed : ndarray.
+            Reconstructed signal.
         """
 
         # Check if values are passed or use the instance's
