@@ -32,7 +32,7 @@ Which will download the latest version of the package from the git repository.
 
 You may want to contribute to the project or build functions on top of what we've built here. This installation will always be the most updated version but could also contain some errors or bugs. To install from the repository first you'll have to install the PyGSP2 fork that we have modified, follow the steps below:
 
-1. Clone the PyGSP2 fork we've made into a local directory with git: ```git clone https://github.com/gsp-eeg/pygsp2``
+1. Clone the PyGSP2 fork we've made into a local directory with git: ```git clone https://github.com/gsp-eeg/pygsp2```
 2. Change the current directory to the directory of the downloaded repository. ```cd pygsp2```
 3. Install the cloned repository in your prefered Python enviorment through pip. Use: ```pip install -e .```. If you want the static version of this installation, and are not planning on making changes to the PyGSP2 toolbox, you can drop the "-e" option.
 
