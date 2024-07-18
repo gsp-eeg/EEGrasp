@@ -1,32 +1,29 @@
-"""Use mne epochs to import data and calculate the distance between electrodes."""
+"""Use mne epochs to import data and calculate the distance between electrodes. The test compares
+the distance matrix calculated by the two methods: one using the electrode positions by passing the
+mne epochs object and the other by passing the electrode positions directly."""
 
 # %% Load Packages
 import mne
 import numpy as np
-import matplotlib.pyplot as plt
 from eegrasp import EEGrasp
 
 # %% Load data
 subjects = np.arange(1, 10)
 runs = [4, 8, 12]
 
-
 # Download eegbci dataset through MNE
-# Comment the following line if already downloaded
 
 raw_fnames = [mne.datasets.eegbci.load_data(s, runs) for s in subjects]
 raw_fnames = np.reshape(raw_fnames, -1)
 raws = [mne.io.read_raw_edf(f, preload=True) for f in raw_fnames]
 raw = mne.concatenate_raws(raws)
-# raw = mne.io.read_raw_edf(data_path[0],preload=True)
 mne.datasets.eegbci.standardize(raw)
-raw.annotations.rename(dict(T1="left", T2="right"))
-
 montage = mne.channels.make_standard_montage('standard_1005')
 raw.set_montage(montage)
+
+# %% Extract electrode positions
 eeg_pos = np.array(
-    [pos for _, pos in raw.get_montage().get_positions()['ch_pos'].items()])
-ch_names = montage.ch_names
+    [pos for _, pos in raw.info.get_montage().get_positions()['ch_pos'].items()])
 
 # %% Filter data and extract events
 LOW_FREQ = 1  # Hz
@@ -47,13 +44,15 @@ epochs = mne.Epochs(raw, events, events_id,
                     tmax=TMAX, baseline=(-1, 0),
                     detrend=1)
 
-# %% Load to eegrasp
+# %% Initialize EEGrass object and compute distance
 
+# Pass epochs mne object
 gsp = EEGrasp(epochs)
 Z = gsp.compute_distance()
-G = gsp.compute_graph(epsilon=0.3, sigma=0.4)
 
-# %% Plot
+# Pass electrode positions directly
+gsp = EEGrasp()
+Z2 = gsp.compute_distance(eeg_pos)
 
-G.plot()
-plt.show()
+# Assert that the two methods are equivalent
+np.testing.assert_array_equal(Z, Z2)

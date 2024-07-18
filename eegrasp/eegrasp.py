@@ -5,7 +5,6 @@ EEGRasP
 import numpy as np
 from pygsp2 import graphs, learning, graph_learning
 from tqdm import tqdm  # TODO: Does it belong here?
-from scipy import spatial
 from mne import BaseEpochs
 from mne.io.base import BaseRaw
 
