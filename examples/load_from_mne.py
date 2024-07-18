@@ -55,6 +55,5 @@ G = gsp.compute_graph(epsilon=0.3, sigma=0.4)
 
 # %% Plot
 
-G.set_coordinates(eeg_pos[:, :2])
 G.plot()
 plt.show()

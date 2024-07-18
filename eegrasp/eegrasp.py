@@ -6,6 +6,8 @@ import numpy as np
 from pygsp2 import graphs, learning, graph_learning
 from tqdm import tqdm  # TODO: Does it belong here?
 from scipy import spatial
+from mne import BaseEpochs
+from mne.io.base import BaseRaw
 
 
 class EEGrasp():
@@ -29,13 +31,13 @@ class EEGrasp():
         Parameters
         ----------
         data: 2-d array, where the first dim are channels and the second is
-        samples.  
+        samples.
         Coordenates: ndim array with position of the electrodes.
         labels: 1-d array with the channel names.
         """
 
-        # detect if data is a mne object
-        if hasattr(data, 'get_data') and hasattr(data, 'info'):
+        # Detect if data is a mne object
+        if isinstance(data, (BaseEpochs, BaseRaw)):
             info = data.info
             data = data.get_data()
             labels = info.ch_names
@@ -124,7 +126,7 @@ class EEGrasp():
         """
         Parameters
         ----------
-        W -> if W is passed, then the graph is computed. 
+        W -> if W is passed, then the graph is computed.
         Otherwise the graph will be computed with self.W.
         W should correspond to a non-sparse 2-D array.
         Epsilon -> maximum distance to threshold the array.
@@ -135,7 +137,7 @@ class EEGrasp():
 
         Returns
         -------
-        G: Graph structure from PyGSP2        
+        G: Graph structure from PyGSP2
         """
 
         # If passed, used the W matrix
@@ -405,25 +407,25 @@ class EEGrasp():
 
         Parameters
         ----------
-        Z: ndarra. Distance between the nodes. If not passed, 
+        Z: ndarra. Distance between the nodes. If not passed,
         the function will try to compute the euclidean distance
         between the data. If self.data is a 2d array it will compute the
-        euclidean distance between the channels. If the data is a 3d array 
+        euclidean distance between the channels. If the data is a 3d array
         it will compute the average distance using the 2nd and 3rd dimensions,
         averaging over the 1st one.
 
-        mode: string. Options are: 'Average', 'Trials'. If average, 
+        mode: string. Options are: 'Average', 'Trials'. If average,
         the function returns a single W and Z. If 'Trials' the function returns
         a generator list of Ws and Zs.
 
         Returns
         -------
 
-        W: ndarray. Weighted adjacency matrix or matrices depending on 
-        mode parameter used. If run in 'Trials' mode then Z is a 
+        W: ndarray. Weighted adjacency matrix or matrices depending on
+        mode parameter used. If run in 'Trials' mode then Z is a
         3d array where the first dim corresponds to trials.
-        Z: ndarray. Used distance matrix or matrices depending on 
-        mode parameter used. If run in 'Trials' mode then Z is a 
+        Z: ndarray. Used distance matrix or matrices depending on
+        mode parameter used. If run in 'Trials' mode then Z is a
         3d array where the first dim corresponds to trials.
 
         """
