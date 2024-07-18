@@ -6,6 +6,9 @@ import numpy as np
 from pygsp2 import graphs, learning, graph_learning
 from tqdm import tqdm  # TODO: Does it belong here?
 from scipy import spatial
+import matplotlib.pyplot as plt
+import mne
+
 
 class EEGrasp():
     """
@@ -467,3 +470,55 @@ class EEGrasp():
             W[W < 1e-5] = 0
 
             return W, Z
+
+    def plot_graph(self, graph=None, coordinates=None, labels=None, montage=None, cmap='viridis', axis=None):
+        """
+        Plot the graph over the eeg montage.
+
+        Parameters
+        ----------
+        graph : PyGSP2 graph object.
+            If not passed, the instance's graph will be used.
+        coordinates : ndarray.
+            If not passed, the instance's coordinates will be used.
+        cmap : str.
+            Colormap to use.
+        axis : matplotlib axis object.
+            If not passed, a new figure will be created.
+        """
+        # Handle variables if not passed
+        if graph is None:
+            graph = self.graph
+
+        if coordinates is None:
+            coordinates = self.coordinates
+
+        if axis is None:
+            fig = plt.figure()
+            axis = fig.add_subplot(111)
+        else:
+            fig = axis.get_figure()
+
+        if labels is None:
+            labels = self.labels
+
+        if montage is None:
+            ch_pos = {}
+            [{ch_pos[label]: pos} for label, pos in zip(labels, coordinates)]
+            montage = mne.channels.make_dig_montage(
+                ch_pos=ch_pos, coord_frame='head')
+        elif isinstance(montage, str):
+            try:
+                montage = mne.channels.make_standard_montage(montage)
+            except ValueError:
+                print(
+                    'Montage not found. Creating custom montage based on self.coordenates...')
+                self.plot_graph(graph, coordinates, cmap=cmap, axis=axis,
+                                montage=None)
+
+        # Plot the montage
+        figure = montage.plot(kind='topomap', show_names=True, axes=axis)
+        graph.set_coords(coordinates[:, :2])
+        graph.plot(ax=axis, edge_width=0.5, edge_color='black', vertex_size=10)
+
+        return figure
