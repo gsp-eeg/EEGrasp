@@ -546,7 +546,7 @@ class EEGrasp():
             info.set_montage(montage)
 
             xy, _ = mne.viz.topomap._get_pos_outlines(
-                info, None, 0.095)
+                info, None, 0.095, to_sphere=True)
             graph.set_coordinates(xy)
 
             figure = info.plot_sensors(kind='topomap', show_names=True, ch_type='eeg',
@@ -563,7 +563,7 @@ class EEGrasp():
                 np.max(self.graph_weights)
             edge_color = plt.cm.get_cmap(cmap)(edge_weights)
 
-            figure, axis = graph.plot(ax=axis, edge_width=1,
+            figure, axis = graph.plot(ax=axis, edge_width=2,
                                       edge_color=edge_color, vertex_size=degree,
                                       vertex_color=vertex_color, colorbar=True, cmap=cmap)
 
