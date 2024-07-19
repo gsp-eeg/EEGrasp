@@ -513,7 +513,10 @@ class EEGrasp():
 
         if axis is None:
             fig = plt.figure()
-            axis = fig.add_subplot(111)
+            if kind == 'topoplot':
+                axis = fig.add_subplot(111)
+            elif kind == '3d':
+                axis = fig.add_subplot(111, projection='3d')
         else:
             fig = axis.get_figure()
 
@@ -528,9 +531,6 @@ class EEGrasp():
             try:
                 montage = mne.channels.make_standard_montage(montage)
                 labels = montage.ch_names
-                coordinates = montage.get_positions()['ch_pos']
-                # Restructure into array
-                coordinates = np.array([pos for _, pos in coordinates.items()])
             except ValueError:
                 print(
                     'Montage not found. Creating custom montage based on self.coordenates...')
@@ -542,10 +542,9 @@ class EEGrasp():
 
             info = mne.create_info(labels, sfreq=250, ch_types="eeg")
             info.set_montage(montage, on_missing="ignore")
-
             info.plot_sensors(kind='topomap', show_names=True,
                               axes=axis, show=False, to_sphere=True)
-            xy = mne.channels.layout._find_topomap_coords(info, None)
+            xy = mne.channels.layout._find_topomap_coords(info, None, sphere=1)
 
             graph.set_coordinates(xy)
             figure, axis = graph.plot(ax=axis, edge_width=0.5,
@@ -553,10 +552,19 @@ class EEGrasp():
                                       vertex_color='purple', cmap=cmap)
 
         elif kind == '3d':
-            graph.set_coordinates(coordinates)
-            graph.plot(ax=axis, edge_width=0.5,
-                       edge_color='black', vertex_size=10)
-            figure = montage.plot(
-                kind='3d', scale_factor=1, show_names=True, axes=axis, show=False)
+
+            info = mne.create_info(labels, sfreq=250, ch_types="eeg")
+            info.set_montage(montage)
+            eeg_pos = info.get_montage().get_positions()['ch_pos']
+            eeg_pos = np.array([pos for _, pos in eeg_pos.items()])
+
+            dev_head_t = info["dev_head_t"]
+            eeg_pos = mne.transforms.apply_trans(dev_head_t, eeg_pos)
+            graph.set_coordinates(eeg_pos)
+
+            figure = info.plot_sensors(
+                kind='3d', show_names=True, axes=axis)
+            figure, axis = graph.plot(ax=axis, edge_width=1, edge_color='black',
+                                      vertex_size=20, vertex_color='purple')
 
         return (figure, axis)

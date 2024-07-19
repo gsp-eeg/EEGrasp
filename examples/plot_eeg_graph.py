@@ -1,3 +1,7 @@
+""" Example to plot EEG graph using EEGrasp package. The EEG graph is constructed using the 
+electrode positions from the Biosemi 64 channel montage. The graph is plotted in 3D and topoplot
+formats.
+"""
 # %% Load Packages
 import mne
 import numpy as np
@@ -21,5 +25,8 @@ G = gsp.compute_graph(sigma=0.1, epsilon=0.5)
 # %% Plot
 info = mne.create_info(ch_names, sfreq=256, ch_types="eeg")
 info.set_montage(montage, on_missing="ignore")
-fig, ax = gsp.plot_graph()
+
+fig, ax = gsp.plot_graph(kind='3d', montage=None)
+fig, ax = gsp.plot_graph(kind='topoplot', montage='biosemi64')
+
 plt.show()
