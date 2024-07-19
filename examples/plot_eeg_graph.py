@@ -26,7 +26,10 @@ G = gsp.compute_graph(sigma=0.1, epsilon=0.2)
 info = mne.create_info(ch_names, sfreq=256, ch_types="eeg")
 info.set_montage(montage, on_missing="ignore")
 
-fig, ax = gsp.plot_graph(kind='3d', montage=montage)
-fig, ax = gsp.plot_graph(kind='topoplot', montage=montage)
+fig, ax = gsp.plot_graph(kind='3d', montage='biosemi64')
+fig, ax = gsp.plot_graph(kind='topoplot', montage='biosemi64')
 
 plt.show()
+
+# %%
+G.d

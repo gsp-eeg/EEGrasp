@@ -471,23 +471,27 @@ class EEGrasp():
 
             return W, Z
 
-    def plot_graph(self, graph=None, coordinates=None, labels=None, montage=None, cmap='viridis', axis=None,
+    def plot_graph(self, graph=None, coordinates=None, labels=None, montage=None, colorbar=True, vertex_color='purple', cmap='viridis', axis=None,
                    kind='topoplot') -> tuple:
         """
         Plot the graph over the eeg montage.
 
         Parameters
         ----------
-        graph : PyGSP2 graph object.
+        graph : PyGSP2 graph.
             If not passed, the instance's graph will be used.
         coordinates : ndarray.
             If not passed, the instance's coordinates will be used.
-        labels : list.
+        labels : list | ndarray.
             If not passed, the instance's labels will be used.
         montage : str | mne montage object | None.
             If None, the instance's coordenates will be used to build a custom montage. If a string
             is passed, it will try to build a montage from the standard built-in libraty. If a
             DigiMontage Classis detected it will use the mne montage object.
+        colorbar : bool.
+            If True, a colorbar will be plotted.
+        vertex_color : str.
+            Color to use for the vertices.
         cmap : str.
             Colormap to use.
         axis : matplotlib axis object.
@@ -542,15 +546,26 @@ class EEGrasp():
             info.set_montage(montage)
 
             xy, _ = mne.viz.topomap._get_pos_outlines(
-                info, None, 1)
+                info, None, 0.095)
             graph.set_coordinates(xy)
 
             figure = info.plot_sensors(kind='topomap', show_names=True, ch_type='eeg',
                                        axes=axis, show=False, to_sphere=True)
             axis = figure.get_axes()[0]
-            figure, axis = graph.plot(ax=axis, edge_width=0.5,
-                                      edge_color='black', vertex_size=10,
-                                      vertex_color='purple', cmap=cmap)
+
+            # Plot node size depending on the degree
+            degree = graph.d
+            degree = degree / np.max(degree)
+            degree = degree * 20
+
+            tril_indices = np.tril_indices(len(self.graph_weights), -1)
+            edge_weights = self.graph_weights[tril_indices] / \
+                np.max(self.graph_weights)
+            edge_color = plt.cm.get_cmap(cmap)(edge_weights)
+
+            figure, axis = graph.plot(ax=axis, edge_width=1,
+                                      edge_color=edge_color, vertex_size=degree,
+                                      vertex_color=vertex_color, colorbar=True, cmap=cmap)
 
         elif kind == '3d':
 
@@ -565,6 +580,7 @@ class EEGrasp():
 
             figure = info.plot_sensors(
                 kind='3d', show_names=True, axes=axis, show=False)
+
             figure, axis = graph.plot(ax=axis, edge_width=1, edge_color='black',
                                       vertex_size=20, vertex_color='purple')
 
