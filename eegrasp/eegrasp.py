@@ -31,7 +31,7 @@ class EEGrasp():
         Parameters
         ----------
         data: 2-d array, where the first dim are channels and the second is
-        samples.  
+        samples.
         Coordenates: ndim array with position of the electrodes.
         labels: 1-d array with the channel names.
         """
@@ -118,7 +118,7 @@ class EEGrasp():
         """
         Parameters
         ----------
-        W -> if W is passed, then the graph is computed. 
+        W -> if W is passed, then the graph is computed.
         Otherwise the graph will be computed with self.W.
         W should correspond to a non-sparse 2-D array.
         Epsilon -> maximum distance to threshold the array.
@@ -129,7 +129,7 @@ class EEGrasp():
 
         Returns
         -------
-        G: Graph structure from PyGSP2        
+        G: Graph structure from PyGSP2
         """
 
         # If passed, used the W matrix
@@ -399,25 +399,25 @@ class EEGrasp():
 
         Parameters
         ----------
-        Z: ndarra. Distance between the nodes. If not passed, 
+        Z: ndarra. Distance between the nodes. If not passed,
         the function will try to compute the euclidean distance
         between the data. If self.data is a 2d array it will compute the
-        euclidean distance between the channels. If the data is a 3d array 
+        euclidean distance between the channels. If the data is a 3d array
         it will compute the average distance using the 2nd and 3rd dimensions,
         averaging over the 1st one.
 
-        mode: string. Options are: 'Average', 'Trials'. If average, 
+        mode: string. Options are: 'Average', 'Trials'. If average,
         the function returns a single W and Z. If 'Trials' the function returns
         a generator list of Ws and Zs.
 
         Returns
         -------
 
-        W: ndarray. Weighted adjacency matrix or matrices depending on 
-        mode parameter used. If run in 'Trials' mode then Z is a 
+        W: ndarray. Weighted adjacency matrix or matrices depending on
+        mode parameter used. If run in 'Trials' mode then Z is a
         3d array where the first dim corresponds to trials.
-        Z: ndarray. Used distance matrix or matrices depending on 
-        mode parameter used. If run in 'Trials' mode then Z is a 
+        Z: ndarray. Used distance matrix or matrices depending on
+        mode parameter used. If run in 'Trials' mode then Z is a
         3d array where the first dim corresponds to trials.
 
         """
@@ -471,7 +471,8 @@ class EEGrasp():
 
             return W, Z
 
-    def plot_graph(self, graph=None, coordinates=None, labels=None, montage=None, cmap='viridis', axis=None):
+    def plot_graph(self, graph=None, coordinates=None, labels=None, montage=None, cmap='viridis', axis=None,
+                   kind='topoplot') -> tuple:
         """
         Plot the graph over the eeg montage.
 
@@ -481,10 +482,27 @@ class EEGrasp():
             If not passed, the instance's graph will be used.
         coordinates : ndarray.
             If not passed, the instance's coordinates will be used.
+        labels : list.
+            If not passed, the instance's labels will be used.
+        montage : str | mne montage object | None.
+            If not passed, the instance's montage will be used. If a string is
+            passed, it will try to use the mne montage object. If None, it will
+            create a custom montage based on the coordinates of the class instance.
+            In the case of a string, it will use the coordenates and labels of the
+            mne montage object.
         cmap : str.
             Colormap to use.
         axis : matplotlib axis object.
             If not passed, a new figure will be created.
+        kind : str.
+            Kind of plot to use. Options are 'topoplot' and '3d'.
+
+        Returns
+        -------
+        figure : matplotlib figure.
+            Figure object.
+        axis : matplotlib axis.
+            Axis object.
         """
         # Handle variables if not passed
         if graph is None:
@@ -503,13 +521,16 @@ class EEGrasp():
             labels = self.labels
 
         if montage is None:
-            ch_pos = {}
-            [{ch_pos[label]: pos} for label, pos in zip(labels, coordinates)]
+            ch_pos = dict(zip(labels, coordinates))
             montage = mne.channels.make_dig_montage(
                 ch_pos=ch_pos, coord_frame='head')
         elif isinstance(montage, str):
             try:
                 montage = mne.channels.make_standard_montage(montage)
+                labels = montage.ch_names
+                coordinates = montage.get_positions()['ch_pos']
+                # Restructure into array
+                coordinates = np.array([pos for _, pos in coordinates.items()])
             except ValueError:
                 print(
                     'Montage not found. Creating custom montage based on self.coordenates...')
@@ -517,8 +538,25 @@ class EEGrasp():
                                 montage=None)
 
         # Plot the montage
-        figure = montage.plot(kind='topomap', show_names=True, axes=axis)
-        graph.set_coords(coordinates[:, :2])
-        graph.plot(ax=axis, edge_width=0.5, edge_color='black', vertex_size=10)
+        if kind == 'topoplot':
 
-        return figure
+            info = mne.create_info(labels, sfreq=250, ch_types="eeg")
+            info.set_montage(montage, on_missing="ignore")
+
+            info.plot_sensors(kind='topomap', show_names=True,
+                              axes=axis, show=False, to_sphere=True)
+            xy = mne.channels.layout._find_topomap_coords(info, None)
+
+            graph.set_coordinates(xy)
+            figure, axis = graph.plot(ax=axis, edge_width=0.5,
+                                      edge_color='black', vertex_size=10,
+                                      vertex_color='purple', cmap=cmap)
+
+        elif kind == '3d':
+            graph.set_coordinates(coordinates)
+            graph.plot(ax=axis, edge_width=0.5,
+                       edge_color='black', vertex_size=10)
+            figure = montage.plot(
+                kind='3d', scale_factor=1, show_names=True, axes=axis, show=False)
+
+        return (figure, axis)
