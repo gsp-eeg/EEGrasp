@@ -22,6 +22,10 @@ gsp = EEGrasp(coordinates=EEG_pos, labels=ch_names)
 Z = gsp.compute_distance(EEG_pos)
 G = gsp.compute_graph(sigma=0.1, epsilon=0.2)
 
+# %%
+# G.set_coordinates(EEG_pos[:, :2])
+# G.plot()
+G.get_edge_list()[2]
 # %% Plot
 info = mne.create_info(ch_names, sfreq=256, ch_types="eeg")
 info.set_montage(montage, on_missing="ignore")

@@ -473,7 +473,7 @@ class EEGrasp():
             return W, Z
 
     def plot_graph(self, graph=None, signal=None, coordinates=None, labels=None, montage=None, colorbar=True, vertex_color='purple', cmap='viridis', axis=None,
-                   kind='topoplot') -> tuple:
+                   kind='topoplot', vertex_size=10) -> tuple:
         """
         Plot the graph over the eeg montage.
 
@@ -545,19 +545,23 @@ class EEGrasp():
 
         if signal is None:
             # Plot node size depending on the degree
-            degree = graph.d
-            degree = degree / np.max(degree)
-            degree = degree * 20
+            degree = np.array(graph.dw, dtype=float)
+            degree /= np.max(degree)
+            vertex_size = degree*20
 
-            tril_indices = np.tril_indices(len(self.graph_weights), -1)
-            edge_weights = self.graph_weights[tril_indices] / \
-                np.max(self.graph_weights)
+            # tril_indices = np.tril_indices(len(self.graph_weights), -1)
+            # graph_edges = self.graph_weights[tril_indices]
+            # edge_weights = graph_edges[graph_edges != 0]
+            edge_weights = self.graph.get_edge_list()[2]
+            edge_weights = edge_weights / np.max(edge_weights)
+            print(len(edge_weights))
             edge_color = plt.cm.get_cmap(cmap)(edge_weights)
 
         elif isinstance(signal, (list, np.ndarray)):
-            signal = np.array(signal)
-            signal = signal / np.max(signal)
-            signal = signal * 20
+
+            signal = np.array(signal, dtype=float)
+            signal -= np.min(signal)
+            signal /= np.max(signal)
             edge_color = plt.cm.get_cmap(cmap)(signal)
 
         # Plot the montage
@@ -575,7 +579,7 @@ class EEGrasp():
             axis = figure.get_axes()[0]
 
             figure, axis = graph.plot(ax=axis, edge_width=2,
-                                      edge_color=edge_color, vertex_size=degree,
+                                      edge_color=edge_color, vertex_size=vertex_size,
                                       vertex_color=vertex_color, colorbar=True, cmap=cmap)
 
         elif kind == '3d':
