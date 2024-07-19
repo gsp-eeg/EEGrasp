@@ -485,11 +485,9 @@ class EEGrasp():
         labels : list.
             If not passed, the instance's labels will be used.
         montage : str | mne montage object | None.
-            If not passed, the instance's montage will be used. If a string is
-            passed, it will try to use the mne montage object. If None, it will
-            create a custom montage based on the coordinates of the class instance.
-            In the case of a string, it will use the coordenates and labels of the
-            mne montage object.
+            If None, the instance's coordenates will be used to build a custom montage. If a string
+            is passed, it will try to build a montage from the standard built-in libraty. If a
+            DigiMontage Classis detected it will use the mne montage object.
         cmap : str.
             Colormap to use.
         axis : matplotlib axis object.
@@ -541,12 +539,15 @@ class EEGrasp():
         if kind == 'topoplot':
 
             info = mne.create_info(labels, sfreq=250, ch_types="eeg")
-            info.set_montage(montage, on_missing="ignore")
-            info.plot_sensors(kind='topomap', show_names=True,
-                              axes=axis, show=False, to_sphere=True)
-            xy = mne.channels.layout._find_topomap_coords(info, None, sphere=1)
+            info.set_montage(montage)
 
+            xy, _ = mne.viz.topomap._get_pos_outlines(
+                info, None, 1)
             graph.set_coordinates(xy)
+
+            figure = info.plot_sensors(kind='topomap', show_names=True, ch_type='eeg',
+                                       axes=axis, show=False, to_sphere=True)
+            axis = figure.get_axes()[0]
             figure, axis = graph.plot(ax=axis, edge_width=0.5,
                                       edge_color='black', vertex_size=10,
                                       vertex_color='purple', cmap=cmap)
@@ -563,7 +564,7 @@ class EEGrasp():
             graph.set_coordinates(eeg_pos)
 
             figure = info.plot_sensors(
-                kind='3d', show_names=True, axes=axis)
+                kind='3d', show_names=True, axes=axis, show=False)
             figure, axis = graph.plot(ax=axis, edge_width=1, edge_color='black',
                                       vertex_size=20, vertex_color='purple')
 

@@ -20,13 +20,13 @@ EEG_pos = np.array([pos for _, pos in EEG_pos.items()])
 
 gsp = EEGrasp(coordinates=EEG_pos, labels=ch_names)
 Z = gsp.compute_distance(EEG_pos)
-G = gsp.compute_graph(sigma=0.1, epsilon=0.5)
+G = gsp.compute_graph(sigma=0.1, epsilon=0.2)
 
 # %% Plot
 info = mne.create_info(ch_names, sfreq=256, ch_types="eeg")
 info.set_montage(montage, on_missing="ignore")
 
-fig, ax = gsp.plot_graph(kind='3d', montage=None)
-fig, ax = gsp.plot_graph(kind='topoplot', montage='biosemi64')
+fig, ax = gsp.plot_graph(kind='3d', montage=montage)
+fig, ax = gsp.plot_graph(kind='topoplot', montage=montage)
 
 plt.show()
