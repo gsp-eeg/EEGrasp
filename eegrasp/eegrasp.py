@@ -8,6 +8,7 @@ from tqdm import tqdm  # TODO: Does it belong here?
 from scipy import spatial
 import matplotlib.pyplot as plt
 import mne
+from mne.channels.layout import _auto_topomap_coords
 
 
 class EEGrasp():
@@ -471,7 +472,7 @@ class EEGrasp():
 
             return W, Z
 
-    def plot_graph(self, graph=None, coordinates=None, labels=None, montage=None, colorbar=True, vertex_color='purple', cmap='viridis', axis=None,
+    def plot_graph(self, graph=None, signal=None, coordinates=None, labels=None, montage=None, colorbar=True, vertex_color='purple', cmap='viridis', axis=None,
                    kind='topoplot') -> tuple:
         """
         Plot the graph over the eeg montage.
@@ -480,6 +481,9 @@ class EEGrasp():
         ----------
         graph : PyGSP2 graph.
             If not passed, the instance's graph will be used.
+        signal : ndarray | list.
+            If not passed, the edge_color parameter passed to the pygsp2.plot function will be
+            passed.
         coordinates : ndarray.
             If not passed, the instance's coordinates will be used.
         labels : list | ndarray.
@@ -539,20 +543,7 @@ class EEGrasp():
                 self.plot_graph(graph, coordinates, cmap=cmap, axis=axis,
                                 montage=None)
 
-        # Plot the montage
-        if kind == 'topoplot':
-
-            info = mne.create_info(labels, sfreq=250, ch_types="eeg")
-            info.set_montage(montage)
-
-            xy, _ = mne.viz.topomap._get_pos_outlines(
-                info, None, 0.095, to_sphere=True)
-            graph.set_coordinates(xy)
-
-            figure = info.plot_sensors(kind='topomap', show_names=True, ch_type='eeg',
-                                       axes=axis, show=False, to_sphere=True)
-            axis = figure.get_axes()[0]
-
+        if signal is None:
             # Plot node size depending on the degree
             degree = graph.d
             degree = degree / np.max(degree)
@@ -562,6 +553,26 @@ class EEGrasp():
             edge_weights = self.graph_weights[tril_indices] / \
                 np.max(self.graph_weights)
             edge_color = plt.cm.get_cmap(cmap)(edge_weights)
+
+        elif isinstance(signal, (list, np.ndarray)):
+            signal = np.array(signal)
+            signal = signal / np.max(signal)
+            signal = signal * 20
+            edge_color = plt.cm.get_cmap(cmap)(signal)
+
+        # Plot the montage
+        if kind == 'topoplot':
+
+            info = mne.create_info(labels, sfreq=250, ch_types="eeg")
+            info.set_montage(montage)
+
+            xy = _auto_topomap_coords(
+                info, None, True, to_sphere=True, sphere=None)
+            graph.set_coordinates(xy)
+
+            figure = info.plot_sensors(kind='topomap', show_names=True, ch_type='eeg',
+                                       axes=axis, show=False, to_sphere=True)
+            axis = figure.get_axes()[0]
 
             figure, axis = graph.plot(ax=axis, edge_width=2,
                                       edge_color=edge_color, vertex_size=degree,
