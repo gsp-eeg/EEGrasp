@@ -555,7 +555,8 @@ class EEGrasp():
 
             # Plot edge color depending on the edge weights
             edge_weights = self.graph.get_edge_list()[2]
-            edge_weights_norm = edge_weights / np.max(edge_weights)
+            edge_weights_norm = edge_weights - np.min(edge_weights)
+            edge_weights_norm /= np.max(edge_weights)
             edge_color = plt.cm.get_cmap(cmap)(edge_weights_norm)
             cbar = fig.colorbar(plt.cm.ScalarMappable(cmap=cmap),
                                 ax=axis, label='Edge Weights')
