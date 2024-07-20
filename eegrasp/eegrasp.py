@@ -473,7 +473,7 @@ class EEGrasp():
             return W, Z
 
     def plot_graph(self, graph=None, signal=None, coordinates=None, labels=None, montage=None, colorbar=True, vertex_color='purple', cmap='viridis', axis=None,
-                   kind='topoplot', vertex_size=10) -> tuple:
+                   kind='topoplot', vertex_size=10, alphan=0.5) -> tuple:
         """
         Plot the graph over the eeg montage.
 
@@ -502,6 +502,10 @@ class EEGrasp():
             If not passed, a new figure will be created.
         kind : str.
             Kind of plot to use. Options are 'topoplot' and '3d'.
+        vertex_size : int.
+            Size of the vertex.
+        alphan : float.
+            Alpha value for the edges.
 
         Returns
         -------
@@ -547,15 +551,17 @@ class EEGrasp():
             # Plot node size depending on the degree
             degree = np.array(graph.dw, dtype=float)
             degree /= np.max(degree)
-            vertex_size = degree*20
+            vertex_size = degree
 
-            # tril_indices = np.tril_indices(len(self.graph_weights), -1)
-            # graph_edges = self.graph_weights[tril_indices]
-            # edge_weights = graph_edges[graph_edges != 0]
+            # Plot edge color depending on the edge weights
             edge_weights = self.graph.get_edge_list()[2]
-            edge_weights = edge_weights / np.max(edge_weights)
-            print(len(edge_weights))
-            edge_color = plt.cm.get_cmap(cmap)(edge_weights)
+            edge_weights_norm = edge_weights / np.max(edge_weights)
+            edge_color = plt.cm.get_cmap(cmap)(edge_weights_norm)
+            cbar = fig.colorbar(plt.cm.ScalarMappable(cmap=cmap),
+                                ax=axis, label='Edge Weights')
+            cbar.set_ticks([0, 0.5, 1])
+            cbar.ax.set_yticklabels(
+                np.round([np.min(edge_weights), (np.max(edge_weights) - np.min(edge_weights)) / 2, np.max(edge_weights)], 2))
 
         elif isinstance(signal, (list, np.ndarray)):
 
@@ -574,13 +580,12 @@ class EEGrasp():
                 info, None, True, to_sphere=True, sphere=None)
             graph.set_coordinates(xy)
 
-            figure = info.plot_sensors(kind='topomap', show_names=True, ch_type='eeg',
-                                       axes=axis, show=False, to_sphere=True)
-            axis = figure.get_axes()[0]
-
             figure, axis = graph.plot(ax=axis, edge_width=2,
                                       edge_color=edge_color, vertex_size=vertex_size,
-                                      vertex_color=vertex_color, colorbar=True, cmap=cmap)
+                                      vertex_color=vertex_color, colorbar=True, cmap=cmap,
+                                      alphan=alphan)
+            figure = mne.viz.plot_sensors(info, kind='topomap', pointsize=0.5, show_names=True, ch_type='eeg',
+                                          axes=axis, show=False, to_sphere=True)
 
         elif kind == '3d':
 
@@ -593,10 +598,10 @@ class EEGrasp():
             eeg_pos = mne.transforms.apply_trans(dev_head_t, eeg_pos)
             graph.set_coordinates(eeg_pos)
 
-            figure = info.plot_sensors(
-                kind='3d', show_names=True, axes=axis, show=False)
-
-            figure, axis = graph.plot(ax=axis, edge_width=1, edge_color='black',
-                                      vertex_size=20, vertex_color='purple')
+            figure = mne.viz.plot_sensors(
+                info, kind='3d', pointsize=0.5, show_names=True, axes=axis, show=False)
+            figure, axis = graph.plot(ax=axis, edge_width=2, edge_color=edge_color,
+                                      vertex_size=vertex_size, vertex_color=vertex_color, colorbar=True, cmap=cmap,
+                                      alphan=alphan)
 
         return (figure, axis)
