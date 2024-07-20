@@ -583,7 +583,7 @@ class EEGrasp():
 
             figure, axis = graph.plot(ax=axis, edge_width=2,
                                       edge_color=edge_color, vertex_size=vertex_size,
-                                      vertex_color=vertex_color, colorbar=True, cmap=cmap,
+                                      vertex_color=vertex_color, colorbar=colorbar, cmap=cmap,
                                       alphan=alphan)
             figure = mne.viz.plot_sensors(info, kind='topomap', pointsize=0.5, show_names=True, ch_type='eeg',
                                           axes=axis, show=False, to_sphere=True)
