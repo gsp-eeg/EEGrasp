@@ -1,11 +1,11 @@
 # EEGraSP: EEG GRaph Signal Processing
 
 
-[![PyPi](https://readthedocs.org/projects/eegrasp/badge/?version=latest)](https://eegrasp.readthedocs.io)
-[![PyPi](https://img.shields.io/pypi/v/eegrasp.svg)](https://pypi.org/project/eegrasp)
-[![PyPi](https://anaconda.org/conda-forge/eegrasp/badges/version.svg)](https://anaconda.org/conda-forge/eegrasp)
-[![PyPi](https://img.shields.io/pypi/l/eegrasp.svg)](https://github.com/gsp-eeg/eegrasp/blob/main/LICENSE)
-[![PyPi](https://img.shields.io/pypi/pyversions/eegrasp.svg)](https://pypi.org/project/eegrasp)
+[![ReadTheDocs](https://readthedocs.org/projects/eegrasp/badge/?version=latest)]([link](https://eegrasp.readthedocs.io))
+[![PyPi](https://img.shields.io/pypi/v/eegrasp.svg)]([link](https://pypi.org/project/eegrasp))
+[![CondaForge](https://anaconda.org/conda-forge/eegrasp/badges/version.svg)]([link](https://anaconda.org/conda-forge/eegrasp))
+[![License](https://img.shields.io/pypi/l/eegrasp.svg)]([link](https://github.com/gsp-eeg/eegrasp/blob/main/LICENSE))
+[![Python](https://img.shields.io/pypi/pyversions/eegrasp.svg)]([link](https://pypi.org/project/eegrasp))
 
 
 This module is meant to be used as a tool for EEG signal analysis based on graph signal analysis methods. The developement of this toolbox takes place in GitHub:
