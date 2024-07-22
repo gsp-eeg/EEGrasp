@@ -473,7 +473,7 @@ class EEGrasp():
             return W, Z
 
     def plot_graph(self, graph=None, signal=None, coordinates=None, labels=None, montage=None, colorbar=True, vertex_color='purple', cmap='viridis', axis=None,
-                   kind='topoplot', vertex_size=10, alphan=0.5) -> tuple:
+                   kind='topoplot', vertex_size=10, alphan=0.5, sphere=None) -> tuple:
         """
         Plot the graph over the eeg montage.
 
@@ -586,7 +586,7 @@ class EEGrasp():
                                       vertex_color=vertex_color, colorbar=colorbar, cmap=cmap,
                                       alphan=alphan)
             figure = mne.viz.plot_sensors(info, kind='topomap', pointsize=0.5, show_names=True, ch_type='eeg',
-                                          axes=axis, show=False, to_sphere=True)
+                                          axes=axis, sphere=sphere, show=False, to_sphere=True)
 
         elif kind == '3d':
 
