@@ -9,14 +9,14 @@ EEGraSP package uses other libraries like PyGSP2 and mne for most of the process
 Installation with pip (User Installation)
 ------------
 
-The EEGraSP is available on PyPI:
+The EEGraSP is available on PyPI::
 
      $ pip install eegrasp
 
 Installation with conda (User Installation)
 ------------
 
-The EEGraSP is available on Conda Forge:
+The EEGraSP is available on Conda Forge::
 
      $ conda install conda-forge::eegrasp
 
