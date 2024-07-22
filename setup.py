@@ -21,7 +21,7 @@ setup(
     },
     packages=[
         'eegrasp',
-        'eegrasp.tests',
+        #'eegrasp.tests',
     ],
     package_data={'eegrasp': ['data/pointclouds/*.mat']},
     test_suite='eegrasp.tests.suite',
@@ -88,7 +88,7 @@ setup(
             'twine',
         ],
     },
-    license="BSD",
+    #license='MIT',
     keywords='graph signal processing',
     platforms='any',
     classifiers=[

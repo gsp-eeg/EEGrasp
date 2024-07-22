@@ -1,0 +1,12 @@
+LICENSE
+MANIFEST.in
+README.md
+pyproject.toml
+setup.py
+EEGraSP.egg-info/PKG-INFO
+EEGraSP.egg-info/SOURCES.txt
+EEGraSP.egg-info/dependency_links.txt
+EEGraSP.egg-info/requires.txt
+EEGraSP.egg-info/top_level.txt
+eegrasp/__init__.py
+eegrasp/eegrasp.py
