@@ -479,16 +479,16 @@ class EEGrasp():
 
         Parameters
         ----------
-        graph : PyGSP2 graph.
+        graph : PyGSP2 Graph object.
             If not passed, the instance's graph will be used.
         signal : ndarray | list.
-            If not passed, the edge_color parameter passed to the pygsp2.plot function will be
+            If not passed, the edge_color parameter passed to the `pygsp2.plot` function will be
             passed.
         coordinates : ndarray.
             If not passed, the instance's coordinates will be used.
         labels : list | ndarray.
             If not passed, the instance's labels will be used.
-        montage : str | mne montage object | None.
+        montage : str | mne RawBase | mne EpochsBase | mne EvokedBase | None.
             If None, the instance's coordenates will be used to build a custom montage. If a string
             is passed, it will try to build a montage from the standard built-in libraty. If a
             DigiMontage Classis detected it will use the mne montage object.
