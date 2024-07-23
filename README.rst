@@ -28,21 +28,21 @@ This module is meant to be used as a tool for EEG signal analysis based on graph
 EEGraSP package uses other libraries like PyGSP2 and mne for most of the processing and graph signal analysis.
 
 Installation with pip (User Installation)
-------------
+-----------------------------------------
 
 The EEGraSP is available on PyPI::
 
      $ pip install eegrasp
 
 Installation with conda (User Installation)
-------------
+-------------------------------------------
 
 The EEGraSP is available on Conda Forge::
 
      $ conda install conda-forge::eegrasp
 
 Installation from source (User Installation)
-------------
+--------------------------------------------
 
 1. Clone the EEGraSP repository into a local directory with git: ``git clone https://github.com/gsp-eeg/eegrasp``
 2. Change the current directory to the directory of the downloaded repository. ``cd eegrasp``
@@ -52,7 +52,7 @@ Now you are ready to contribute!
 
 
 Usage
-------------
+-----
 
 Examples are provided in the `examples <https://github.com/gsp-eeg/EEGraSP/tree/main/examples>`_ folder of the repository:
 
@@ -91,13 +91,13 @@ Where:
 To interpolate a channel of your choice the ``MISSING_IDX`` variable should be changed to the index of the corresponding channel. Remember that python indices start from 0.
 
 License
-------------
+-------
 MIT licence
 
 Project status
-------------
+--------------
 Still in developement.
 
 Acknowledgments
-------------
+---------------
 EEGraSP has been partly funded by FONDECYT REGULAR 1231132 grant, ANILLO ACT210053, and BASAL FB0008 grant.
