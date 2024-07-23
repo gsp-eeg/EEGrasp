@@ -578,7 +578,7 @@ class EEGrasp():
             info.set_montage(montage)
 
             xy = _auto_topomap_coords(
-                info, None, True, to_sphere=True, sphere=None)
+                info, None, True, to_sphere=True, sphere=sphere)
             graph.set_coordinates(xy)
 
             figure, axis = graph.plot(ax=axis, edge_width=2,
