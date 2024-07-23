@@ -473,7 +473,7 @@ class EEGrasp():
             return W, Z
 
     def plot_graph(self, graph=None, signal=None, coordinates=None, labels=None, montage=None, colorbar=True, vertex_color='purple', cmap='viridis', axis=None,
-                   kind='topoplot', vertex_size=10, alphan=0.5, sphere=None):
+                   kind='topoplot', show_names=True, vertex_size=10, alphan=0.5, sphere=None):
         """
         Plot the graph over the eeg montage.
 
@@ -548,7 +548,7 @@ class EEGrasp():
                                 montage=None)
 
         if signal is None:
-            # Plot node size depending on the degree
+            # Plot node size depending on weighted degree
             degree = np.array(graph.dw, dtype=float)
             degree /= np.max(degree)
             vertex_size = degree
@@ -580,13 +580,12 @@ class EEGrasp():
             xy = _auto_topomap_coords(
                 info, None, True, to_sphere=True, sphere=sphere)
             graph.set_coordinates(xy)
-
+            figure = mne.viz.plot_sensors(info, kind='topomap', pointsize=0.5, show_names=show_names, ch_type='eeg',
+                                          axes=axis, sphere=sphere, show=False, to_sphere=True)
             figure, axis = graph.plot(ax=axis, edge_width=2,
                                       edge_color=edge_color, vertex_size=vertex_size,
                                       vertex_color=vertex_color, colorbar=colorbar, cmap=cmap,
                                       alphan=alphan)
-            figure = mne.viz.plot_sensors(info, kind='topomap', pointsize=0.5, show_names=True, ch_type='eeg',
-                                          axes=axis, sphere=sphere, show=False, to_sphere=True)
 
         elif kind == '3d':
 
