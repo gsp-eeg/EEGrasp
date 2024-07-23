@@ -519,7 +519,7 @@ class EEGrasp():
 
         See Also
         --------
-        * pygsp2 function `plotting.plot`
+        * pygsp2 function `pygsp2.plotting.plot`
         * mne function `mne.viz.plot_sensors`
         """
         # Load default values
