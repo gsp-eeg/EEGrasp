@@ -9,6 +9,8 @@ from scipy import spatial
 import matplotlib.pyplot as plt
 import mne
 from mne.channels.layout import _auto_topomap_coords
+from .plotting import (DEFAULT_CMAP, DEFAULT_VERTEX_COLOR, DEFAULT_VERTEX_SIZE,
+                       DEFAULT_SPHERE, DEFAULT_ALPHAN, DEFAULT_LINEWIDTH, DEFAULT_POINTSIZE, _update_locals)
 
 
 class EEGrasp():
@@ -472,8 +474,8 @@ class EEGrasp():
 
             return W, Z
 
-    def plot_graph(self, graph=None, signal=None, coordinates=None, labels=None, montage=None, colorbar=True, vertex_color='purple', cmap='viridis', axis=None,
-                   kind='topoplot', show_names=True, vertex_size=10, alphan=0.5, sphere=None):
+    def plot_graph(self, graph=None, signal=None, coordinates=None, labels=None, montage=None, colorbar=True, axis=None,
+                   kind='topoplot', show_names=True, cmap=DEFAULT_CMAP, **kwargs):
         """
         Plot the graph over the eeg montage.
 
@@ -514,6 +516,18 @@ class EEGrasp():
         axis : matplotlib axis.
             Axis object.
         """
+        # Load default values
+        vertex_color = DEFAULT_VERTEX_COLOR
+        vertex_size = DEFAULT_VERTEX_SIZE
+        alphan = DEFAULT_ALPHAN
+        linewidth = DEFAULT_LINEWIDTH
+
+        kwargs['pointsize'] = DEFAULT_POINTSIZE
+        kwargs['sphere'] = DEFAULT_SPHERE
+
+        # Update default values with kwargs
+        kwargs = _update_locals(kwargs, locals())
+
         # Handle variables if not passed
         if graph is None:
             graph = self.graph
@@ -541,6 +555,7 @@ class EEGrasp():
             try:
                 montage = mne.channels.make_standard_montage(montage)
                 labels = montage.ch_names
+                kwargs['sphere'] = None
             except ValueError:
                 print(
                     f'{montage} Montage not found. Creating custom montage based on self.coordenates...')
@@ -578,10 +593,10 @@ class EEGrasp():
             info.set_montage(montage)
 
             xy = _auto_topomap_coords(
-                info, None, True, to_sphere=True, sphere=sphere)
+                info, None, True, to_sphere=True, sphere=kwargs['sphere'])
             graph.set_coordinates(xy)
-            figure = mne.viz.plot_sensors(info, kind='topomap', pointsize=0.5, show_names=show_names, ch_type='eeg',
-                                          axes=axis, sphere=sphere, show=False, to_sphere=True)
+            figure = mne.viz.plot_sensors(info, kind='topomap', show_names=show_names, ch_type='eeg',
+                                          axes=axis, show=False, linewidth=linewidth, **kwargs)
             figure, axis = graph.plot(ax=axis, edge_width=2,
                                       edge_color=edge_color, vertex_size=vertex_size,
                                       vertex_color=vertex_color, colorbar=colorbar, cmap=cmap,
