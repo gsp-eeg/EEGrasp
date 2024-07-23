@@ -7,14 +7,14 @@ EEGraSP: EEG GRaph Signal Processing
    :alt: Read the Docs
 
 .. image:: https://img.shields.io/pypi/v/eegrasp.svg
-   :target:https://pypi.org/project/eegrasp
+   :target: https://pypi.org/project/eegrasp
    :alt: PyPi
 
-.. image:: https://anaconda.org/conda-forge/eegrasp/badges/version.svg)
+.. image:: https://anaconda.org/conda-forge/eegrasp/badges/version.svg
    :target: https://anaconda.org/conda-forge/eegrasp
    :alt: Conda Forge
 
-.. image:: https://img.shields.io/pypi/l/eegrasp.svg) 
+.. image:: https://img.shields.io/pypi/l/eegrasp.svg
    :target: https://github.com/gsp-eeg/eegrasp/blob/main/LICENSE
    :alt: Licence
 
