@@ -8,7 +8,7 @@ setup(
     name='eegrasp',
     version='0.0.2',
     description='Graph Signal Processing in Python',
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     long_description_content_type='text/x-rst',
     author='GSP EEG',
     url='https://github.com/gsp-eeg/EEGrasp',
