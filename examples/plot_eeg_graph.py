@@ -23,8 +23,8 @@ Z = gsp.compute_distance(EEG_pos)
 G = gsp.compute_graph(sigma=0.1, epsilon=0.2)
 
 # %% Plot
-fig, ax = gsp.plot_graph(vertex_color='teal', cmap='Spectral',
-                         show_names=False, alphan=0.5, sphere='eeglab')
+
+fig, ax = gsp.plot_graph(montage=montage)
 fig, ax = gsp.plot_graph(kind='3d')
 
 plt.show()

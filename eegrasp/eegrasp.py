@@ -9,8 +9,7 @@ from scipy import spatial
 import matplotlib.pyplot as plt
 import mne
 from mne.channels.layout import _auto_topomap_coords
-from .plotting import (DEFAULT_CMAP, DEFAULT_VERTEX_COLOR, DEFAULT_VERTEX_SIZE,
-                       DEFAULT_SPHERE, DEFAULT_ALPHAN, DEFAULT_LINEWIDTH, DEFAULT_POINTSIZE, _update_locals)
+from .plotting import PlottingDefaults, _separate_kwargs
 
 
 class EEGrasp():
@@ -475,20 +474,20 @@ class EEGrasp():
             return W, Z
 
     def plot_graph(self, graph=None, signal=None, coordinates=None, labels=None, montage=None, colorbar=True, axis=None,
-                   kind='topoplot', show_names=True, cmap=DEFAULT_CMAP, **kwargs):
+                   kind='topoplot', show_names=True, **kwargs):
         """
         Plot the graph over the eeg montage.
 
         Parameters
         ----------
-        graph : PyGSP2 Graph object.
+        graph : PyGSP2 Graph object | None.
             If not passed, the instance's graph will be used.
-        signal : ndarray | list.
+        signal : ndarray | list | None.
             If not passed, the edge_color parameter passed to the `pygsp2.plot` function will be
             passed.
-        coordinates : ndarray.
+        coordinates : ndarray | None.
             If not passed, the instance's coordinates will be used.
-        labels : list | ndarray.
+        labels : list | ndarray | None.
             If not passed, the instance's labels will be used.
         montage : str | mne RawBase | mne EpochsBase | mne EvokedBase | None.
             If None, the instance's coordenates will be used to build a custom montage. If a string
@@ -496,10 +495,6 @@ class EEGrasp():
             DigiMontage Classis detected it will use the mne montage object.
         colorbar : bool.
             If True, a colorbar will be plotted.
-        vertex_color : str.
-            Color to use for the vertices.
-        cmap : str.
-            Colormap to use.
         axis : matplotlib axis object.
             If not passed, a new figure will be created.
         kind : str.
@@ -508,6 +503,8 @@ class EEGrasp():
             Size of the vertex.
         alphan : float.
             Alpha value for the edges.
+        %(pygsp2.plot)s
+        %(mne.viz.plot_sensors)s
 
         Returns
         -------
@@ -515,18 +512,33 @@ class EEGrasp():
             Figure object.
         axis : matplotlib axis.
             Axis object.
+
+        Notes
+        -----
+        Any argument from `mne.viz.plot_sensors` and `pygsp2.plot` can be passed to the function.
+
+        See Also
+        --------
+        * pygsp2 function `plotting.plot`
+        * mne function `mne.viz.plot_sensors`
         """
         # Load default values
-        vertex_color = DEFAULT_VERTEX_COLOR
-        vertex_size = DEFAULT_VERTEX_SIZE
-        alphan = DEFAULT_ALPHAN
-        linewidth = DEFAULT_LINEWIDTH
+        default_values = PlottingDefaults()
 
-        kwargs['pointsize'] = DEFAULT_POINTSIZE
-        kwargs['sphere'] = DEFAULT_SPHERE
+        # Add default values for plotting
+        kwargs = default_values.load_defaults(kwargs)
+        cmap = kwargs['cmap']
 
-        # Update default values with kwargs
-        kwargs = _update_locals(kwargs, locals())
+        # Separate kwargs for pygsp2 and mne
+        pygsp_arg_list = self.graph.plot.__code__.co_varnames
+        mne_arg_list = mne.viz.plot_sensors.__code__.co_varnames
+
+        kwargs_pygsp_plot, kwargs = _separate_kwargs(kwargs, pygsp_arg_list)
+        kwargs_mne_plot, kwargs = _separate_kwargs(kwargs, mne_arg_list)
+
+        # Raise exemption if kwargs is not empty
+        if len(kwargs) > 0:
+            raise ValueError(f'Invalid arguments: {kwargs.keys()}')
 
         # Handle variables if not passed
         if graph is None:
@@ -555,24 +567,28 @@ class EEGrasp():
             try:
                 montage = mne.channels.make_standard_montage(montage)
                 labels = montage.ch_names
-                kwargs['sphere'] = None
+                kwargs_mne_plot['sphere'] = None
             except ValueError:
                 print(
                     f'{montage} Montage not found. Creating custom montage based on self.coordenates...')
                 self.plot_graph(graph, coordinates, cmap=cmap, axis=axis,
                                 montage=None)
+        else:
+            kwargs_mne_plot['sphere'] = None
 
         if signal is None:
+
             # Plot node size depending on weighted degree
             degree = np.array(graph.dw, dtype=float)
             degree /= np.max(degree)
-            vertex_size = degree
+            kwargs_pygsp_plot['vertex_size'] = degree
 
             # Plot edge color depending on the edge weights
             edge_weights = self.graph.get_edge_list()[2]
             # edge_weights_norm = edge_weights - np.min(edge_weights)
             edge_weights_norm = edge_weights / np.max(edge_weights)
-            edge_color = plt.cm.get_cmap(cmap)(edge_weights_norm)
+            kwargs_pygsp_plot['edge_color'] = plt.cm.get_cmap(
+                cmap)(edge_weights_norm)
             cbar = fig.colorbar(plt.cm.ScalarMappable(cmap=cmap),
                                 ax=axis, label='Edge Weights')
             cbar.set_ticks([0, 0.5, 1])
@@ -584,7 +600,7 @@ class EEGrasp():
             signal = np.array(signal, dtype=float)
             signal -= np.min(signal)
             signal /= np.max(signal)
-            edge_color = plt.cm.get_cmap(cmap)(signal)
+            kwargs_pygsp_plot['edge_color'] = plt.cm.get_cmap(cmap)(signal)
 
         # Plot the montage
         if kind == 'topoplot':
@@ -593,14 +609,12 @@ class EEGrasp():
             info.set_montage(montage)
 
             xy = _auto_topomap_coords(
-                info, None, True, to_sphere=True, sphere=kwargs['sphere'])
+                info, None, True, to_sphere=True, sphere=kwargs_mne_plot['sphere'])
             graph.set_coordinates(xy)
             figure = mne.viz.plot_sensors(info, kind='topomap', show_names=show_names, ch_type='eeg',
-                                          axes=axis, show=False, linewidth=linewidth, **kwargs)
-            figure, axis = graph.plot(ax=axis, edge_width=2,
-                                      edge_color=edge_color, vertex_size=vertex_size,
-                                      vertex_color=vertex_color, colorbar=colorbar, cmap=cmap,
-                                      alphan=alphan)
+                                          axes=axis, show=False, **kwargs_mne_plot)
+            figure, axis = graph.plot(ax=axis, colorbar=colorbar,
+                                      **kwargs_pygsp_plot)
 
         elif kind == '3d':
 
@@ -614,9 +628,8 @@ class EEGrasp():
             graph.set_coordinates(eeg_pos)
 
             figure = mne.viz.plot_sensors(
-                info, kind='3d', pointsize=0.5, show_names=True, axes=axis, show=False)
-            figure, axis = graph.plot(ax=axis, edge_width=2, edge_color=edge_color,
-                                      vertex_size=vertex_size, vertex_color=vertex_color, colorbar=True, cmap=cmap,
-                                      alphan=alphan)
+                info, kind='3d', show_names=True, axes=axis, show=False, **kwargs_mne_plot)
+            figure, axis = graph.plot(
+                ax=axis, colorbar=colorbar, **kwargs_pygsp_plot)
 
         return (figure, axis)
