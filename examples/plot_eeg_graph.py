@@ -24,7 +24,7 @@ G = gsp.compute_graph(sigma=0.1, epsilon=0.2)
 
 # %% Plot
 
-fig, ax = gsp.plot_graph(montage=montage)
+fig, ax = gsp.plot_graph()
 fig, ax = gsp.plot_graph(kind='3d')
 
 plt.show()
