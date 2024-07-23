@@ -473,7 +473,7 @@ class EEGrasp():
             return W, Z
 
     def plot_graph(self, graph=None, signal=None, coordinates=None, labels=None, montage=None, colorbar=True, vertex_color='purple', cmap='viridis', axis=None,
-                   kind='topoplot', vertex_size=10, alphan=0.5, sphere=None) -> tuple:
+                   kind='topoplot', vertex_size=10, alphan=0.5, sphere=None):
         """
         Plot the graph over the eeg montage.
 
@@ -543,7 +543,7 @@ class EEGrasp():
                 labels = montage.ch_names
             except ValueError:
                 print(
-                    'Montage not found. Creating custom montage based on self.coordenates...')
+                    f'{montage} Montage not found. Creating custom montage based on self.coordenates...')
                 self.plot_graph(graph, coordinates, cmap=cmap, axis=axis,
                                 montage=None)
 
