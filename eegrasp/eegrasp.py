@@ -484,7 +484,7 @@ class EEGrasp():
             Parameter for the graph learning algorithm, this controls the density of the learned
             graph. Bigger b -> more dense W. Default is 0.1.
         mode : string.
-            Options are: 'Average', 'Trials'. If average, the function returns a single W and Z.
+            Options are: 'Average', 'Trials'. If 'average', the function returns a single W and Z.
             If 'Trials' the function returns a generator list of Ws and Zs. Default is 'Average'.
 
         Returns
