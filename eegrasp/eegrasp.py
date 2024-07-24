@@ -36,7 +36,7 @@ class EEGrasp():
             dimension is trials. If an mne object is passed, the data will be extracted from it
             along with the coordinates and labels of the channels. If `None`, the class will be
             initialized without data. Default is `None`. 
-        Coordenates : ndarray | list | None.
+        coordinates : ndarray | list | None.
             N-dim array or list with position of the electrodes. Dimensions mus coincide with the
             number of channels in `data`. If not provided the class instance will not have
             coordinates associated with the nodes. Some functions will not work without this
@@ -142,11 +142,12 @@ class EEGrasp():
         """
         Parameters
         ----------
-        W : numpy ndarray. 
+        W : numpy ndarray | None. 
             if W is passed, then the graph is computed. Otherwise the graph will be computed with
-            `self.W`. `W` should correspond to a non-sparse 2-D array.
+            `self.W`. `W` should correspond to a non-sparse 2-D array. If None, the function will
+            use the distance matrix computed in the instance of the class (`self.W`).
         epsilon : float.
-            Maximum distance to threshold the array.
+            Any distance greater than epsilon will be set to zero on the adjacency matrix.
         sigma : float.
             Sigma parameter for the gaussian kernel.
         method: string. 
@@ -155,7 +156,7 @@ class EEGrasp():
 
         Returns
         -------
-        G: Graph structure from PyGSP2.
+        G: PyGSP2 Graph object.
         """
 
         # If passed, used the W matrix
@@ -181,18 +182,21 @@ class EEGrasp():
 
         return graph
 
-    def interpolate_channel(self, graph=None, data=None, missing_idx=None):
+    def interpolate_channel(self, missing_idx, graph=None, data=None):
         """
         Interpolate missing channel.
 
         Parameters
         ----------
-        graph : PyGSP2 Graph | None.
-            Graph structure from PyGSP2.
+        missing_idx : int.
+            Index of the missing channel. Not optional.
+        graph : PyGSP2 Graph object | None.
+            Graph to be used to interpolate a missing channel. If None, the function will use the
+            graph computed in the instance of the class (`self.graph`). Default is None.
         data : ndarray | None.
-            2d array of channels by samples.
-        missing_idx : int | None.
-            Index of the missing channel.
+            2d array of channels by samples. If None, the function will use the data computed in
+            the instance of the class (`self.data`). Default is None.
+
 
         Returns
         -------
@@ -206,7 +210,7 @@ class EEGrasp():
         if isinstance(graph, type(None)):
             graph = self.graph
 
-        elif isinstance(missing_idx, type(None)):
+        if not isinstance(missing_idx, int):
             raise TypeError('Parameter missing_idx not specified.')
 
         time = np.arange(data.shape[1])  # create time array
