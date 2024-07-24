@@ -188,7 +188,7 @@ class EEGrasp():
 
         Parameters
         ----------
-        missing_idx : int | list of int | tuple.
+        missing_idx : int | list of int | tuple of int.
             Index of the missing channel. Not optional.
         graph : PyGSP2 Graph object | None.
             Graph to be used to interpolate a missing channel. If None, the function will use the
@@ -271,16 +271,16 @@ class EEGrasp():
         Parameters
         ----------
         missing_idx : int.
-            Index of the missing channel.
+            Index of the missing channel. Not optional.
         data : ndarray | None.
             2d array of channels by samples. If None, the function will use the data computed in
-            the instance of the class (`self.data`).
+            the instance of the class (`self.data`). Default is None.
         distances : ndarray | None.
             Unthresholded distance matrix (2-dimensional array). It can be passed to the instance
             of the class or as an argument of the method. If None, the function will use the
-            distance computed in the instance of the class (`self.distances`).
+            distance computed in the instance of the class (`self.distances`). Default is None.
         sigma : float.
-            Parameter of the Gaussian Kernel transformation
+            Parameter of the Gaussian Kernel transformation. Default is 0.1.
 
 
         Returns
