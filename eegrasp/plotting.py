@@ -32,8 +32,8 @@ class PlottingDefaults:
             Dictionary with default values added.
         """
         for key, value in self.__dict__.items():
-            if key not in kwargs.keys():
-                true_key = key.lower().split('default_')[-1]
+            true_key = key.lower().rsplit('default_', maxsplit=1)[-1]
+            if true_key not in kwargs:
                 kwargs[true_key] = value
         return kwargs
 

@@ -524,7 +524,7 @@ class EEGrasp():
         """
         # Load default values
         default_values = PlottingDefaults()
-
+        original_kwargs = kwargs.copy()
         # Add default values for plotting
         kwargs = default_values.load_defaults(kwargs)
         cmap = kwargs['cmap']
@@ -576,7 +576,7 @@ class EEGrasp():
         else:
             kwargs_mne_plot['sphere'] = None
 
-        if signal is None:
+        if signal is None and 'edge_color' not in original_kwargs:
 
             # Plot node size depending on weighted degree
             degree = np.array(graph.dw, dtype=float)
@@ -615,6 +615,7 @@ class EEGrasp():
                                           axes=axis, show=False, **kwargs_mne_plot)
             figure, axis = graph.plot(ax=axis, colorbar=colorbar,
                                       **kwargs_pygsp_plot)
+            print(kwargs_pygsp_plot)
 
         elif kind == '3d':
 
