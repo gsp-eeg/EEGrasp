@@ -188,7 +188,7 @@ class EEGrasp():
 
         Parameters
         ----------
-        missing_idx : int | list of integers.
+        missing_idx : int | list of int | tuple.
             Index of the missing channel. Not optional.
         graph : PyGSP2 Graph object | None.
             Graph to be used to interpolate a missing channel. If None, the function will use the
@@ -209,9 +209,6 @@ class EEGrasp():
             data = self.data.copy()
         if isinstance(graph, type(None)):
             graph = self.graph
-
-        if not isinstance(missing_idx, (int, list)):
-            raise TypeError('Parameter missing_idx is not an integer or list.')
 
         time = np.arange(data.shape[1])  # create time array
         mask = np.ones(data.shape[0], dtype=bool)  # Maksing array
@@ -266,7 +263,7 @@ class EEGrasp():
 
         return vec
 
-    def fit_epsilon(self, missing_idx: int, data=None, distances=None, sigma=0.1,
+    def fit_epsilon(self, missing_idx: int | list[int] | tuple[int], data=None, distances=None, sigma=0.1,
                     ):
         """
         Find the best distance to use as threshold.
@@ -305,8 +302,6 @@ class EEGrasp():
 
         if isinstance(distances, type(None)) or isinstance(data, type(None)):
             raise TypeError('Check data or W arguments.')
-        if isinstance(missing_idx, type(None)):
-            raise TypeError('Parameter missing_idx not specified.')
 
         # Vectorize the distance matrix
         dist_tril = self._vectorize_matrix(distances)
@@ -367,28 +362,30 @@ class EEGrasp():
         results = self._return_results(error, signal, vdistances, 'epsilon')
         return results
 
-    def fit_sigma(self, missing_idx: int, data=None, distances=None, epsilon=0.5,
-                  min_sigma=0.1, max_sigma=1, step=0.1):
+    def fit_sigma(self, missing_idx: int | list[int] | tuple[int], data=None, distances=None, epsilon=0.5,
+                  min_sigma=0.1, max_sigma=1., step=0.1):
         """
         Find the best parameter for the gaussian kernel.
 
         Parameters
         ----------
+        missing_idx : int | list | tuple.
+            Index of the missing channel.
         data : ndarray | None.
-            2d array of channels by samples.
+            2d array of channels by samples. If None, the function will use the data computed in
+            the instance of the class (`self.data`).
         distances : ndarray | None.
             Distance matrix (2-dimensional array). It can be passed to the instance
-            of the class or as an argument of the method.
+            of the class or as an argument of the method. If None, the function will use the
+            distance computed in the instance of the class (`self.distances`).
         epsilon : float.
-            Maximum distance to threshold the array.
-        missing_idx : int.
-            Index of the missing channel.
+            Maximum distance to threshold the array. Default is 0.5.
         min_sigma : float.
-            Minimum value for the sigma parameter.
+            Minimum value for the sigma parameter. Default is 0.1.
         max_sigma : float.
-            Maximum value for the sigma parameter.
+            Maximum value for the sigma parameter. Default is 1.
         step : float.
-            Step for the sigma parameter.
+            Step for the sigma parameter. Default is 0.1.
 
         Notes
         -----
@@ -406,8 +403,6 @@ class EEGrasp():
 
         if isinstance(distances, type(None)) or isinstance(data, type(None)):
             raise TypeError('Check data or W arguments.')
-        if isinstance(missing_idx, type(None)):
-            raise TypeError('Parameter missing_idx not specified.')
 
         # Create array of parameter values
         vsigma = np.arange(min_sigma, max_sigma, step=step)
@@ -436,8 +431,8 @@ class EEGrasp():
             graph = self.compute_graph(distances, epsilon=epsilon, sigma=sigma)
 
             # Interpolate signal, iterating over time
-            reconstructed = self.interpolate_channel(graph, signal,
-                                                     missing_idx=missing_idx)
+            reconstructed = self.interpolate_channel(
+                missing_idx=missing_idx, graph=graph, data=signal)
             all_reconstructed[i, :] = reconstructed[missing_idx, :]
 
             # Calculate error
