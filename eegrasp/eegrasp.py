@@ -541,7 +541,7 @@ class EEGrasp():
 
         # Raise exemption if kwargs is not empty
         if len(kwargs) > 0:
-            raise ValueError(f'Invalid arguments: {kwargs.keys()}')
+            raise ValueError(f'Invalid arguments: {list(kwargs.keys())}')
 
         # Handle variables if not passed
         if graph is None:
