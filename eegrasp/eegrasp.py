@@ -473,7 +473,8 @@ class EEGrasp():
 
             return W, Z
 
-    def plot_graph(self, graph=None, signal=None, coordinates=None, labels=None, montage=None, colorbar=True, axis=None, clabel='Edge Weights', kind='topoplot', show_names=True, **kwargs):
+    def plot_graph(self, graph=None, signal=None, coordinates=None, labels=None, montage=None,
+                   colorbar=True, axis=None, clabel='Edge Weights', kind='topoplot', show_names=True, **kwargs):
         """
         Plot the graph over the eeg montage.
 
