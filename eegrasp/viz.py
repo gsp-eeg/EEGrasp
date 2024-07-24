@@ -96,13 +96,15 @@ def _separate_kwargs(kwargs, names):
     return var1, var2
 
 
-def plot_graph(eegrasp, graph: graphs.Graph | None = None, signal=None, coordinates=None, labels=None, montage=None,
+def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coordinates=None, labels=None, montage=None,
                colorbar=True, axis=None, clabel='Edge Weights', kind='topoplot', show_names=True, **kwargs):
     """
     Plot the graph over the eeg montage.
 
     Parameters
     ----------
+    eegrasp : EEGrasp object.
+        Instance of the EEGrasp class. If `None` (default), the other parameters mus be specified. 
     graph : PyGSP2 Graph object | None.
         If `None` (default) the instance's graph will be used. If a `PyGSP2 Graph` object is passed, it will
         be used to plot the graph.
@@ -142,13 +144,19 @@ def plot_graph(eegrasp, graph: graphs.Graph | None = None, signal=None, coordina
     Notes
     -----
     Any argument from `mne.viz.plot_sensors` and `pygsp2.plot` can be passed to the function.
-    Default parameters can be found in `PlottingDefaults` class in `eegrasp/plotting.py`.
+    Default parameters can be found in `PlottingDefaults` class in `eegrasp.viz`.
 
     See Also
     --------
     * pygsp2 function `pygsp2.plotting.plot`
     * mne function `mne.viz.plot_sensors`
     """
+    # Import EEGrasp class to verify instance
+    from .eegrasp import EEGrasp
+
+    # Check eegrasp instance
+    if not isinstance(eegrasp, (type(None), EEGrasp)):
+        raise TypeError('eegrasp must be an instance of EEGrasp class or None')
 
     # Load default values
     default_values = PlottingDefaults()
