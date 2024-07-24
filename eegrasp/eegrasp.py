@@ -31,15 +31,21 @@ class EEGrasp():
         """
         Parameters
         ----------
-        data : ndarray | mne object | None.
+        data : ndarray | mne Evoked | mne BaseRaw | mne BaseEpochs | None.
             2D array. Where the first dim are channels and the second is samples. If 3D, the first
             dimension is trials. If an mne object is passed, the data will be extracted from it
-            along with the coordinates and labels of the channels. If None, the class will be
-            initialized without data. 
+            along with the coordinates and labels of the channels. If `None`, the class will be
+            initialized without data. Default is `None`. 
         Coordenates : ndarray | list | None.
-            N-dim array with position of the electrodes.
+            N-dim array or list with position of the electrodes. Dimensions mus coincide with the
+            number of channels in `data`. If not provided the class instance will not have
+            coordinates associated with the nodes. Some functions will not work without this
+            information but can be provided later. Default is None.
         labels : ndarray | list | None.
-            Channel names.
+            Channel names. If not provided the class instance will not have labels associated with
+            the nodes. Some functions will not work without this information but can be provided
+            later. If `None` then the labels will be set to a range of numbers from 0 to the number
+            of channels in the data. Default is `None`.
         """
 
         self.data = data
@@ -56,13 +62,13 @@ class EEGrasp():
         Parameters
         ----------
         pos : ndarray.
-            2d or 3d array of channels by dimensions
+            2d or 3d array of channels by feature dimensions.
 
         Returns
         -------
         output: ndarray.
-            Dimension of the array is Channels by Channels with the euclidean distance between
-            channels.
+            Dimension of the array is number of channels by number of channels containing the
+            euclidean distance between each pair of channels.
         """
 
         distance = np.zeros([pos.shape[0], pos.shape[0]],
