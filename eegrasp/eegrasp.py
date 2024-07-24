@@ -472,12 +472,20 @@ class EEGrasp():
         ----------
         Z : ndarray.
             Distance between the nodes. If not passed, the function will try to compute the
-            euclidean distance between the data. If self.data is a 2d array it will compute the
-            euclidean distance between the channels. If the data is a 3d array it will compute the
-            average distance using the 2nd and 3rd dimensions, and averaging over the 1st one.
+            euclidean distance using `self.data`. If `self.data` is a 2d array it will compute the
+            euclidean distance between the channels. If the data is a 3d array it will compute a Z
+            matrix per trial, assuming the first dimension in data is trials/epochs. Depending on
+            the mode parameter, the function will average distance matrizes and learn the graph on
+            the average distance or return a collection of adjacency matrices. Default is None.
+        a : float.
+            Parameter for the graph learning algorithm, this controls the weights of the learned
+            graph. Bigger a -> bigger weights in W. Default is 0.1.
+        b : float.
+            Parameter for the graph learning algorithm, this controls the density of the learned
+            graph. Bigger b -> more dense W. Default is 0.1.
         mode : string.
             Options are: 'Average', 'Trials'. If average, the function returns a single W and Z.
-            If 'Trials' the function returns a generator list of Ws and Zs.
+            If 'Trials' the function returns a generator list of Ws and Zs. Default is 'Average'.
 
         Returns
         -------
