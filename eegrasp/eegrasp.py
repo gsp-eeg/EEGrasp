@@ -35,7 +35,7 @@ class EEGrasp():
             2D array. Where the first dim are channels and the second is samples. If 3D, the first
             dimension is trials. If an mne object is passed, the data will be extracted from it
             along with the coordinates and labels of the channels. If `None`, the class will be
-            initialized without data. Default is `None`. 
+            initialized without data. Default is `None`.
         coordinates : ndarray | list | None.
             N-dim array or list with position of the electrodes. Dimensions mus coincide with the
             number of channels in `data`. If not provided the class instance will not have
@@ -142,7 +142,7 @@ class EEGrasp():
         """
         Parameters
         ----------
-        W : numpy ndarray | None. 
+        W : numpy ndarray | None.
             if W is passed, then the graph is computed. Otherwise the graph will be computed with
             `self.W`. `W` should correspond to a non-sparse 2-D array. If None, the function will
             use the distance matrix computed in the instance of the class (`self.W`).
@@ -150,7 +150,7 @@ class EEGrasp():
             Any distance greater than epsilon will be set to zero on the adjacency matrix.
         sigma : float.
             Sigma parameter for the gaussian kernel.
-        method: string. 
+        method: string.
             Options are: "NN" or "Gaussian". Nearest Neighbor or Gaussian Kernel used based on the
             `self.W` matrix respectively depending on the method used.
 
@@ -182,13 +182,13 @@ class EEGrasp():
 
         return graph
 
-    def interpolate_channel(self, missing_idx, graph=None, data=None):
+    def interpolate_channel(self, missing_idx: int | list[int] | tuple[int], graph=None, data=None):
         """
         Interpolate missing channel.
 
         Parameters
         ----------
-        missing_idx : int.
+        missing_idx : int | list of integers.
             Index of the missing channel. Not optional.
         graph : PyGSP2 Graph object | None.
             Graph to be used to interpolate a missing channel. If None, the function will use the
@@ -210,8 +210,8 @@ class EEGrasp():
         if isinstance(graph, type(None)):
             graph = self.graph
 
-        if not isinstance(missing_idx, int):
-            raise TypeError('Parameter missing_idx not specified.')
+        if not isinstance(missing_idx, (int, list)):
+            raise TypeError('Parameter missing_idx is not an integer or list.')
 
         time = np.arange(data.shape[1])  # create time array
         mask = np.ones(data.shape[0], dtype=bool)  # Maksing array
@@ -266,21 +266,25 @@ class EEGrasp():
 
         return vec
 
-    def fit_epsilon(self, data=None, distances=None, sigma=0.1,
-                    missing_idx=None):
+    def fit_epsilon(self, missing_idx: int, data=None, distances=None, sigma=0.1,
+                    ):
         """
         Find the best distance to use as threshold.
 
         Parameters
         ----------
-        data : ndarray | None.
-        distances : ndarray | None. 
-            Unthresholded distance matrix (2-dimensional array). It can be passed to the instance
-            of the class or as an argument of the method.
-        sigma : float.
-            Parameter of the Gaussian Kernel transformation
         missing_idx : int.
             Index of the missing channel.
+        data : ndarray | None.
+            2d array of channels by samples. If None, the function will use the data computed in
+            the instance of the class (`self.data`).
+        distances : ndarray | None.
+            Unthresholded distance matrix (2-dimensional array). It can be passed to the instance
+            of the class or as an argument of the method. If None, the function will use the
+            distance computed in the instance of the class (`self.distances`).
+        sigma : float.
+            Parameter of the Gaussian Kernel transformation
+
 
         Returns
         -------
@@ -334,8 +338,8 @@ class EEGrasp():
             graph = self.compute_graph(distances, epsilon=epsilon, sigma=sigma)
 
             # Interpolate signal, iterating over time
-            reconstructed = self.interpolate_channel(graph, signal,
-                                                     missing_idx=missing_idx)
+            reconstructed = self.interpolate_channel(
+                missing_idx=missing_idx, graph=graph, data=signal)
             all_reconstructed[i, :] = reconstructed[missing_idx, :]
 
             # Calculate error
@@ -363,8 +367,8 @@ class EEGrasp():
         results = self._return_results(error, signal, vdistances, 'epsilon')
         return results
 
-    def fit_sigma(self, data=None, distances=None, epsilon=0.5,
-                  missing_idx=None, min_sigma=0.1, max_sigma=1, step=0.1):
+    def fit_sigma(self, missing_idx: int, data=None, distances=None, epsilon=0.5,
+                  min_sigma=0.1, max_sigma=1, step=0.1):
         """
         Find the best parameter for the gaussian kernel.
 
@@ -483,7 +487,7 @@ class EEGrasp():
         Returns
         -------
 
-        W : ndarray. 
+        W : ndarray.
             Weighted adjacency matrix or matrices depending on mode parameter used. If run in
             'Trials' mode then Z is a 3d array where the first dim corresponds to trials.
         Z : ndarray.
