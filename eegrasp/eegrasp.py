@@ -473,8 +473,7 @@ class EEGrasp():
 
             return W, Z
 
-    def plot_graph(self, graph=None, signal=None, coordinates=None, labels=None, montage=None, colorbar=True, axis=None,
-                   kind='topoplot', show_names=True, **kwargs):
+    def plot_graph(self, graph=None, signal=None, coordinates=None, labels=None, montage=None, colorbar=True, axis=None, clabel='Edge Weights', kind='topoplot', show_names=True, **kwargs):
         """
         Plot the graph over the eeg montage.
 
@@ -485,11 +484,12 @@ class EEGrasp():
             be used to plot the graph.
         signal : ndarray | list | None.
             If `None` (default), vertices will have different size depending on their weighted degree and the edges
-            will have a different color depending on the connection strength between vertices.
+            will have a different color depending on the connection strength between vertices. If a list or ndarray
+            is passed, the vertices will have a different color depending on the signal passed.
         coordinates : ndarray | list | None.
             If `None`, the instance's coordinates will be used.
         labels : list | ndarray | None.
-            If `None`, the instance's labels will be used.
+            Labels to be plotted with vertices. If `None`, the instance's labels will be used.
         montage : str | mne RawBase | mne EpochsBase | mne EvokedBase | None.
             If `None`, the instance's coordenates will be used to build a custom montage. Since it
             will only use the coordinateds tu build the custom montage, the sphere outline will
@@ -499,6 +499,8 @@ class EEGrasp():
             `None` when using `mne.viz.plot_sensors`.
         colorbar : bool.
             If True (default), a colorbar will be plotted.
+        clabel : str.
+            Label for the colorbar. Default is 'Edge Weights'.
         axis : matplotlib axis object | None.
             If `None` (default), a new figure will be created.
         kind : str.
@@ -572,36 +574,41 @@ class EEGrasp():
             except ValueError:
                 print(
                     f'{montage} Montage not found. Creating custom montage based on self.coordenates...')
-                self.plot_graph(graph, coordinates, cmap=cmap, axis=axis,
-                                montage=None)
+                fig, axis = self.plot_graph(graph=graph, signal=signal, coordinates=coordinates, labels=labels, montage=montage,
+                                            colorbar=colorbar, axis=axis, clabel=clabel, kind=kind, show_names=show_names, **original_kwargs)
+                return fig, axis
         else:
             kwargs_mne_plot['sphere'] = None
 
         if signal is None and 'edge_color' not in original_kwargs:
 
-            # Plot node size depending on weighted degree
-            degree = np.array(graph.dw, dtype=float)
-            degree /= np.max(degree)
-            kwargs_pygsp_plot['vertex_size'] = degree
-
             # Plot edge color depending on the edge weights
             edge_weights = self.graph.get_edge_list()[2]
-            # edge_weights_norm = edge_weights - np.min(edge_weights)
-            edge_weights_norm = edge_weights / np.max(edge_weights)
-            kwargs_pygsp_plot['edge_color'] = plt.cm.get_cmap(
-                cmap)(edge_weights_norm)
-            cbar = fig.colorbar(plt.cm.ScalarMappable(cmap=cmap),
-                                ax=axis, label='Edge Weights')
-            cbar.set_ticks([0, 0.5, 1])
-            cbar.ax.set_yticklabels(
-                np.round([0, np.max(edge_weights)/2, np.max(edge_weights)], 2))
+
+            # if vertex size was not given, use weighted degree
+            if 'vertex_size' not in original_kwargs:
+                degree = np.array(graph.dw, dtype=float)
+                degree /= np.max(degree)
+                original_kwargs['vertex_size'] = degree
+
+            fig, axis = self.plot_graph(graph, edge_weights, coordinates, labels,
+                                        montage, colorbar, axis, clabel, kind, show_names, **original_kwargs)
+            return fig, axis
 
         elif isinstance(signal, (list, np.ndarray)):
 
-            signal = np.array(signal, dtype=float)
-            signal -= np.min(signal)
-            signal /= np.max(signal)
-            kwargs_pygsp_plot['edge_color'] = plt.cm.get_cmap(cmap)(signal)
+            norm_signal = np.array(signal, dtype=float)
+            norm_signal -= np.min(norm_signal)
+            norm_signal /= np.max(norm_signal)
+            kwargs_pygsp_plot['edge_color'] = plt.cm.get_cmap(
+                cmap)(norm_signal)
+
+        if colorbar:
+            cbar = fig.colorbar(plt.cm.ScalarMappable(cmap=cmap),
+                                ax=axis, label=clabel)
+            cbar.set_ticks([0, 0.5, 1])
+            cbar.ax.set_yticklabels(
+                np.round([0, np.max(signal)/2, np.max(signal)], 2))
 
         # Plot the montage
         if kind == 'topoplot':
