@@ -6,7 +6,7 @@ import dataclasses
 @dataclasses.dataclass
 class PlottingDefaults:
     """Class containing default values and functions."""
-    DEFAULT_CMAP: str = 'Spectral'
+    DEFAULT_CMAP: str = 'Spectral_r'
     DEFAULT_VERTEX_COLOR: str = 'teal'
     DEFAULT_SPHERE: str = 'eeglab'
     DEFAULT_ALPHAN: float = 0.5

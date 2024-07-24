@@ -615,7 +615,6 @@ class EEGrasp():
                                           axes=axis, show=False, **kwargs_mne_plot)
             figure, axis = graph.plot(ax=axis, colorbar=colorbar,
                                       **kwargs_pygsp_plot)
-            print(kwargs_pygsp_plot)
 
         elif kind == '3d':
 
