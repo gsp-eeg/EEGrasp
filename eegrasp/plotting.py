@@ -5,7 +5,31 @@ import dataclasses
 
 @dataclasses.dataclass
 class PlottingDefaults:
-    """Class containing default values and functions."""
+    """Class containing default values and functions for eegrasp plotting functions.
+
+    Attributes
+    ----------
+    DEFAULT_CMAP : str.
+        Default colormap for plotting.
+    DEFAULT_VERTEX_COLOR : str.
+        Default color for the vertices.
+    DEFAULT_SPHERE : str.
+        Default sphere for plotting.
+    DEFAULT_ALPHAN : float.
+        Default alpha value for the vertices.
+    DEFAULT_VERTEX_SIZE : float.
+        Default size for the vertices.
+    DEFAULT_POINTSIZE : float.
+        Default point size for plotting.
+    DEFAULT_LINEWIDTH : float.
+        Default line width for plotting.
+    DEFAULT_EDGE_WIDTH : float.
+        Default edge width for plotting.
+    DEFAULT_EDGE_COLOR : str.
+        Default edge color for plotting.
+    DEFAULT_ALPHAV : float.
+        Default alpha value for the vertices.
+    """
     DEFAULT_CMAP: str = 'Spectral_r'
     DEFAULT_VERTEX_COLOR: str = 'teal'
     DEFAULT_SPHERE: str = 'eeglab'

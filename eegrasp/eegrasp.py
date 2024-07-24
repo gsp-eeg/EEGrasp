@@ -481,28 +481,28 @@ class EEGrasp():
         Parameters
         ----------
         graph : PyGSP2 Graph object | None.
-            If not passed, the instance's graph will be used.
+            If `None` (default) the instance's graph will be used. If a `PyGSP2 Graph` object is passed, it will
+            be used to plot the graph.
         signal : ndarray | list | None.
-            If not passed, the edge_color parameter passed to the `pygsp2.plot` function will be
-            passed.
-        coordinates : ndarray | None.
-            If not passed, the instance's coordinates will be used.
+            If `None` (default), vertices will have different size depending on their weighted degree and the edges
+            will have a different color depending on the connection strength between vertices.
+        coordinates : ndarray | list | None.
+            If `None`, the instance's coordinates will be used.
         labels : list | ndarray | None.
-            If not passed, the instance's labels will be used.
+            If `None`, the instance's labels will be used.
         montage : str | mne RawBase | mne EpochsBase | mne EvokedBase | None.
-            If None, the instance's coordenates will be used to build a custom montage. If a string
-            is passed, it will try to build a montage from the standard built-in libraty. If a
-            DigiMontage Classis detected it will use the mne montage object.
+            If `None`, the instance's coordenates will be used to build a custom montage. Since it
+            will only use the coordinateds tu build the custom montage, the sphere outline will
+            not be adjusted to contain the electrodes. If a string is used, it will try to build
+            a montage from the standard built-in mne library. If a ` mne DigiMontage` Class is
+            used it will plot the sensors using the given montage and set sphere parameter to
+            `None` when using `mne.viz.plot_sensors`.
         colorbar : bool.
-            If True, a colorbar will be plotted.
-        axis : matplotlib axis object.
-            If not passed, a new figure will be created.
+            If True (default), a colorbar will be plotted.
+        axis : matplotlib axis object | None.
+            If `None` (default), a new figure will be created.
         kind : str.
-            Kind of plot to use. Options are 'topoplot' and '3d'.
-        vertex_size : int.
-            Size of the vertex.
-        alphan : float.
-            Alpha value for the edges.
+            Kind of plot to use. Options are 'topoplot' and '3d'. Default is topoplot
         %(pygsp2.plot)s
         %(mne.viz.plot_sensors)s
 
@@ -516,6 +516,7 @@ class EEGrasp():
         Notes
         -----
         Any argument from `mne.viz.plot_sensors` and `pygsp2.plot` can be passed to the function.
+        Default parameters can be found in `PlottingDefaults` class in `eegrasp/plotting.py`.
 
         See Also
         --------
