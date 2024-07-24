@@ -40,7 +40,7 @@ class EEGrasp():
             N-dim array or list with position of the electrodes. Dimensions mus coincide with the
             number of channels in `data`. If not provided the class instance will not have
             coordinates associated with the nodes. Some functions will not work without this
-            information but can be provided later. Default is None.
+            information but can be provided later. Default is `None`.
         labels : ndarray | list | None.
             Channel names. If not provided the class instance will not have labels associated with
             the nodes. Some functions will not work without this information but can be provided
@@ -106,11 +106,14 @@ class EEGrasp():
         Parameters
         ----------
         coordinates : ndarray | None.
-            N-dim array with position of the electrodes.
+            N-dim array with position of the electrodes. If `None` the class instance will use the
+            coordinates passed at initialization. Default is `None`.
         method : string.
             Options are: 'Euclidean'. Method used to compute the distance matrix.
         normalize : bool.
-            If True, the distance matrix will be normalized before being returned.
+            If True, the distance matrix will be normalized before being returned. If False,
+            then the distance matrix will be returned and assigned to the class' instance
+            without normalization.
 
         Returns
         -------
