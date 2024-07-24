@@ -6,7 +6,6 @@ import numpy as np
 from pygsp2 import graphs, learning, graph_learning
 from tqdm import tqdm
 from scipy import spatial
-import matplotlib.pyplot as plt
 import mne
 from .viz import plot_graph
 
