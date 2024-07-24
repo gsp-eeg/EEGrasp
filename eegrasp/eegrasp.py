@@ -620,7 +620,7 @@ class EEGrasp():
 
             info = mne.create_info(labels, sfreq=250, ch_types="eeg")
             info.set_montage(montage)
-            eeg_pos = info.get_montage().get_positions()['ch_pos']
+            eeg_pos = montage.get_positions()['ch_pos']
             eeg_pos = np.array([pos for _, pos in eeg_pos.items()])
 
             dev_head_t = info["dev_head_t"]
