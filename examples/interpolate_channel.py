@@ -13,9 +13,9 @@ from eegrasp import EEGrasp
 
 current_dir = os.getcwd()
 os.chdir(os.path.dirname(current_dir))
-
-os.makedirs("./datasets", exist_ok=True)
-os.environ['MNE_EEGBCI_PATH'] = './datasets/'
+data_dir ="./datasets"
+#os.makedirs(data_dir, exist_ok=True)
+#os.environ['MNE_EEGBCI_PATH'] = data_dir
 
 
 # %% Load Electrode montage and dataset
@@ -26,7 +26,7 @@ runs = [4, 8, 12]
 # Comment the following line if already downloaded
 
 raw_fnames = [mne.datasets.eegbci.load_data(
-    s, runs) for s in subjects]
+    s, runs, path=data_dir, update_path=True) for s in subjects]
 raw_fnames = np.reshape(raw_fnames, -1)
 raws = [mne.io.read_raw_edf(f, preload=True) for f in raw_fnames]
 raw = mne.concatenate_raws(raws)
