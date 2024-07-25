@@ -125,6 +125,7 @@ eigenvectors = np.array(G.U)
 eigenvalues = np.array(G.e)
 
 # %% Plot Eigenvalue index vs eivenvalue
+plt.figure()
 plt.scatter(eigenvalues, np.arange(0, len(eigenvalues)),
             s=50, color='purple')
 plt.plot(eigenvalues, np.arange(0, len(eigenvalues)),
