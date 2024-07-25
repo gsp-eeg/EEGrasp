@@ -14,8 +14,8 @@ from eegrasp import EEGrasp
 current_dir = os.getcwd()
 os.chdir(os.path.dirname(current_dir))
 
-os.makedirs("../datasets", exist_ok=True)
-os.environ['MNE_EEGBCI_PATH'] = '../datasets/'
+os.makedirs("./datasets", exist_ok=True)
+os.environ['MNE_EEGBCI_PATH'] = './datasets/'
 
 
 # %% Load Electrode montage and dataset
