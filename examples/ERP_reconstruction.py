@@ -10,6 +10,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mne
 from eegrasp import EEGrasp
+import os
+
+os.makedirs("datasets", exist_ok=True)
+default_eegbci_path = os.path.expanduser('datasets/')
+mne.set_config('MNE_EEGBCI_PATH', default_eegbci_path, set_env=True)
 
 # %% Load Electrode montage and dataset
 subjects = np.arange(1, 10)
@@ -19,7 +24,7 @@ runs = [4, 8, 12]
 # Comment the following line if already downloaded
 
 raw_fnames = [mne.datasets.eegbci.load_data(
-    s, runs, path='datasets') for s in subjects]
+    s, runs) for s in subjects]
 raw_fnames = np.reshape(raw_fnames, -1)
 raws = [mne.io.read_raw_edf(f, preload=True) for f in raw_fnames]
 raw = mne.concatenate_raws(raws)
