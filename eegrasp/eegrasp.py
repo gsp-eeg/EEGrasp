@@ -501,7 +501,7 @@ class EEGrasp():
 
                 return W, Z
         else:
-            Z = self.euc_dist(d)
+            Z = self.euc_dist(data)
 
             W = graph_learning.graph_log_degree(
                 Z, a, b, gamma=gamma, w_max=w_max, maxiter=maxiter)
