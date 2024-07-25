@@ -138,6 +138,7 @@ class EEGrasp():
         if isinstance(coordinates, type(None)):
             coordinates = self.coordinates
 
+        # Otherwise use the instance's coordinates
         if method == 'Euclidean':
             distances = self.euc_dist(coordinates)
             np.fill_diagonal(distances, 0)
