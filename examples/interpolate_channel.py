@@ -11,9 +11,11 @@ import mne
 import matplotlib.pyplot as plt
 from eegrasp import EEGrasp
 
-os.makedirs("datasets", exist_ok=True)
-default_eegbci_path = os.path.expanduser('datasets/')
-mne.set_config('MNE_EEGBCI_PATH', default_eegbci_path, set_env=True)
+current_dir = os.getcwd()
+os.chdir(os.path.dirname(current_dir))
+
+os.makedirs("../datasets", exist_ok=True)
+os.environ['MNE_EEGBCI_PATH'] = '../datasets/'
 
 
 # %% Load Electrode montage and dataset
