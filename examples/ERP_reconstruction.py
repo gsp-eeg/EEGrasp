@@ -69,7 +69,7 @@ eegsp = EEGrasp(data, eeg_pos, ch_names)
 dist_mat = eegsp.compute_distance(normalize=True)
 # 4. Find the best parameter for the channel
 results = eegsp.fit_sigma(missing_idx=MISSING_IDX, epsilon=0.5,
-                          min_sigma=0.01, max_sigma=0.5, step=0.01)
+                          min_sigma=0.01, max_sigma=0.5, step=0.05)
 
 # %% Plot error graph and results of the interpolation
 
@@ -102,16 +102,19 @@ plt.tight_layout()
 plt.show()
 
 # %% Interpolate right ERP based on the left channel
-new_data = erp_right.get_data()
+original = erp_right.get_data()
+new_data = original.copy()
 # Delete information from the missing channel
 new_data[MISSING_IDX, :] = np.nan
 
+# Compute best graph for interpolation
+eegsp.compute_graph(epsilon=0.5, sigma=best_sigma)
 # Interpolate channel
 interpolated = eegsp.interpolate_channel(data=new_data,
                                          missing_idx=MISSING_IDX)
 
 # %% Plot Interpolated Channel
-original = erp_right.get_data()
+
 plt.plot(interpolated[MISSING_IDX, :],
          label='Interpolated Data', color='purple')
 plt.plot(original[MISSING_IDX, :], label='Original Data', color='teal')
