@@ -64,12 +64,20 @@ data = erp_left.get_data()
 # 1. Define index of the missing channel
 MISSING_IDX = 5
 # 2. Initialize instance of EEGrasp
-eegsp = EEGrasp(data, eeg_pos, ch_names)
+eegsp = EEGrasp(data, eeg_pos, ch_names, fs=raw.info['sfreq'])
 # 3. Compute the electrode distance matrix
 dist_mat = eegsp.compute_distance(normalize=True)
 # 4. Find the best parameter for the channel
 results = eegsp.fit_sigma(missing_idx=MISSING_IDX, epsilon=0.5,
                           min_sigma=0.01, max_sigma=0.5, step=0.01)
+
+#fc = eegsp.compute_connectivity(method="PLV")
+fc = eegsp.compute_connectivity_mne(method="plv").get_data()
+print("fc", fc.shape)
+fc = fc[:, 0]
+print("fc2", fc.shape)
+plt.imshow(fc, cmap='viridis')
+plt.show()
 
 # %% Plot error graph and results of the interpolation
 
