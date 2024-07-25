@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import mne
 from matplotlib import animation
 import numpy as np
+
+from eegrasp import EEGrasp
 # % matplotlib qt
 
 # %% Load Electrode montage and dataset
@@ -52,9 +54,9 @@ right = epochs['right'].average()
 
 # %% Initialize EEGraph class
 
-eegsp = EEGraSP(right, eeg_pos, ch_names)
+eegsp = EEGrasp(right, eeg_pos, ch_names)
 eegsp.compute_distance()  # Calculate distance between electrodes
-weights = eegsp.graph_weights.copy()
+weights = eegsp.graph_weights#.copy()
 
 # Plot euclidean distance between electrodes
 fig, ax = plt.subplots()
@@ -68,7 +70,7 @@ fig.show()
 
 # %% Binarize W based on the histogram's probability mass
 
-weights = eegsp.graph_weights.copy()
+weights = eegsp.graph_weights#.copy()
 tril_idx = np.tril_indices(len(weights), -1)
 vec_W = weights[tril_idx]
 count, bins = np.histogram(vec_W, bins=len(vec_W), density=False)
