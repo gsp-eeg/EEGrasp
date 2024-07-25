@@ -43,16 +43,21 @@ epochs = mne.Epochs(raw, events, events_id,
                     picks=picks, tmin=TMIN,
                     tmax=TMAX, baseline=(-1, 0),
                     detrend=1)
+evoked = epochs.average()
 
 # %% Initialize EEGrass object and compute distance
 
 # Pass epochs mne object
 gsp = EEGrasp(epochs)
-Z = gsp.compute_distance()
+Z_epochs = gsp.compute_distance()
+
+gsp = EEGrasp(evoked)
+Z_evoked = gsp.compute_distance()
 
 # Pass electrode positions directly
 gsp = EEGrasp()
-Z2 = gsp.compute_distance(eeg_pos)
+Z = gsp.compute_distance(eeg_pos)
 
 # Assert that the two methods are equivalent
-np.testing.assert_array_equal(Z, Z2)
+np.testing.assert_array_equal(Z, Z_epochs)
+np.testing.assert_array_equal(Z, Z_evoked)

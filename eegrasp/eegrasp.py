@@ -5,8 +5,8 @@ EEGRasP
 import numpy as np
 from pygsp2 import graphs, learning, graph_learning
 from tqdm import tqdm  # TODO: Does it belong here?
-from mne import BaseEpochs
-from mne.io.base import BaseRaw
+from mne import Evoked, Epochs
+from mne.io import Raw
 
 
 class EEGrasp():
@@ -36,19 +36,49 @@ class EEGrasp():
         """
 
         # Detect if data is a mne object
-        if isinstance(data, (BaseEpochs, BaseRaw)):
-            info = data.info
-            data = data.get_data()
-            labels = info.ch_names
-            coordinates = np.array(
-                [pos for _, pos in info.get_montage().get_positions()['ch_pos'].items()])
-
-        self.data = data
-        self.coordinates = coordinates
-        self.labels = labels
+        if self._validate_MNE(data):
+            self._init_from_mne(data)
+        else:
+            self.data = data
+            self.coordinates = coordinates
+            self.labels = labels
         self.distances = None
         self.graph_weights = None
         self.graph = None
+
+    def _init_from_mne(self, data):
+        """
+        Initialize EEGrasp attributes from the MNE object.
+
+        Parameters
+        ----------
+        data : any.
+            Object to be checked if it is an instance of the valid
+            MNE objects allowed by the EEGrasp toolbox.
+        """
+        info = data.info
+        self.data = data.get_data()
+        self.coordinates = np.array(
+            [pos for _, pos in info.get_montage().get_positions()['ch_pos'].items()])
+        self.labels = info.ch_names
+
+    def _validate_MNE(self, data):
+        """
+        Check if the data passed is a MNE object and extract the data and
+        coordinates.
+
+        Parameters
+        ----------
+        data : any.
+            Object to be checked if it is an instance of the valid
+            MNE objects allowed by the EEGrasp toolbox.
+        """
+
+        is_mne = False
+        if isinstance(data, (Epochs, Evoked, Raw)):
+            is_mne = True
+
+        return is_mne
 
     def euc_dist(self, pos):
         """
@@ -106,7 +136,7 @@ class EEGrasp():
 
         # If passed, used the coordinates argument
         if isinstance(coordinates, type(None)):
-            coordinates = self.coordinates.copy()
+            coordinates = self.coordinates
 
         if method == 'Euclidean':
             distances = self.euc_dist(coordinates)
