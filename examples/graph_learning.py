@@ -1,4 +1,8 @@
-"""Learn the graph from EEG signals using the algorithm proposed by
+r"""
+Graph Learning
+==============
+
+Learn the graph from EEG signals using the algorithm proposed by
 Kalofolias et al. (2019) and implemented in pygsp2. This example
 follows the methods described in Miri et al. (2024). To run this
 example download the following data file `data_set_IVa_aa.mat`
@@ -17,9 +21,6 @@ import matplotlib.pyplot as plt
 import mne
 from scipy.io import loadmat
 from eegrasp import EEGrasp
-
-# Set working directory to the file directory
-os.chdir(os.path.dirname(__file__))
 
 # Instantiate EEGraSP
 gsp = EEGrasp()

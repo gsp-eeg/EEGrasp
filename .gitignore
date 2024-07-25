@@ -14,3 +14,60 @@ data
 
 # Dont include distribution files
 dist/
+
+__pycache__/
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+
+# Data
+*.geojson
+*.xlsb
+*.mp4
+#santiago_metro_stations_connections.txt
+
+# Results from examples
+examples/metro_simulation
+examples/metro_simulation2
+examples/metro_simulation.gif
+
+# Installer logs
+pip-log.txt
+
+# Coverage reports
+.coverage
+htmlcov
+
+# Complexity
+output/*.html
+output/*/index.html
+
+# Sphinx documentation
+/doc/_build/
+/doc/examples/
+/doc/backrefs/
+
+# Vim swap files
+.*.swp
+
+# Mac OS garbage
+.DS_Store
+
+# Jupyter notebook
+.ipynb_checkpoints/
+
+# Visual Studio Code
+.vscode/
+
+# Docs
+doc/_build/

@@ -1,3 +1,9 @@
+r"""
+ERP Analysis
+============
+
+"""
+
 # %% Import libraries
 import matplotlib.pyplot as plt
 import mne
