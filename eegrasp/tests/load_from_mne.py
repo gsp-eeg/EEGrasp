@@ -3,6 +3,7 @@ the distance matrix calculated by the two methods: one using the electrode posit
 mne epochs object and the other by passing the electrode positions directly."""
 
 # %% Load Packages
+import matplotlib.pyplot as plt
 import mne
 import numpy as np
 from eegrasp import EEGrasp
@@ -42,8 +43,8 @@ picks = mne.pick_types(raw.info, meg=False, eeg=True,
 epochs = mne.Epochs(raw, events, events_id,
                     picks=picks, tmin=TMIN,
                     tmax=TMAX, baseline=(-1, 0),
-                    detrend=1)
-evoked = epochs.average()
+                    detrend=1)['T1']
+evoked = epochs['T1'].average()
 
 # %% Initialize EEGrass object and compute distance
 
@@ -66,9 +67,15 @@ np.testing.assert_array_equal(Z, Z_evoked)
 
 # Initialize EEGrass object
 gsp = EEGrasp(epochs)
-W, Z = gsp.learn_graph(a=0.1, b=0.1)
+W0, Zs = gsp.learn_graph(a=0.5, b=0.5)
+
+if not (W0.ndim == 2 and Zs.ndim == 3):
+    raise ValueError('W0 and Zs should have 2 and 3 dimensions, respectively')
 
 # %% Test Graph Learning usign Evoked
 # Initialize EEGrass object
 gsp = EEGrasp(evoked)
-W, Z = gsp.learn_graph(a=0.1, b=0.1)
+W1, Z = gsp.learn_graph(a=0.5, b=0.5)
+
+if not (W1.ndim == 2 and Z.ndim == 2):
+    raise ValueError('W1 and Z should have 2 dimensions')
