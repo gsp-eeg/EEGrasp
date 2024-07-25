@@ -31,19 +31,21 @@ class EEGrasp():
     been purposefully added.
     """
 
-    def __init__(self, data=None, coordinates=None, labels=None):
+    def __init__(self, data=None, coordinates=None, labels=None, fs=None):
         """
         Parameters
         ----------
         data: 2-d array, where the first dim are channels and the second is
-        samples.  
+            samples.  
         Coordenates: ndim array with position of the electrodes.
-        labels: 1-d array with the channel names.
+            labels: 1-d array with the channel names.
         """
 
         self.data = data
         self.coordinates = coordinates
         self.labels = labels
+        self.fs = fs
+
         self.distances = None
         self.graph_weights = None
         self.graph = None
@@ -59,8 +61,8 @@ class EEGrasp():
         Returns
         -------
         output: 2d array of channels by channels with the euclidean distance.
-        description: compute the euclidean distance between every channel in
-        the array
+            description: compute the euclidean distance between every channel in
+            the array
         """
 
         distance = np.zeros([pos.shape[0], pos.shape[0]],
@@ -108,7 +110,7 @@ class EEGrasp():
         Returns
         -------
         connectivity: 2d array of channels by channels with the connectivity
-        values.
+            values.
         """
 
         if isinstance(data, type(None)):
@@ -156,6 +158,40 @@ class EEGrasp():
             raise ValueError('Data should be 2d or 3d array.')
 
         return connectivity
+
+    def compute_connectivity_mne(self, data=None, method='plv', **kwargs):
+        """
+        Compute the connectivity matrix using MNE.
+
+        Parameters
+        ----------
+
+        data: 2d array of channels by samples or 3d array of trials by channels by samples.
+        method: string. Options are: 'coh', 'cohy', 'imcoh', 'cacoh', 'mic', 'mim', 'plv', 
+            'ciplv', 'ppc', 'pli', 'dpli', 'wpli', 'wpli2_debiased', 'gc', 'gc_tr'
+
+        Returns
+        -------
+
+        connectivity: 2d array of channels by channels with the connectivity
+            values.
+        """
+        from mne_connectivity import spectral_connectivity_epochs
+
+
+        if isinstance(data, type(None)):
+            data = self.data.copy()
+
+        if data.ndim == 2:
+        #connnectivity = np.zeros([data.shape[0], data.shape[1], data.shape[1]])
+            data = data[None, :, :]
+            con = spectral_connectivity_epochs(
+                data, method=method, **kwargs)
+        #connectivity = con[:, :, 0]
+
+        return con
+
+
 
     def compute_distance(self, coordinates=None, method='Euclidean', normalize=True):
         """
@@ -467,26 +503,26 @@ class EEGrasp():
 
         Parameters
         ----------
-        Z: ndarra. Distance between the nodes. If not passed, 
-        the function will try to compute the euclidean distance
-        between the data. If self.data is a 2d array it will compute the
-        euclidean distance between the channels. If the data is a 3d array 
-        it will compute the average distance using the 2nd and 3rd dimensions,
-        averaging over the 1st one.
+        Z: ndarray. Distance between the nodes. If not passed, 
+            the function will try to compute the euclidean distance
+            between the data. If self.data is a 2d array it will compute the
+            euclidean distance between the channels. If the data is a 3d array 
+            it will compute the average distance using the 2nd and 3rd dimensions,
+            averaging over the 1st one.
 
         mode: string. Options are: 'Average', 'Trials'. If average, 
-        the function returns a single W and Z. If 'Trials' the function returns
-        a generator list of Ws and Zs.
+            the function returns a single W and Z. If 'Trials' the function returns
+            a generator list of Ws and Zs.
 
         Returns
         -------
 
         W: ndarray. Weighted adjacency matrix or matrices depending on 
-        mode parameter used. If run in 'Trials' mode then Z is a 
-        3d array where the first dim corresponds to trials.
+            mode parameter used. If run in 'Trials' mode then Z is a 
+            3d array where the first dim corresponds to trials.
         Z: ndarray. Used distance matrix or matrices depending on 
-        mode parameter used. If run in 'Trials' mode then Z is a 
-        3d array where the first dim corresponds to trials.
+            mode parameter used. If run in 'Trials' mode then Z is a 
+            3d array where the first dim corresponds to trials.
 
         """
 
