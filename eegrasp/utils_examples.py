@@ -32,6 +32,8 @@ def fetch_data(output_dir, database="graph_learning"):
     database : str, optional
         Database to fetch data from. Options are: "metro".
     """ 
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
     for asset_dict in ASSETS[database]:
         filename = asset_dict["filename"]
         url = asset_dict["url"]
