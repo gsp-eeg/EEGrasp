@@ -61,3 +61,14 @@ Z = gsp.compute_distance(eeg_pos)
 # Assert that the two methods are equivalent
 np.testing.assert_array_equal(Z, Z_epochs)
 np.testing.assert_array_equal(Z, Z_evoked)
+
+# %% Test Graph Learning usign Epochs
+
+# Initialize EEGrass object
+gsp = EEGrasp(epochs)
+W, Z = gsp.learn_graph(a=0.1, b=0.1)
+
+# %% Test Graph Learning usign Evoked
+# Initialize EEGrass object
+gsp = EEGrasp(evoked)
+W, Z = gsp.learn_graph(a=0.1, b=0.1)
