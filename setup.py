@@ -1,14 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+from setuptools import setup, find_packages
+import os
+
+def read_license():
+    license_path = os.path.join(os.path.dirname(__file__), 'LICENSE')
+    if os.path.exists(license_path):
+        with open(license_path, 'r') as file:
+            return file.read().strip()
+    return 'MIT' 
 
 
 setup(
     name='eegrasp',
     version='0.0.2',
     description='Graph Signal Processing in Python',
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     long_description_content_type='text/x-rst',
     author='GSP EEG',
     url='https://github.com/gsp-eeg/EEGrasp',
@@ -88,7 +96,6 @@ setup(
             'twine',
         ],
     },
-    license="BSD",
     keywords='graph signal processing',
     platforms='any',
     classifiers=[
@@ -97,7 +104,7 @@ setup(
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
         'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: ' + read_license(),
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
