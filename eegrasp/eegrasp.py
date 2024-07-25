@@ -1,6 +1,8 @@
+"""EEGRasP module.
+
+Contains the class EEGrasp which is used to analyze EEG signals
+based graph signal processing.
 """
-EEGRasP module. Contains the class EEGrasp which is used to analyze EEG signals based graph
-signal processing."""
 
 import numpy as np
 from pygsp2 import graphs, learning, graph_learning
@@ -8,17 +10,16 @@ from tqdm import tqdm  # TODO: Does it belong here?
 
 
 class EEGrasp():
-    """
-    Class containing functionality to analyze EEG signals.
+    """Class containing functionality to analyze EEG signals.
 
     Parameters
     ----------
-    data : ndarray.
-        2D or 3D array. Where the first dim are channels and the second is samples. If 3D, the
-        first dimension is trials.
-    eeg_pos : numpy ndarray.
+    data : ndarray
+        2D or 3D array. Where the first dim are channels and the second is
+        samples. If 3D, the first dimension is trials.
+    eeg_pos : ndarray
         Position of the electrodes.
-    ch_names : ndarray | list.
+    ch_names : ndarray | list
         Channel names.
 
     Notes
@@ -31,20 +32,23 @@ class EEGrasp():
         """
         Parameters
         ----------
-        data : ndarray | mne Evoked | mne BaseRaw | mne BaseEpochs | None.
-            2D array. Where the first dim are channels and the second is samples. If 3D, the first
-            dimension is trials. If an mne object is passed, the data will be extracted from it
-            along with the coordinates and labels of the channels. If `None`, the class will be
-            initialized without data. Default is `None`.
-        coordinates : ndarray | list | None.
-            N-dim array or list with position of the electrodes. Dimensions mus coincide with the
-            number of channels in `data`. If not provided the class instance will not have
-            coordinates associated with the nodes. Some functions will not work without this
-            information but can be provided later. Default is `None`.
-        labels : ndarray | list | None.
-            Channel names. If not provided the class instance will not have labels associated with
-            the nodes. Some functions will not work without this information but can be provided
-            later. If `None` then the labels will be set to a range of numbers from 0 to the number
+        data : ndarray | mne.Evoked | mne.BaseRaw | mne.BaseEpochs | None
+            2D array. Where the first dim are channels and the second is
+            samples. If 3D, the first dimension is trials. If an mne object is
+            passed, the data will be extracted from it along with the
+            coordinates and labels of the channels. If `None`, the class will
+            be initialized without data. Default is `None`.
+        coordinates : ndarray | list | None
+            N-dim array or list with position of the electrodes. Dimensions mus
+            coincide with the number of channels in `data`. If not provided the
+            class instance will not have coordinates associated with the
+            nodes. Some functions will not work without this information but
+            can be provided later. Default is `None`.
+        labels : ndarray | list | None
+            Channel names. If not provided the class instance will not have
+            labels associated with the nodes. Some functions will not work
+            without this information but can be provided later. If `None` then
+            the labels will be set to a range of numbers from 0 to the number
             of channels in the data. Default is `None`.
         """
 
@@ -56,8 +60,7 @@ class EEGrasp():
         self.graph = None
 
     def euc_dist(self, pos):
-        """
-        Compute the euclidean distance based on a given set of possitions.
+        """Compute the euclidean distance based on a given set of possitions.
 
         Parameters
         ----------
@@ -67,8 +70,8 @@ class EEGrasp():
         Returns
         -------
         output: ndarray.
-            Dimension of the array is number of channels by number of channels containing the
-            euclidean distance between each pair of channels.
+            Dimension of the array is number of channels by number of channels
+            containing the euclidean distance between each pair of channels.
         """
 
         distance = np.zeros([pos.shape[0], pos.shape[0]],
@@ -82,42 +85,44 @@ class EEGrasp():
         return distance
 
     def gaussian_kernel(self, x, sigma=0.1):
-        """
-        Gaussian Kernel Weighting function.
+        """Gaussian Kernel Weighting function.
 
         Notes
         -----
-        This function is supposed to be used in the PyGSP2 module but is repeated here since there
-        is an error in the available version of the toolbox.
+        This function is supposed to be used in the PyGSP2 module but is
+        repeated here since there is an error in the available version of the
+        toolbox.
 
         References
         ----------
-        * D. I. Shuman, S. K. Narang, P. Frossard, A. Ortega and P. Vandergheynst, "The emerging
-        field of signal processing on graphs: Extending high-dimensional data analysis to networks
-        and other irregular domains," in IEEE Signal Processing Magazine, vol. 30, no. 3,
+        * D. I. Shuman, S. K. Narang, P. Frossard, A. Ortega and
+        P. Vandergheynst, "The emerging field of signal processing on graphs:
+        Extending high-dimensional data analysis to networks and other
+        irregular domains," in IEEE Signal Processing Magazine, vol. 30, no. 3,
         pp. 83-98, May 2013, doi: 10.1109/MSP.2012.2235192.
+
         """
         return np.exp(-np.power(x, 2.) / (2.*np.power(float(sigma), 2)))
 
     def compute_distance(self, coordinates=None, method='Euclidean', normalize=True):
-        """
-        Computing the distance based on electrode coordinates.
+        """Computing the distance based on electrode coordinates.
 
         Parameters
         ----------
-        coordinates : ndarray | None.
-            N-dim array with position of the electrodes. If `None` the class instance will use the
-            coordinates passed at initialization. Default is `None`.
-        method : string.
+        coordinates : ndarray | None
+            N-dim array with position of the electrodes. If `None` the class
+            instance will use the coordinates passed at initialization. Default
+            is `None`.
+        method : string
             Options are: 'Euclidean'. Method used to compute the distance matrix.
-        normalize : bool.
-            If True, the distance matrix will be normalized before being returned. If False,
-            then the distance matrix will be returned and assigned to the class' instance
-            without normalization.
+        normalize : bool
+            If True, the distance matrix will be normalized before being
+            returned. If False, then the distance matrix will be returned and
+            assigned to the class' instance without normalization.
 
         Returns
         -------
-        distances : ndarray.
+        distances : ndarray
             Distances to be used for the graph computation.
         """
 
@@ -139,20 +144,22 @@ class EEGrasp():
         return distances
 
     def compute_graph(self, W=None, epsilon=.5, sigma=.1):
-        """
-        Parameters
+        """Parameters
         ----------
-        W : numpy ndarray | None.
-            if W is passed, then the graph is computed. Otherwise the graph will be computed with
-            `self.W`. `W` should correspond to a non-sparse 2-D array. If None, the function will
-            use the distance matrix computed in the instance of the class (`self.W`).
-        epsilon : float.
-            Any distance greater than epsilon will be set to zero on the adjacency matrix.
-        sigma : float.
+        W : numpy ndarray | None
+            If W is passed, then the graph is computed. Otherwise the graph
+            will be computed with `self.W`. `W` should correspond to a
+            non-sparse 2-D array. If None, the function will use the distance
+            matrix computed in the instance of the class (`self.W`).
+        epsilon : float
+            Any distance greater than epsilon will be set to zero on the
+            adjacency matrix.
+        sigma : float
             Sigma parameter for the gaussian kernel.
-        method: string.
-            Options are: "NN" or "Gaussian". Nearest Neighbor or Gaussian Kernel used based on the
-            `self.W` matrix respectively depending on the method used.
+        method: string
+            Options are: "NN" or "Gaussian". Nearest Neighbor or Gaussian
+            Kernel used based on the `self.W` matrix respectively depending on
+            the method used.
 
         Returns
         -------
@@ -183,24 +190,24 @@ class EEGrasp():
         return graph
 
     def interpolate_channel(self, missing_idx: int | list[int] | tuple[int], graph=None, data=None):
-        """
-        Interpolate missing channel.
-
+        """Interpolate missing channel.
         Parameters
         ----------
-        missing_idx : int | list of int | tuple of int.
+        missing_idx : int | list of int | tuple of int
             Index of the missing channel. Not optional.
-        graph : PyGSP2 Graph object | None.
-            Graph to be used to interpolate a missing channel. If None, the function will use the
-            graph computed in the instance of the class (`self.graph`). Default is None.
-        data : ndarray | None.
-            2d array of channels by samples. If None, the function will use the data computed in
-            the instance of the class (`self.data`). Default is None.
+        graph : PyGSP2 Graph object | None
+            Graph to be used to interpolate a missing channel. If None, the
+            function will use the graph computed in the instance of the class
+            (`self.graph`). Default is None.
 
+        data : ndarray | None
+            2d array of channels by samples. If None, the function will use the
+            data computed in the instance of the class (`self.data`). Default
+            is None.
 
         Returns
         -------
-        reconstructed : ndarray.
+        reconstructed : ndarray
             Reconstructed signal.
         """
 
@@ -227,17 +234,17 @@ class EEGrasp():
 
         Parameters
         ----------
-        error : ndarray.
+        error : ndarray
             Errors corresponding to each tried parameter.
-        vparameter : ndarray.
+        vparameter : ndarray
             Values of the parameter used in the fit function.
-        signal : ndarray.
+        signal : ndarray
             Reconstructed signal.
 
         Notes
         -----
-        In order to keep everyting under the same structure this function should be used
-        to return the results of any self.fit_* function.
+        In order to keep everyting under the same structure this function
+        should be used to return the results of any self.fit_* function.
         """
         best_idx = np.argmin(np.abs(error))
         best_param = vparameter[best_idx]
@@ -263,30 +270,31 @@ class EEGrasp():
 
         return vec
 
-    def fit_epsilon(self, missing_idx: int | list[int] | tuple[int], data=None, distances=None, sigma=0.1,
-                    ):
-        """
-        Find the best distance to use as threshold.
+    def fit_epsilon(self, missing_idx: int | list[int] | tuple[int], data=None,
+                    distances=None, sigma=0.1):
+        """Find the best distance to use as threshold.
 
         Parameters
         ----------
-        missing_idx : int.
+        missing_idx : int
             Index of the missing channel. Not optional.
-        data : ndarray | None.
-            2d array of channels by samples. If None, the function will use the data computed in
-            the instance of the class (`self.data`). Default is None.
+        data : ndarray | None
+            2d array of channels by samples. If None, the function will use the
+            data computed in the instance of the class (`self.data`). Default
+            is `None`.
         distances : ndarray | None.
-            Unthresholded distance matrix (2-dimensional array). It can be passed to the instance
-            of the class or as an argument of the method. If None, the function will use the
-            distance computed in the instance of the class (`self.distances`). Default is None.
-        sigma : float.
+            Unthresholded distance matrix (2-dimensional array). It can be
+            passed to the instance of the class or as an argument of the
+            method. If None, the function will use the distance computed in the
+            instance of the class (`self.distances`). Default is `None`.
+        sigma : float
             Parameter of the Gaussian Kernel transformation. Default is 0.1.
-
 
         Returns
         -------
-        results : dict.
-            Dictionary containing the error, signal, best_epsilon and epsilon values.
+        results : dict
+            Dictionary containing the error, signal, best_epsilon and epsilon
+            values.
 
         Notes
         -----
@@ -362,29 +370,30 @@ class EEGrasp():
         results = self._return_results(error, signal, vdistances, 'epsilon')
         return results
 
-    def fit_sigma(self, missing_idx: int | list[int] | tuple[int], data=None, distances=None, epsilon=0.5,
-                  min_sigma=0.1, max_sigma=1., step=0.1):
-        """
-        Find the best parameter for the gaussian kernel.
+    def fit_sigma(self, missing_idx: int | list[int] | tuple[int], data=None,
+                  distances=None, epsilon=0.5, min_sigma=0.1, max_sigma=1.,
+                  step=0.1):
+        """Find the best parameter for the gaussian kernel.
 
         Parameters
         ----------
-        missing_idx : int | list | tuple.
+        missing_idx : int | list | tuple
             Index of the missing channel.
-        data : ndarray | None.
-            2d array of channels by samples. If None, the function will use the data computed in
-            the instance of the class (`self.data`).
-        distances : ndarray | None.
-            Distance matrix (2-dimensional array). It can be passed to the instance
-            of the class or as an argument of the method. If None, the function will use the
-            distance computed in the instance of the class (`self.distances`).
-        epsilon : float.
+        data : ndarray | None
+            2d array of channels by samples. If None, the function will use the
+            data computed in the instance of the class (`self.data`).
+        distances : ndarray | None
+            Distance matrix (2-dimensional array). It can be passed to the
+            instance of the class or as an argument of the method. If None, the
+            function will use the distance computed in the instance of the
+            class (`self.distances`).
+        epsilon : float
             Maximum distance to threshold the array. Default is 0.5.
-        min_sigma : float.
+        min_sigma : float
             Minimum value for the sigma parameter. Default is 0.1.
-        max_sigma : float.
+        max_sigma : float
             Maximum value for the sigma parameter. Default is 1.
-        step : float.
+        step : float
             Step for the sigma parameter. Default is 0.1.
 
         Notes
@@ -393,6 +402,7 @@ class EEGrasp():
         done by interpolating a channel and comparing the interpolated data to
         the real data. After finding the parameter the graph is saved and
         computed in the instance class. The distance threshold is maintained.
+
         """
 
         # Check if values are passed or use the class instance's
@@ -470,33 +480,41 @@ class EEGrasp():
 
         Parameters
         ----------
-        Z : ndarray.
-            Distance between the nodes. If not passed, the function will try to compute the
-            euclidean distance using `self.data`. If `self.data` is a 2d array it will compute the
-            euclidean distance between the channels. If the data is a 3d array it will compute a Z
-            matrix per trial, assuming the first dimension in data is trials/epochs. Depending on
-            the mode parameter, the function will average distance matrizes and learn the graph on
-            the average distance or return a collection of adjacency matrices. Default is None.
-        a : float.
-            Parameter for the graph learning algorithm, this controls the weights of the learned
-            graph. Bigger a -> bigger weights in W. Default is 0.1.
-        b : float.
-            Parameter for the graph learning algorithm, this controls the density of the learned
-            graph. Bigger b -> more dense W. Default is 0.1.
-        mode : string.
-            Options are: 'Average', 'Trials'. If 'average', the function returns a single W and Z.
-            If 'Trials' the function returns a generator list of Ws and Zs. Default is 'Average'.
+        Z : ndarray
+
+            Distance between the nodes. If not passed, the function will try to
+            compute the euclidean distance using `self.data`. If `self.data` is
+            a 2d array it will compute the euclidean distance between the
+            channels. If the data is a 3d array it will compute a Z matrix per
+            trial, assuming the first dimension in data is
+            trials/epochs. Depending on the mode parameter, the function will
+            average distance matrizes and learn the graph on the average
+            distance or return a collection of adjacency matrices. Default is
+            None.
+        a : float
+            Parameter for the graph learning algorithm, this controls the
+            weights of the learned graph. Bigger a -> bigger weights in
+            W. Default is 0.1.
+        b : float
+            Parameter for the graph learning algorithm, this controls the
+            density of the learned graph. Bigger b -> more dense W. Default is
+            0.1.
+        mode : string
+            Options are: 'Average', 'Trials'. If 'average', the function
+            returns a single W and Z.  If 'Trials' the function returns a
+            generator list of Ws and Zs. Default is 'Average'.
 
         Returns
         -------
 
-        W : ndarray.
-            Weighted adjacency matrix or matrices depending on mode parameter used. If run in
-            'Trials' mode then Z is a 3d array where the first dim corresponds to trials.
+        W : ndarray
+            Weighted adjacency matrix or matrices depending on mode parameter
+            used. If run in 'Trials' mode then Z is a 3d array where the first
+            dim corresponds to trials.
         Z : ndarray.
-            Used distance matrix or matrices depending on mode parameter used. If run in 'Trials'
-            mode then Z is a 3d array where the first dim corresponds to trials.
-
+            Used distance matrix or matrices depending on mode parameter
+            used. If run in 'Trials' mode then Z is a 3d array where the first
+            dim corresponds to trials.
         """
 
         # If no distance matrix is given compute based on
