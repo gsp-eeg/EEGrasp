@@ -3,7 +3,6 @@ the distance matrix calculated by the two methods: one using the electrode posit
 mne epochs object and the other by passing the electrode positions directly."""
 
 # %% Load Packages
-import matplotlib.pyplot as plt
 import mne
 import numpy as np
 from eegrasp import EEGrasp
