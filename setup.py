@@ -43,8 +43,8 @@ setup(
         'joblib',
         'scipy',
         'pandas',
-        'pygsp2'
-
+        'pygsp2',
+        'numpydoc',
     ],
     extras_require={
         # Optional dependencies for development. Some bring additional
