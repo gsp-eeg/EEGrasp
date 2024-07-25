@@ -3,25 +3,25 @@ EEGraSP: EEG GRaph Signal Processing
 =========================================
 
 
-.. image:: https://readthedocs.org/projects/eegrasp/badge/?version=latest
+.. image:: https://img.shields.io/readthedocs/eegrasp
    :target: https://eegrasp.readthedocs.io
+   :alt: Read the Docs
 
-
-.. image:: https://img.shields.io/pypi/v/eegrasp.svg?
+.. image:: https://img.shields.io/pypi/v/eegrasp
    :target: https://pypi.org/project/eegrasp
-
-
-.. image:: https://anaconda.org/conda-forge/eegrasp/badges/version.svg?
+   :alt: PyPI - Version
+   
+.. image:: https://img.shields.io/conda/v/conda-forge/eegrasp
    :target: https://anaconda.org/conda-forge/eegrasp
-
-
-.. image:: https://img.shields.io/pypi/l/eegrasp
-   :alt: PyPI - License
+   :alt: Conda Version
+   
+.. image:: https://img.shields.io/github/license/gsp-eeg/EEGraSP
    :target: https://github.com/gsp-eeg/eegrasp/blob/main/LICENSE
+   :alt: GitHub License
 
-
-.. image:: https://img.shields.io/pypi/pyversions/eegrasp.svg?
+.. image:: https://img.shields.io/pypi/pyversions/eegrasp
    :target: https://pypi.org/project/eegrasp
+   :alt: PyPI - Python Version
 
 
 This module is meant to be used as a tool for EEG signal analysis based on graph signal analysis methods. The developement of this toolbox takes place in `GitHub <https://github.com/gsp-eeg/EEGraSP>`_.
