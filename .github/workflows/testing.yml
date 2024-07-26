@@ -1,4 +1,5 @@
-name: Testing
+name: Test Examples and Auto Merge
+
 on:
   pull_request:
     branches:
@@ -35,6 +36,6 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git checkout prod
+          git checkout latest
           git merge --no-ff ${{ github.head_ref }} -m "Auto-merging PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}"
-          git push origin prod
+          git push origin latest
