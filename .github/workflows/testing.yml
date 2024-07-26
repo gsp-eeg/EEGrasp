@@ -55,5 +55,5 @@ jobs:
           git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git fetch origin
           git checkout latest
-          git merge --no-ff ${{ github.head_ref }} -m "Auto-merging PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}"
+          git merge --no-ff origin/${{ github.head_ref }} -m "Auto-merging PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}"
           git push origin latest
