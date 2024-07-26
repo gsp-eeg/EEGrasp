@@ -1,5 +1,4 @@
-name: Test Examples and Auto Merge
-
+name: Testing
 on:
   pull_request:
     branches:
@@ -16,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9' # Specify the version of Python you need
+          python-version: '3.11' # Specify the version of Python you need
 
       - name: Install eegrasp as library
         run: |
