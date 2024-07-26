@@ -30,32 +30,14 @@ jobs:
             python "$script"
           done
 
-      - name: Check if latest branch exists
-        id: check-latest
-        run: |
-          git pull origin latest
-          if git show-ref --verify --quiet refs/heads/latest; then
-            echo "Branch latest exists."
-            echo "::set-output name=branch_exists::true"
-          else
-            echo "Branch latest does not exist."
-            echo "::set-output name=branch_exists::false"
-          fi
-
-      - name: Create latest branch if it doesn't exist
-        if: steps.check-latest.outputs.branch_exists == 'false'
-        run: |
-          git pull origin latest
-          git checkout -b latest
-          git push origin latest
-
       - name: Merge PR if tests pass
         if: success()
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git fetch origin
+          git pull
           git checkout latest
-          git merge --no-ff origin/${{ github.head_ref }} -m "Auto-merging PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}"
+          git pull
+          git merge --no-ff ${{ github.head_ref }} -m "Auto-merging PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}"
           git push origin latest
