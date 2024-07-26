@@ -66,10 +66,10 @@ np.testing.assert_array_equal(Z, Z_evoked)
 
 # Initialize EEGrass object
 gsp = EEGrasp(epochs)
-W0, Zs = gsp.learn_graph(a=0.5, b=0.5)
+W0, Z = gsp.learn_graph(a=0.5, b=0.5, mode='Trials')
 
-if not (W0.ndim == 2 and Zs.ndim == 3):
-    raise ValueError('W0 and Zs should have 2 and 3 dimensions, respectively')
+if not (W0.ndim == 3 and Z.ndim == 3):
+    raise ValueError('W0 and Zs should have 2 and 2 dimensions, respectively')
 
 # %% Test Graph Learning usign Evoked
 # Initialize EEGrass object
