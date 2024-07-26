@@ -235,7 +235,7 @@ def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coo
         norm_signal = np.array(signal, dtype=float)
         norm_signal -= np.min(norm_signal)
         norm_signal /= np.max(norm_signal)
-        kwargs_pygsp_plot['edge_color'] = plt.cm.get_cmap(
+        kwargs_pygsp_plot['edge_color'] = plt.get_cmap(
             cmap)(norm_signal)
 
     if colorbar and not signal is None:
