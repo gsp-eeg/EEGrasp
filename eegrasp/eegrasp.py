@@ -6,10 +6,10 @@ based graph signal processing.
 
 import numpy as np
 from pygsp2 import graphs, learning, graph_learning
-from tqdm import tqdm  # TODO: Does it belong here?
-from mne import Evoked, Epochs
-from mne.io import Raw
-
+from tqdm import tqdm
+from scipy import spatial
+import mne
+from .viz import plot_graph
 
 class EEGrasp():
     """Class containing functionality to analyze EEG signals.
@@ -66,14 +66,13 @@ class EEGrasp():
         self.graph = None
 
     def _init_from_mne(self, data):
-        """
-        Initialize EEGrasp attributes from the MNE object.
+        """Initialize EEGrasp attributes from the MNE object.
 
         Parameters
         ----------
-        data : any.
-            Object to be checked if it is an instance of the valid
-            MNE objects allowed by the EEGrasp toolbox.
+        data : any
+            Object to be checked if it is an instance of the valid MNE objects
+            allowed by the EEGrasp toolbox.
         """
         info = data.info
         self.data = data.get_data()
@@ -82,17 +81,16 @@ class EEGrasp():
         self.labels = info.ch_names
 
     def _validate_MNE(self, data):
-        """
-        Check if the data passed is a MNE object and extract the data and
+        """Check if the data passed is a MNE object and extract the data and
         coordinates.
 
         Parameters
         ----------
-        data : any.
-            Object to be checked if it is an instance of the valid
-            MNE objects allowed by the EEGrasp toolbox.
-        """
+        data : any
 
+            Object to be checked if it is an instance of the valid MNE objects
+            allowed by the EEGrasp toolbox.
+        """
         is_mne = False
         if isinstance(data, (Epochs, Evoked, Raw)):
             is_mne = True
@@ -140,7 +138,6 @@ class EEGrasp():
         Extending high-dimensional data analysis to networks and other
         irregular domains," in IEEE Signal Processing Magazine, vol. 30, no. 3,
         pp. 83-98, May 2013, doi: 10.1109/MSP.2012.2235192.
-
         """
         return np.exp(-np.power(x, 2.) / (2.*np.power(float(sigma), 2)))
 
@@ -522,7 +519,6 @@ class EEGrasp():
         Parameters
         ----------
         Z : ndarray
-
             Distance between the nodes. If not passed, the function will try to
             compute the euclidean distance using `self.data`. If `self.data` is
             a 2d array it will compute the euclidean distance between the
@@ -605,3 +601,11 @@ class EEGrasp():
             W[W < 1e-5] = 0
 
             return W, Z
+
+    def plot(self, graph=None, signal=None, coordinates=None, labels=None, montage=None,
+             colorbar=True, axis=None, clabel='Edge Weights', kind='topoplot', show_names=True, **kwargs):
+        """ Plot graph over the eeg montage.
+        %(eegrasp.viz.plot_graph)s
+        """
+        return plot_graph(eegrasp=self, graph=graph, signal=signal, coordinates=coordinates, labels=labels, montage=montage,
+                          colorbar=colorbar, axis=axis, clabel=clabel, kind=kind, show_names=show_names, **kwargs)
