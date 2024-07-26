@@ -438,7 +438,7 @@ class EEGrasp():
         for i, sigma in enumerate(tqdm(vsigma)):
 
             # Compute thresholded weight matrix
-            graph = self.compute_graph(distances, epsilon=epsilon, sigma=sigma)
+            graph = self.compute_graph(epsilon=epsilon, sigma=sigma)
 
             # Interpolate signal, iterating over time
             reconstructed = self.interpolate_channel(
