@@ -1,4 +1,4 @@
-name: Test Examples
+name: Test Examples and Auto Merge
 
 on:
   pull_request:
@@ -21,7 +21,7 @@ jobs:
       - name: Install eegrasp as library
         run: |
           python -m pip install --upgrade pip
-          pip install -e eegrasp # Install the eegrasp package in editable mode
+          pip install -e ./eegrasp # Install the eegrasp package in editable mode
 
       - name: Run example scripts
         run: |
@@ -33,7 +33,6 @@ jobs:
       - name: Merge PR if tests pass
         if: success()
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" > /tmp/token
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
