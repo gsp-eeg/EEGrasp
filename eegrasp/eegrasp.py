@@ -11,7 +11,6 @@ from scipy import spatial
 import mne
 from .viz import plot_graph
 
-
 class EEGrasp():
     """Class containing functionality to analyze EEG signals.
 
@@ -93,7 +92,7 @@ class EEGrasp():
             allowed by the EEGrasp toolbox.
         """
         is_mne = False
-        if isinstance(data, (mne.Epochs, mne.Evoked, mne.io.Raw)):
+        if isinstance(data, (Epochs, Evoked, Raw)):
             is_mne = True
 
         return is_mne
@@ -113,7 +112,7 @@ class EEGrasp():
             containing the euclidean distance between each pair of channels.
         """
         from scipy.spatial import distance_matrix
-
+        
         distance = np.zeros([pos.shape[0], pos.shape[0]],
                             dtype=np.float64)  # Alocate variable
         pos = pos.astype(float)
