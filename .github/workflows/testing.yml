@@ -33,6 +33,7 @@ jobs:
       - name: Check if latest branch exists
         id: check-latest
         run: |
+          git pull origin latest
           if git show-ref --verify --quiet refs/heads/latest; then
             echo "Branch latest exists."
             echo "::set-output name=branch_exists::true"
@@ -44,6 +45,7 @@ jobs:
       - name: Create latest branch if it doesn't exist
         if: steps.check-latest.outputs.branch_exists == 'false'
         run: |
+          git pull origin latest
           git checkout -b latest
           git push origin latest
 
