@@ -111,15 +111,12 @@ class EEGrasp():
             Dimension of the array is number of channels by number of channels
             containing the euclidean distance between each pair of channels.
         """
-
+        from scipy.spatial import distance_matrix
+        
         distance = np.zeros([pos.shape[0], pos.shape[0]],
                             dtype=np.float64)  # Alocate variable
         pos = pos.astype(float)
-        for dim in range(pos.shape[1]):
-            # Compute the component corresponding to each dimension. Add it to the array
-            distance += np.power(pos[:, dim][:, None]-pos[:, dim][None, :], 2)
-        distance = np.sqrt(distance)
-
+        distance = distance_matrix(pos, pos)
         return distance
 
     def gaussian_kernel(self, x, sigma=0.1):

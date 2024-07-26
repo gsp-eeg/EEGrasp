@@ -1,4 +1,7 @@
-""""
+r"""
+ERP Construction
+================
+
 Example on how to interpolate missing channels.
 """
 
@@ -7,6 +10,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mne
 from eegrasp import EEGrasp
+import os
+
+current_dir = os.getcwd()
+os.chdir(os.path.dirname(current_dir))
+data_dir ="./datasets"
+#os.makedirs("./datasets", exist_ok=True)
+#os.environ['MNE_EEGBCI_PATH'] = './datasets/'
 
 # %% Load Electrode montage and dataset
 subjects = np.arange(1, 10)
@@ -16,7 +26,7 @@ runs = [4, 8, 12]
 # Comment the following line if already downloaded
 
 raw_fnames = [mne.datasets.eegbci.load_data(
-    s, runs, path='datasets') for s in subjects]
+    s, runs, path=data_dir, update_path=True) for s in subjects]
 raw_fnames = np.reshape(raw_fnames, -1)
 raws = [mne.io.read_raw_edf(f, preload=True) for f in raw_fnames]
 raw = mne.concatenate_raws(raws)

@@ -1,4 +1,8 @@
-"""Learn the graph from EEG signals using the algorithm proposed by
+r"""
+EEG Graph Learning
+==================
+
+Learn the graph from EEG signals using the algorithm proposed by
 Kalofolias et al. (2019) and implemented in PyGSP2. This example
 follows the methods described in Miri et al. (2024). To run this
 example download the following data file `data_set_IVa_aa.mat`
@@ -16,22 +20,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mne
 from scipy.io import loadmat
+
 from eegrasp import EEGrasp
+from eegrasp.utils_examples import fetch_data
 
 # Set working directory to the file directory
-os.chdir(os.path.dirname(__file__))
+current_dir = os.getcwd()
+os.chdir(os.path.dirname(current_dir))
 
-# Instantiate EEGraSP
-gsp = EEGrasp()
 
+# %% Fetch data
+assets_dir = Path('..') / Path('data')
+fetch_data(assets_dir, database="graph_learning")
 # %% Load Electrode montage and dataset
-file_name = Path('data') / 'data_set_IVa_aa.mat'
+file_name = os.path.join(assets_dir, "100Hz", 'data_set_IVa_aa.mat')
 
 try:
     data = loadmat(file_name)
 except (FileNotFoundError, OSError):
     print(f'File {file_name} not found')
     sys.exit(-1)
+
+# Instantiate EEGraSP
+gsp = EEGrasp()
 
 eeg = (data['cnt']).astype(float) * 1e-7  # Recomendation: to set to V
 events = np.squeeze(data['mrk'][0, 0][0])
@@ -114,6 +125,7 @@ eigenvectors = np.array(G.U)
 eigenvalues = np.array(G.e)
 
 # %% Plot Eigenvalue index vs eivenvalue
+plt.figure()
 plt.scatter(eigenvalues, np.arange(0, len(eigenvalues)),
             s=50, color='purple')
 plt.plot(eigenvalues, np.arange(0, len(eigenvalues)),
