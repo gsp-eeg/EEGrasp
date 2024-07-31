@@ -103,33 +103,43 @@ class EEGrasp():
 
 
     def euc_dist(self, pos):
-        r"""Docstring overloaded at import time."""
+        """ Calculates euclidean distance.
+        %(eegrasp.utils.euc_dist)
+        """
         from .utils import euc_dist
         return euc_dist(pos)
-
-
-    def gaussian_kernel(self, x, sigma=0.1):
-        r"""Docstring overloaded at import time."""
-        from .graph_creation import gaussian_kernel
-        return gaussian_kernel(x, sigma=0.1)
-        
+    
 
     def compute_distance(self, coordinates=None, method='Euclidean', normalize=True):
-        r"""Docstring overloaded at import time."""
+        """ Computes distance.
+        %(eegrasp.utils.compute_distance)
+        """
         from .utils import compute_distance
         self.distances = compute_distance(coordinates=coordinates, method=method, normalize=normalize, coord0=self.coordinates)
         return self.distances
+
+
+    def gaussian_kernel(self, x, sigma=0.1):
+        """ Calculates Gaussian Kernel.
+        %(eegrasp.graph_creation.gaussian_kernel)
+        """
+        from .graph_creation import gaussian_kernel
+        return gaussian_kernel(x, sigma)
         
 
     def compute_graph(self, W=None, epsilon=.5, sigma=.1, distances=None, graph=None, coordinates=None):
-        r"""Docstring overloaded at import time."""
+        """ Computes graph.
+        %(eegrasp.graph_creation.compute_graph)
+        """
         from .graph_creation import compute_graph
         self.graph, self.graph_weights = compute_graph(W=W, epsilon=epsilon, sigma=sigma, distances=distances, graph=graph, coordinates=coordinates, distances0=self.distances)
         return self.graph
         
 
     def interpolate_channel(self, missing_idx: int | list[int] | tuple[int], graph=None, data=None):
-        r"""Docstring overloaded at import time."""
+        """ Interpolates channel.
+        %(eegrasp.interpolate.interpolate_channel)
+        """
         from .interpolate import interpolate_channel
         return interpolate_channel(missing_idx, graph=graph, data=data, graph0=self.graph, data0=self.data)
 
