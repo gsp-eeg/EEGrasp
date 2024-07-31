@@ -1,12 +1,12 @@
 r"""
 Utils Examples
-=====
+==============
 
 Utils functions used in the examples.
 """
 
-import os 
-import json 
+import os
+import json
 import numpy as np
 
 ASSETS_GRAPH_LEARNING = [
@@ -31,7 +31,7 @@ def fetch_data(output_dir, database="graph_learning"):
         Directory where the data will be saved.
     database : str, optional
         Database to fetch data from. Options are: "metro".
-    """ 
+    """
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
     for asset_dict in ASSETS[database]:

@@ -69,10 +69,10 @@ eegsp = EEGrasp(data, eeg_pos, ch_names)
 # 3. Compute the electrode distance matrix
 dist_mat = eegsp.compute_distance(normalize=True)
 # 4. Compute the graph weights and make graph strucutre
-eegsp.compute_graph(epsilon=0.5, sigma=0.1)
-
+graph = eegsp.compute_graph(epsilon=0.5, sigma=0.1)
+W = eegsp.graph_weights
 # 5. Interpolate missing channel
-interpolated = eegsp.interpolate_channel(missing_idx=MISSING_IDX)
+interpolated = eegsp.interpolate_channel(missing_idx=MISSING_IDX, graph=graph)
 
 # %% Plot channel
 fs = epochs.info['sfreq']
