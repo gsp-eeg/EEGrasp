@@ -31,7 +31,7 @@ jobs:
           done
 
       - name: Merge PR if tests pass
-        #if: success()
+        if: success()
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
