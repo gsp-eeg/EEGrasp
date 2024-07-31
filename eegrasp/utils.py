@@ -7,6 +7,7 @@ Utils functions used in EEGrasp.
 
 import numpy as np
 
+
 def euc_dist(pos):
     """Compute the euclidean distance based on a given set of possitions.
 
@@ -67,4 +68,3 @@ def compute_distance(coordinates=None, method='Euclidean', normalize=True, coord
         distances = distances / np.amax(distances)
 
     return distances
-
