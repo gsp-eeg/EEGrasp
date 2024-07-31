@@ -1,4 +1,9 @@
-"""Define default values and functions used for plotting function in eegrasp main module."""
+r"""
+Viz
+===
+
+Define default values and functions used for plotting function in eegrasp main module.
+"""
 
 import dataclasses
 import mne
