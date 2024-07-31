@@ -1,4 +1,6 @@
-"""EEGRasP module.
+r"""
+EEGRasP module
+==============
 
 Contains the class EEGrasp which is used to analyze EEG signals
 based graph signal processing.
@@ -10,6 +12,7 @@ from tqdm import tqdm
 from scipy import spatial
 import mne
 from .viz import plot_graph
+
 
 
 class EEGrasp():
@@ -98,172 +101,38 @@ class EEGrasp():
 
         return is_mne
 
+
     def euc_dist(self, pos):
-        """Compute the euclidean distance based on a given set of possitions.
+        r"""Docstring overloaded at import time."""
+        from .utils import euc_dist
+        return euc_dist(pos)
 
-        Parameters
-        ----------
-        pos : ndarray.
-            2d or 3d array of channels by feature dimensions.
-
-        Returns
-        -------
-        output: ndarray.
-            Dimension of the array is number of channels by number of channels
-            containing the euclidean distance between each pair of channels.
-        """
-        from scipy.spatial import distance_matrix
-
-        distance = np.zeros([pos.shape[0], pos.shape[0]],
-                            dtype=np.float64)  # Alocate variable
-        pos = pos.astype(float)
-        distance = distance_matrix(pos, pos)
-        return distance
 
     def gaussian_kernel(self, x, sigma=0.1):
-        """Gaussian Kernel Weighting function.
-
-        Notes
-        -----
-        This function is supposed to be used in the PyGSP2 module but is
-        repeated here since there is an error in the available version of the
-        toolbox.
-
-        References
-        ----------
-        * D. I. Shuman, S. K. Narang, P. Frossard, A. Ortega and
-        P. Vandergheynst, "The emerging field of signal processing on graphs:
-        Extending high-dimensional data analysis to networks and other
-        irregular domains," in IEEE Signal Processing Magazine, vol. 30, no. 3,
-        pp. 83-98, May 2013, doi: 10.1109/MSP.2012.2235192.
-        """
-        return np.exp(-np.power(x, 2.) / (2.*np.power(float(sigma), 2)))
+        r"""Docstring overloaded at import time."""
+        from .graph_creation import gaussian_kernel
+        return gaussian_kernel(x, sigma=0.1)
+        
 
     def compute_distance(self, coordinates=None, method='Euclidean', normalize=True):
-        """Computing the distance based on electrode coordinates.
+        r"""Docstring overloaded at import time."""
+        from .utils import compute_distance
+        self.distances = compute_distance(coordinates=coordinates, method=method, normalize=normalize, coord0=self.coordinates)
+        return self.distances
+        
 
-        Parameters
-        ----------
-        coordinates : ndarray | None
-            N-dim array with position of the electrodes. If `None` the class
-            instance will use the coordinates passed at initialization. Default
-            is `None`.
-        method : string
-            Options are: 'Euclidean'. Method used to compute the distance matrix.
-        normalize : bool
-            If True, the distance matrix will be normalized before being
-            returned. If False, then the distance matrix will be returned and
-            assigned to the class' instance without normalization.
-
-        Returns
-        -------
-        distances : ndarray
-            Distances to be used for the graph computation.
-        """
-
-        # If passed, used the coordinates argument
-        if isinstance(coordinates, type(None)):
-            coordinates = self.coordinates
-
-        # Otherwise use the instance's coordinates
-        if method == 'Euclidean':
-            distances = self.euc_dist(coordinates)
-            np.fill_diagonal(distances, 0)
-
-        if normalize:
-            # Normalize distances
-            distances = distances - np.amin(distances)
-            distances = distances / np.amax(distances)
-
-        self.distances = distances
-
-        return distances
-
-    def compute_graph(self, W=None, epsilon=.5, sigma=.1):
-        """Parameters
-        ----------
-        W : numpy ndarray | None
-            If W is passed, then the graph is computed. Otherwise the graph
-            will be computed with `self.W`. `W` should correspond to a
-            non-sparse 2-D array. If None, the function will use the distance
-            matrix computed in the instance of the class (`self.W`).
-        epsilon : float
-            Any distance greater than epsilon will be set to zero on the
-            adjacency matrix.
-        sigma : float
-            Sigma parameter for the gaussian kernel.
-        method: string
-            Options are: "NN" or "Gaussian". Nearest Neighbor or Gaussian
-            Kernel used based on the `self.W` matrix respectively depending on
-            the method used.
-
-        Returns
-        -------
-        G: PyGSP2 Graph object.
-        """
-
-        # If passed, used the W matrix
-        if W is None:
-            distances = self.distances
-            # Check that there is a weight matrix is not a None
-            if distances is None:
-                raise TypeError(
-                    'No distances found. Distances have to be computed if W is not provided')
-            graph_weights = self.gaussian_kernel(distances, sigma=sigma)
-            graph_weights[distances > epsilon] = 0
-            np.fill_diagonal(graph_weights, 0)
-            graph = graphs.Graph(graph_weights)
-        else:
-            graph_weights = W
-            graph = graphs.Graph(W)
-
-        if self.coordinates is not None:
-            graph.set_coordinates(self.coordinates)
-
-        self.graph = graph
-        self.graph_weights = graph_weights
-
-        return graph
+    def compute_graph(self, W=None, epsilon=.5, sigma=.1, distances=None, graph=None, coordinates=None):
+        r"""Docstring overloaded at import time."""
+        from .graph_creation import compute_graph
+        self.graph, self.graph_weights = compute_graph(W=W, epsilon=epsilon, sigma=sigma, distances=distances, graph=graph, coordinates=coordinates, distances0=self.distances)
+        return self.graph
+        
 
     def interpolate_channel(self, missing_idx: int | list[int] | tuple[int], graph=None, data=None):
-        """Interpolate missing channel.
-        Parameters
-        ----------
-        missing_idx : int | list of int | tuple of int
-            Index of the missing channel. Not optional.
-        graph : PyGSP2 Graph object | None
-            Graph to be used to interpolate a missing channel. If None, the
-            function will use the graph computed in the instance of the class
-            (`self.graph`). Default is None.
+        r"""Docstring overloaded at import time."""
+        from .interpolate import interpolate_channel
+        return interpolate_channel(missing_idx, graph=graph, data=data, graph0=self.graph, data0=self.data)
 
-        data : ndarray | None
-            2d array of channels by samples. If None, the function will use the
-            data computed in the instance of the class (`self.data`). Default
-            is None.
-
-        Returns
-        -------
-        reconstructed : ndarray
-            Reconstructed signal.
-        """
-
-        # Check if values are passed or use the instance's
-        if isinstance(data, type(None)):
-            data = self.data.copy()
-        if isinstance(graph, type(None)):
-            graph = self.graph
-
-        time = np.arange(data.shape[1])  # create time array
-        mask = np.ones(data.shape[0], dtype=bool)  # Maksing array
-        mask[missing_idx] = False
-
-        # Allocate new data array
-        reconstructed = np.zeros(data.shape)
-        # Iterate over each timepoint
-        for t in time:
-            reconstructed[:, t] = learning.regression_tikhonov(graph, data[:, t],
-                                                               mask, tau=0)
-        return reconstructed
 
     def _return_results(self, error, signal, vparameter, param_name):
         """Function to wrap results into a dictionary.
