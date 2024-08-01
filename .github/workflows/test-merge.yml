@@ -43,9 +43,8 @@ jobs:
               labels: [label]
             });
       
-      
       - name: Auto Merge Pull Request
-        #if: success()
+        if: success()
         uses: pascalgn/automerge-action@v0.15.0
         with:
           merge_method: merge  # or 'merge', 'rebase' based on your preference
