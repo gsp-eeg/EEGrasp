@@ -35,8 +35,9 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
-            const context2 = github.context;
+            const { Octokit } = require('@octokit/rest');
+            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+            const { context2 } = require('@actions/github');
             const label = 'automerge';
             await octokit.issues.addLabels({
               owner: context2.repo.owner,
