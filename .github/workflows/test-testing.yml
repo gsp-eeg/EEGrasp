@@ -34,5 +34,5 @@ jobs:
         uses: pascalgn/automerge-action@v0.15.0
         if: success()
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.TOKEN_GITHUB }}
           merge-method: merge
