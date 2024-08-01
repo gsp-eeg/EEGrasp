@@ -35,9 +35,10 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const octokit = require('@octokit/rest')();
+            const { GitHub, context } = require('@actions/github');
+            const octokit = new GitHub(process.env.GITHUB_TOKEN);
             const label = 'automerge';
-            octokit.rest.issues.addLabels({
+            octokit.issues.addLabels({
               ...context.repo,
               issue_number: context.issue.number,
               labels: [label]
