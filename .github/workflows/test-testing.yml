@@ -30,17 +30,6 @@ jobs:
             python "$script"
           done
 
-      - name: Check if "latest" branch exists and create if necessary
-        run: |
-          git fetch origin
-          if ! git show-ref --quiet refs/heads/latest; then
-            git checkout -b latest
-            git pull origin latest
-            git push origin latest
-          else
-            git checkout latest
-          fi
-
       - name: Merge PR if tests pass
         if: success()
         run: |
