@@ -7,12 +7,7 @@ based graph signal processing.
 """
 
 import numpy as np
-from pygsp2 import graphs, learning, graph_learning
-from tqdm import tqdm
-from scipy import spatial
 import mne
-from .viz import plot_graph
-
 
 class EEGrasp():
     """Class containing functionality to analyze EEG signals.
@@ -111,9 +106,13 @@ class EEGrasp():
         """ Computes distance.
         %(eegrasp.utils.compute_distance)
         """
+        # If passed, use the coordinates argument
+        if coordinates is None:
+            coordinates = self.coordinates
+
         from .utils import compute_distance
         self.distances = compute_distance(
-            coordinates=coordinates, method=method, normalize=normalize, coord0=self.coordinates)
+            coordinates=coordinates, method=method, normalize=normalize)
         return self.distances
 
     def gaussian_kernel(self, x, sigma=0.1):
@@ -127,26 +126,44 @@ class EEGrasp():
         """ Computes graph.
         %(eegrasp.graph_creation.compute_graph)
         """
+        if W is None:
+            distances = self.distances
+
         from .graph import compute_graph
         self.graph, self.graph_weights = compute_graph(
-            W=W, epsilon=epsilon, sigma=sigma, distances=distances, graph=graph, coordinates=coordinates, distances0=self.distances)
+            W=W, epsilon=epsilon, sigma=sigma, distances=distances, graph=graph, coordinates=coordinates)
         return self.graph
 
     def interpolate_channel(self, missing_idx: int | list[int] | tuple[int], graph=None, data=None):
         """ Interpolates channel.
         %(eegrasp.interpolate.interpolate_channel)
         """
+        # Check if values are passed or use the instance's
+        if data is None:
+            data = self.data
+        if graph is None:
+            graph = self.graph
+
         from .interpolate import interpolate_channel
-        return interpolate_channel(missing_idx, graph=graph, data=data, graph0=self.graph, data0=self.data)
+        return interpolate_channel(missing_idx, graph=graph, data=data)
 
     def fit_epsilon(self, missing_idx: int | list[int] | tuple[int], data=None,
                     distances=None, sigma=0.1):
         """Find the best distance to use as threshold.
         %(eegrasp.graph.fit_epsilon)
         """
+        # Check if values are passed or use the instance's
+        if data is None:
+            data = self.data
+        if distances is None:
+            distances = self.distances
+        
+        if data is None or distances is None :
+            raise TypeError('Check data or W arguments.')
+
         from .graph import fit_epsilon
         fit_epsilon(missing_idx=missing_idx, data=data,
-                    distances=distances, sigma=sigma, data0=self.data, distances0=self.distances)
+                    distances=distances, sigma=sigma)
 
     def fit_sigma(self, missing_idx: int | list[int] | tuple[int], data=None,
                   distances=None, epsilon=0.5, min_sigma=0.1, max_sigma=1.,
@@ -154,24 +171,37 @@ class EEGrasp():
         """ Find the best parameter for the gaussian kernel.
         %(eegrasp.graph.fit_sigma)
         """
+        # Check if values are passed or use the instance's
+        if data is None:
+            data = self.data
+        if distances is None:
+            distances = self.distances
+        
+        if data is None or distances is None:
+            raise TypeError('Check data or W arguments.')
+        
         from .graph import fit_sigma
         return fit_sigma(missing_idx=missing_idx, data=data,
                          distances=distances, epsilon=epsilon, min_sigma=min_sigma, max_sigma=max_sigma,
-                         step=step, data0=self.data, distances0=self.distances)
+                         step=step)
 
     def learn_graph(self, Z=None, a=0.1, b=0.1,
                     gamma=0.04, maxiter=1000, w_max=np.inf,
-                    mode='Average'):
+                    mode='Average', data=None):
         """ Learns graph using PyGSP2.
         %(eegrasp.graph.learn_graph)
         """
+        if Z is None:
+            data = self.data
+
         from .graph import learn_graph
-        return learn_graph(Z=Z, a=a, b=b, gamma=gamma, maxiter=maxiter, w_max=w_max, mode=mode, data0=self.data)
+        return learn_graph(Z=Z, a=a, b=b, gamma=gamma, maxiter=maxiter, w_max=w_max, mode=mode, data=data)
 
     def plot(self, graph=None, signal=None, coordinates=None, labels=None, montage=None,
              colorbar=True, axis=None, clabel='Edge Weights', kind='topoplot', show_names=True, **kwargs):
         """ Plot graph over the eeg montage.
         %(eegrasp.viz.plot_graph)s
         """
+        from .viz import plot_graph
         return plot_graph(eegrasp=self, graph=graph, signal=signal, coordinates=coordinates, labels=labels, montage=montage,
                           colorbar=colorbar, axis=axis, clabel=clabel, kind=kind, show_names=show_names, **kwargs)

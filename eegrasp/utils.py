@@ -31,7 +31,7 @@ def euc_dist(pos):
     return distance
 
 
-def compute_distance(coordinates=None, method='Euclidean', normalize=True, coord0=None):
+def compute_distance(coordinates=None, method='Euclidean', normalize=True):
     """Computing the distance based on electrode coordinates.
 
     Parameters
@@ -52,10 +52,6 @@ def compute_distance(coordinates=None, method='Euclidean', normalize=True, coord
     distances : ndarray
         Distances to be used for the graph computation.
     """
-
-    # If passed, used the coordinates argument
-    if isinstance(coordinates, type(None)):
-        coordinates = coord0
 
     # Otherwise use the instance's coordinates
     if method == 'Euclidean':
