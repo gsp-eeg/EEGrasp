@@ -1,0 +1,68 @@
+name: Test examples and merge
+
+on:
+  pull_request:
+    branches-ignore:
+      - main
+
+jobs:
+  test-and-merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Run example scripts
+        run: |
+          for script in examples/*.py; do
+            echo "Running $script"
+            python "$script"
+          done
+
+      - name: Add automerge label
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const label = 'automerge';
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: [label]
+            });
+      
+      - name: Auto Merge Pull Request
+        if: success()
+        uses: pascalgn/automerge-action@v0.15.0
+        with:
+          merge_method: merge  # or 'merge', 'rebase' based on your preference
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete source branch
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const branch = context.payload.pull_request.head.ref;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            github.rest.git.deleteRef({
+              owner,
+              repo,
+              ref: `heads/${branch}`
+            });
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
