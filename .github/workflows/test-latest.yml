@@ -1,7 +1,7 @@
 name: Test latest
 
 on:
-  push:
+  pull_request:
     branches:
       - latest
 
@@ -16,12 +16,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11' # Specify the version of Python you need
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e . # Install the eegrasp package in editable mode
+          pip install -e .
 
       - name: Run example scripts
         run: |
@@ -29,3 +29,10 @@ jobs:
             echo "Running $script"
             python "$script"
           done
+
+      - name: Automerge
+        uses: pascalgn/automerge-action@v0.15.0
+        if: success()
+        with:
+          github-token: ${{ secrets.TOKEN_GITHUB }}
+          merge-method: merge
