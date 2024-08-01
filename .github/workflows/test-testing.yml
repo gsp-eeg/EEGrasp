@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e . # Install the eegrasp package in editable mode
+          pip install -e . # Install the package in editable mode
 
       - name: Run example scripts
         run: |
@@ -30,8 +30,19 @@ jobs:
             python "$script"
           done
 
+      - name: Check if "latest" branch exists and create if necessary
+        run: |
+          git fetch origin
+          if ! git show-ref --quiet refs/heads/latest; then
+            git checkout -b latest
+            git pull
+            git push origin latest
+          else
+            git checkout latest
+          fi
+
       - name: Merge PR if tests pass
-        #if: success()
+        if: success()
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
