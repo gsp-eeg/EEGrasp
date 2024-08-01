@@ -30,10 +30,24 @@ jobs:
             python "$script"
           done
 
+      - name: Add automerge label
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { context } = require('@actions/github');
+            const label = 'automerge';
+            const octokit = new (require('@octokit/rest'))();
+            octokit.rest.issues.addLabels({
+              ...context.repo,
+              issue_number: context.issue.number,
+              labels: [label]
+            });
+      
       - name: Auto Merge Pull Request
         if: success()
         uses: pascalgn/automerge-action@v0.15.0
         with:
-          merge_method: squash  # or 'squash', 'merge', 'rebase' based on your preference
+          merge_method: merge  # or 'merge', 'rebase' based on your preference
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
