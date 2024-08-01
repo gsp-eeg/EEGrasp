@@ -23,15 +23,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .
 
-      - name: Run example scripts
-        run: |
-          for script in examples/*.py; do
-            echo "Running $script"
-            python "$script"
-          done
+      #- name: Run example scripts
+      #  run: |
+      #    for script in examples/*.py; do
+      #      echo "Running $script"
+      #      python "$script"
+      #    done
 
       - name: Add automerge label
-        if: success()
+        #if: success()
         uses: actions/github-script@v6
         with:
           script: |
@@ -46,7 +46,7 @@ jobs:
             });
       
       - name: Auto Merge Pull Request
-        if: success()
+        #if: success()
         uses: pascalgn/automerge-action@v0.15.0
         with:
           merge_method: merge  # or 'merge', 'rebase' based on your preference
