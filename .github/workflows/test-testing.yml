@@ -34,6 +34,6 @@ jobs:
         if: success()
         uses: pascalgn/automerge-action@v0.15.0
         with:
-          merge_method: merge  # or 'squash', 'merge', 'rebase' based on your preference
+          merge_method: squash  # or 'squash', 'merge', 'rebase' based on your preference
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
