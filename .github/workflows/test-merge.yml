@@ -31,18 +31,18 @@ jobs:
       #    done
 
       - name: Add automerge label
-        #if: success()
+        if: success()
         uses: actions/github-script@v6
         with:
           script: |
-            const { Octokit } = require('@octokit/rest');
-            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-            const { context2 } = require('@actions/github');
+            const github = require('@actions/github');
+            const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+            const { context } = github;
             const label = 'automerge';
-            await octokit.issues.addLabels({
-              owner: context2.repo.owner,
-              repo: context2.repo.repo,
-              issue_number: context2.issue.number,
+            await octokit.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
               labels: [label]
             });
       
