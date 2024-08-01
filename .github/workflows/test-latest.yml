@@ -1,7 +1,7 @@
 name: Test Examples and Auto Merge
 
 on:
-  pull_request:
+  push:
     branches:
       - latest
 
