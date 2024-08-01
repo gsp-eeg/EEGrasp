@@ -1,0 +1,38 @@
+name: Test testing
+
+on:
+  pull_request:
+    branches:
+      - testing
+
+jobs:
+  test-and-merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Run example scripts
+        run: |
+          for script in examples/*.py; do
+            echo "Running $script"
+            python "$script"
+          done
+
+      - name: Automerge
+        uses: pascalgn/automerge-action@v0.15.0
+        if: success()
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          merge-method: merge
