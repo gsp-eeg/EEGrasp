@@ -36,7 +36,6 @@ jobs:
         with:
           script: |
             const octokit = require('@octokit/rest')();
-            const { context } = require('@actions/github');
             const label = 'automerge';
             octokit.rest.issues.addLabels({
               ...context.repo,
