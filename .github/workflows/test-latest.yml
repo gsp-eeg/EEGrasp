@@ -30,9 +30,10 @@ jobs:
             python "$script"
           done
 
-      - name: Automerge
-        uses: pascalgn/automerge-action@v0.15.0
+      - name: Auto Merge Pull Request
         if: success()
+        uses: pascalgn/automerge-action@v0.15.0
         with:
-          github-token: ${{ secrets.TOKEN_GITHUB }}
-          merge-method: merge
+          merge_method: merge  # or 'squash', 'merge', 'rebase' based on your preference
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
