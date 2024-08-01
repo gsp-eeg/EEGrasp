@@ -27,11 +27,7 @@ EEGraSP: EEG GRaph Signal Processing
    :target: https://github.com/gsp-eeg/EEGraSP/actions
    :alt: GitHub Actions Workflow Release Status
 
-.. image:: https://img.shields.io/github/actions/workflow/status/gsp-eeg/EEGraSP/test-testing.yml?label=testing
-   :target: https://github.com/gsp-eeg/EEGraSP/actions
-   :alt: GitHub Actions Workflow Testing Status
-
-.. image:: https://img.shields.io/github/actions/workflow/status/gsp-eeg/EEGraSP/test-latest.yml?label=latest
+.. image:: https://img.shields.io/github/actions/workflow/status/gsp-eeg/EEGraSP/test-merge.yml?label=merge
    :target: https://github.com/gsp-eeg/EEGraSP/actions
    :alt: GitHub Actions Workflow Testing Status
 

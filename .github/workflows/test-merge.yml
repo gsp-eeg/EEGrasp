@@ -1,9 +1,9 @@
-name: Test testing
+name: Test examples and merge
 
 on:
   pull_request:
-    branches:
-      - testing
+    branches-ignore:
+      - main
 
 jobs:
   test-and-merge:
@@ -35,9 +35,9 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
+            const octokit = require('@octokit/rest')();
             const { context } = require('@actions/github');
             const label = 'automerge';
-            const octokit = new (require('@octokit/rest'))();
             octokit.rest.issues.addLabels({
               ...context.repo,
               issue_number: context.issue.number,
