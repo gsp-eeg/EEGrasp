@@ -59,7 +59,7 @@ jobs:
             const branch = context.payload.pull_request.head.ref;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            if (branch !== 'latest' && branch !== 'testing') {
+            if (branch !== 'main' && branch !== 'latest' && branch !== 'testing') {
               github.rest.git.deleteRef({
                 owner,
                 repo,
