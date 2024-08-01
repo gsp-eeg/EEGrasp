@@ -26,13 +26,13 @@ eegrasp = EEGrasp(coordinates=eeg_pos)
 # Compute distance matrix
 Z = eegrasp.compute_distance(method='Euclidean')
 # Compute weight matrix
-G = eegrasp.compute_graph(epsilon=0.5, sigma=0.1)
+G = eegrasp.compute_graph(epsilon=0.5, sigma=0.1, distances=Z)
 W = eegrasp.graph_weights
 
 # %% Create new Graph with different parameters
 
 # Compute new weight matrix
-G = eegrasp.compute_graph(epsilon=0.5, sigma=0.3)
+G2 = eegrasp.compute_graph(epsilon=0.5, sigma=0.3, distances=Z)
 W2 = eegrasp.graph_weights
 
 # %% Plot

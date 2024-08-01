@@ -12,3 +12,8 @@ __version__ = '0.0.2'
 __release_date__ = '2024-07-15'
 
 from .eegrasp import EEGrasp
+from . import viz
+from . import graph
+from . import interpolate
+from . import utils
+from . import utils_examples
