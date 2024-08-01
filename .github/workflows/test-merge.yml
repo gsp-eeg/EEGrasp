@@ -59,10 +59,14 @@ jobs:
             const branch = context.payload.pull_request.head.ref;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            github.rest.git.deleteRef({
-              owner,
-              repo,
-              ref: `heads/${branch}`
-            });
+            if (branch !== 'latest' && branch !== 'testing') {
+              github.rest.git.deleteRef({
+                owner,
+                repo,
+                ref: `heads/${branch}`
+              });
+            } else {
+              console.log(`Skipping deletion of branch ${branch}`);
+            }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
