@@ -10,7 +10,7 @@ import numpy as np
 from pygsp2 import learning
 
 
-def interpolate_channel(missing_idx: int | list[int] | tuple[int], graph=None, data=None, graph0=None, data0=None):
+def interpolate_channel(missing_idx: int | list[int] | tuple[int], graph=None, data=None):
     """Interpolate missing channel.
     Parameters
     ----------
@@ -31,12 +31,6 @@ def interpolate_channel(missing_idx: int | list[int] | tuple[int], graph=None, d
     reconstructed : ndarray
         Reconstructed signal.
     """
-
-    # Check if values are passed or use the instance's
-    if isinstance(data, type(None)):
-        data = data0
-    if isinstance(graph, type(None)):
-        graph = graph0
 
     time = np.arange(data.shape[1])  # create time array
     mask = np.ones(data.shape[0], dtype=bool)  # Maksing array

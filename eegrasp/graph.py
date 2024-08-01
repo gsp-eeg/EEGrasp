@@ -32,7 +32,7 @@ def gaussian_kernel(x, sigma=0.1):
     return np.exp(-np.power(x, 2.) / (2.*np.power(float(sigma), 2)))
 
 
-def compute_graph(W=None, epsilon=.5, sigma=.1, distances=None, graph=None, coordinates=None, distances0=None):
+def compute_graph(W=None, epsilon=.5, sigma=.1, distances=None, graph=None, coordinates=None):
     """Parameters
     ----------
     W : numpy ndarray | None
@@ -57,7 +57,6 @@ def compute_graph(W=None, epsilon=.5, sigma=.1, distances=None, graph=None, coor
 
     # If passed, used the W matrix
     if W is None:
-        distances = distances0
         # Check that there is a weight matrix is not a None
         if distances is None:
             raise TypeError(
@@ -78,7 +77,7 @@ def compute_graph(W=None, epsilon=.5, sigma=.1, distances=None, graph=None, coor
 
 def learn_graph(Z=None, a=0.1, b=0.1,
                 gamma=0.04, maxiter=1000, w_max=np.inf,
-                mode='Average', data0=None):
+                mode='Average', data=None):
     """Learn the graph based on smooth signals.
 
     Parameters
@@ -105,6 +104,9 @@ def learn_graph(Z=None, a=0.1, b=0.1,
         Options are: 'Average', 'Trials'. If 'average', the function
         returns a single W and Z.  If 'Trials' the function returns a
         generator list of Ws and Zs. Default is 'Average'.
+    data : ndarray | None
+        2d array of channels by samples. If None, the function will use the
+        data computed in the instance of the class (`self.data`).
 
     Returns
     -------
@@ -120,8 +122,6 @@ def learn_graph(Z=None, a=0.1, b=0.1,
     from .utils import euc_dist
     # If no distance matrix is given compute based on
     # data's euclidean distance
-    if Z is None:
-        data = data0
 
     # Check if data contains trials
     if data.ndim == 3:
@@ -170,7 +170,7 @@ def learn_graph(Z=None, a=0.1, b=0.1,
 
 def fit_sigma(missing_idx: int | list[int] | tuple[int], data=None,
               distances=None, epsilon=0.5, min_sigma=0.1, max_sigma=1.,
-              step=0.1, data0=None, distances0=None):
+              step=0.1):
     """Find the best parameter for the gaussian kernel.
 
     Parameters
@@ -203,15 +203,6 @@ def fit_sigma(missing_idx: int | list[int] | tuple[int], data=None,
 
     """
 
-    # Check if values are passed or use the class instance's
-    if isinstance(distances, type(None)):
-        distances = distances0
-    if isinstance(data, type(None)):
-        data = data0
-
-    if isinstance(distances, type(None)) or isinstance(data, type(None)):
-        raise TypeError('Check data or W arguments.')
-
     # Create array of parameter values
     vsigma = np.arange(min_sigma, max_sigma, step=step)
 
@@ -237,7 +228,7 @@ def fit_sigma(missing_idx: int | list[int] | tuple[int], data=None,
 
         # Compute thresholded weight matrix
         graph, W = compute_graph(
-            epsilon=epsilon, sigma=sigma, distances=distances, distances0=distances0)
+            epsilon=epsilon, sigma=sigma, distances=distances)
         # Interpolate signal, iterating over time
         reconstructed = interpolate_channel(
             missing_idx=missing_idx, graph=graph, data=signal)
@@ -272,7 +263,7 @@ def fit_sigma(missing_idx: int | list[int] | tuple[int], data=None,
 
 
 def fit_epsilon(missing_idx: int | list[int] | tuple[int], data=None,
-                distances=None, sigma=0.1, data0=None, distances0=None):
+                distances=None, sigma=0.1):
     """Find the best distance to use as threshold.
 
     Parameters
@@ -303,14 +294,6 @@ def fit_epsilon(missing_idx: int | list[int] | tuple[int], data=None,
     data : 2-dimensional array. The first dim. is Channels
     and second is time. It can be passed to the instance class or the method
     """
-    # Check if values are passed or use the instance's
-    if isinstance(distances, type(None)):
-        distances = distances0
-    if isinstance(data, type(None)):
-        data = data0
-
-    if isinstance(distances, type(None)) or isinstance(data, type(None)):
-        raise TypeError('Check data or W arguments.')
 
     # Vectorize the distance matrix
     dist_tril = _vectorize_matrix(distances)
@@ -340,7 +323,7 @@ def fit_epsilon(missing_idx: int | list[int] | tuple[int], data=None,
 
         # Compute thresholded weight matrix
         graph, W = compute_graph(
-            distances, epsilon=epsilon, sigma=sigma, distances0=distances0)
+            distances, epsilon=epsilon, sigma=sigma)
 
         # Interpolate signal, iterating over time
         reconstructed = interpolate_channel(
@@ -366,7 +349,7 @@ def fit_epsilon(missing_idx: int | list[int] | tuple[int], data=None,
 
     # Compute the graph with the best result
     graph, W = compute_graph(distances, epsilon=best_epsilon,
-                             sigma=sigma, distances0=distances0)
+                             sigma=sigma)
 
     results = _return_results(error, signal, vdistances, 'epsilon')
     return results
