@@ -35,11 +35,12 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const { GitHub, context } = require('@actions/github');
-            const octokit = new GitHub(process.env.GITHUB_TOKEN);
+            const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+            const context = github.context;
             const label = 'automerge';
-            octokit.issues.addLabels({
-              ...context.repo,
+            await octokit.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               issue_number: context.issue.number,
               labels: [label]
             });
