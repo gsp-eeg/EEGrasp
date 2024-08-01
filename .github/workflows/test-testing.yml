@@ -1,4 +1,4 @@
-name: Test Examples and Auto Merge
+name: Testing
 
 on:
   pull_request:
