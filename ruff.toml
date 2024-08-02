@@ -73,8 +73,9 @@ convention = "google"
 "__init__.py" = ["E402"]
 "**/{tests,docs,tools}/*" = ["E402"]
 
-#[lint.flake8-quotes]
-#docstring-quotes = "double"
+[lint.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "single"
 
 [lint.isort]
 lines-after-imports = 1
