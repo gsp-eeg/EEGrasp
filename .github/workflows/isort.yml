@@ -1,7 +1,6 @@
 name: isort
 
 on:
-  push:
   pull_request:
 
 jobs:

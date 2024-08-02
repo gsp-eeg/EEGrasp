@@ -1,7 +1,6 @@
 name: ruff
 
 on:
-  push:
   pull_request:
 
 jobs:
