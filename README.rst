@@ -10,11 +10,11 @@ EEGraSP: EEG GRaph Signal Processing
 .. image:: https://img.shields.io/pypi/v/eegrasp
    :target: https://pypi.org/project/eegrasp
    :alt: PyPI - Version
-   
+
 .. image:: https://img.shields.io/conda/v/conda-forge/eegrasp
    :target: https://anaconda.org/conda-forge/eegrasp
    :alt: Conda Version
-   
+
 .. image:: https://img.shields.io/github/license/gsp-eeg/EEGraSP
    :target: https://github.com/gsp-eeg/eegrasp/blob/main/LICENSE
    :alt: GitHub License
@@ -27,9 +27,17 @@ EEGraSP: EEG GRaph Signal Processing
    :target: https://github.com/gsp-eeg/EEGraSP/actions
    :alt: GitHub Actions Workflow Release Status
 
-.. image:: https://img.shields.io/github/actions/workflow/status/gsp-eeg/EEGraSP/test-examples.yml?label=testing
+.. image:: https://img.shields.io/github/actions/workflow/status/gsp-eeg/EEGraSP/test-merge.yml?label=merge
    :target: https://github.com/gsp-eeg/EEGraSP/actions
-   :alt: GitHub Actions Workflow Testing Status
+   :alt: GitHub Actions Workflow Merge Status
+
+.. image:: https://img.shields.io/github/actions/workflow/status/gsp-eeg/EEGraSP/test-main.yml?label=main
+   :target: https://github.com/gsp-eeg/EEGraSP/actions
+   :alt: GitHub Actions Workflow Main Status
+
+.. image:: https://img.shields.io/github/actions/workflow/status/gsp-eeg/EEGraSP/linting.yml?label=linting
+   :target: https://github.com/gsp-eeg/EEGraSP/actions
+   :alt: GitHub Actions Workflow Linting Status
 
 
 
@@ -70,7 +78,7 @@ Examples are provided in the `examples <https://github.com/gsp-eeg/EEGraSP/tree/
 
 * The ``electrode_distance.py`` script computes the electrode distance from the standard biosemi64 montage provided in the MNE package.
 
-* The ``ERP_reconstruction.py`` script computes an example ERP from a database provided by MNE. Then, one of the channels is eliminated and reconstructed through Tikhonov Regression. 
+* The ``ERP_reconstruction.py`` script computes an example ERP from a database provided by MNE. Then, one of the channels is eliminated and reconstructed through Tikhonov Regression.
 
 Basic steps for the package ussage are:
 
@@ -85,7 +93,7 @@ Basic steps for the package ussage are:
 Where:
 ``data`` is a 2-dimensional numpy array with first dimension being channels and second dimension being the samples of the data. The missing channel should be included with np.nan as each sample.
 ``eeg_pos`` is a 2-dimensional numpy array with the position of the electrodes. This can be obtained through the MNE library. See examples for more information about how to do this.
-``ch_names`` is a list of names for each channel. 
+``ch_names`` is a list of names for each channel.
 
 3. Compute the graph based on the electrodes distance. The parameters used to compute the graph need to be provided or estimated. In this case we will provide the parameters epsilon and sigma. To see how to find the best parameter for your data see ``ERP_reconstruction.py`` in the examples folder.
 
