@@ -4,7 +4,7 @@ on:
   pull_request:
 
 jobs:
-  isort:
+  lint:
     runs-on: ubuntu-latest
     strategy:
       matrix:
