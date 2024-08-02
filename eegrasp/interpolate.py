@@ -5,12 +5,13 @@ Interpolate
 Contains the functions used in EEGrasp interpolate data
 """
 
-
 import numpy as np
 from pygsp2 import learning
 
 
-def interpolate_channel(missing_idx: int | list[int] | tuple[int], graph=None, data=None):
+def interpolate_channel(missing_idx: int | list[int] | tuple[int],
+                        graph=None,
+                        data=None):
     """Interpolate missing channel.
     Parameters
     ----------
@@ -40,6 +41,8 @@ def interpolate_channel(missing_idx: int | list[int] | tuple[int], graph=None, d
     reconstructed = np.zeros(data.shape)
     # Iterate over each timepoint
     for t in time:
-        reconstructed[:, t] = learning.regression_tikhonov(graph, data[:, t],
-                                                           mask, tau=0)
+        reconstructed[:, t] = learning.regression_tikhonov(graph,
+                                                           data[:, t],
+                                                           mask,
+                                                           tau=0)
     return reconstructed

@@ -5,20 +5,19 @@ Utils Examples
 Utils functions used in the examples.
 """
 
-import os
 import json
+import os
+
 import numpy as np
 
-ASSETS_GRAPH_LEARNING = [
-    {
-        "filename": "data_set_IVa_aa.mat",
-        "url": "https://www.bbci.de/competition/download/competition_iii/berlin/100Hz/data_set_IVa_aa_mat.zip"
-    }
-]
+ASSETS_GRAPH_LEARNING = [{
+    "filename":
+    "data_set_IVa_aa.mat",
+    "url":
+    "https://www.bbci.de/competition/download/competition_iii/berlin/100Hz/data_set_IVa_aa_mat.zip"
+}]
 
-ASSETS = {
-    "graph_learning": ASSETS_GRAPH_LEARNING
-}
+ASSETS = {"graph_learning": ASSETS_GRAPH_LEARNING}
 
 
 def fetch_data(output_dir, database="graph_learning"):
@@ -39,9 +38,10 @@ def fetch_data(output_dir, database="graph_learning"):
         url = asset_dict["url"]
         assets_filepath = os.path.join(output_dir, filename)
         if not os.path.isfile(assets_filepath):
-            import requests
-            import zipfile
             import io
+            import zipfile
+
+            import requests
             print(f'Downloading data file to:\n {assets_filepath}')
             r = requests.get(url)
             if url.endswith('.zip'):

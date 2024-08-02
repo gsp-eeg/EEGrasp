@@ -12,14 +12,16 @@ https://www.bbci.de/competition/download/competition_iii/berlin/100Hz/data_set_I
 
 You need to decompress the file and place the file in a directory named `data`.
 """
+import os
 # %% Import libraries
 import sys
-import os
 from pathlib import Path
-import numpy as np
+
 import matplotlib.pyplot as plt
 import mne
+import numpy as np
 from scipy.io import loadmat
+
 from eegrasp import EEGrasp
 from eegrasp.utils_examples import fetch_data
 
@@ -33,14 +35,13 @@ assets_dir = Path('..') / Path('data')
 fetch_data(assets_dir, database="graph_learning")
 file_name = os.path.join(assets_dir, "100Hz", 'data_set_IVa_aa.mat')
 
-
 try:
     data = loadmat(file_name)
 except (FileNotFoundError, OSError):
     print(f'File {file_name} not found')
     sys.exit(-1)
 
-eeg = (data['cnt']).astype(float) * 1e-7  # Recomendation: to set to V
+eeg = (data['cnt']).astype(float) * 1e-7  # Recommendation: to set to V
 events = np.squeeze(data['mrk'][0, 0][0])
 info = data['nfo'][0, 0]
 ch_names = [ch_name[0] for ch_name in info[2][0, :]]
@@ -67,8 +68,12 @@ data, _ = mne.set_eeg_reference(data, ref_channels='average')
 data = data.filter(l_freq=8, h_freq=30, n_jobs=-1)
 
 # Epoch and Crop epochs
-epochs = mne.Epochs(data, events2, tmin=0.0, tmax=2.5,
-                    baseline=(0, 0.5), preload=True)
+epochs = mne.Epochs(data,
+                    events2,
+                    tmin=0.0,
+                    tmax=2.5,
+                    baseline=(0, 0.5),
+                    preload=True)
 epochs = epochs.crop(0.5, None)
 
 epochs_data = epochs.get_data(copy=False)
@@ -131,37 +136,45 @@ for i in range(len(tril_idx[0])):
     if weights[x, y] != 0:
         wh.append(weights[x, y])
 
-
-G.plot(vertex_color=eigenvectors[:, 5], vertex_size=size, cmap="magma",
-       alphan=0.9, alphav=0.5, edge_weights=wh)
+G.plot(vertex_color=eigenvectors[:, 5],
+       vertex_size=size,
+       cmap="magma",
+       alphan=0.9,
+       alphav=0.5,
+       edge_weights=wh)
 
 # %% Plot Eigenvalue index vs eivenvalue
 plt.figure()
-plt.scatter(eigenvalues, np.arange(0, len(eigenvalues)),
-            s=50, color='purple')
-plt.plot(eigenvalues, np.arange(0, len(eigenvalues)),
-         linewidth=3, color='black')
+plt.scatter(eigenvalues, np.arange(0, len(eigenvalues)), s=50, color='purple')
+plt.plot(eigenvalues,
+         np.arange(0, len(eigenvalues)),
+         linewidth=3,
+         color='black')
 plt.xlabel('Eigenvalue')
 plt.ylabel('Eigenvalue Index')
 
 # %% Plot eigenmodes
 
 SCALE = 0.2
-vlim = (-np.amax(np.abs(eigenvectors))*SCALE,
-        np.amax(np.abs(eigenvectors))*SCALE)
+vlim = (-np.amax(np.abs(eigenvectors)) * SCALE,
+        np.amax(np.abs(eigenvectors)) * SCALE)
 
 fig, axs = plt.subplots(2, 11, figsize=(14, 4))
 for i, ax in enumerate(axs.flatten()):
-    im, cn = mne.viz.plot_topomap(eigenvectors[:, i], pos,
-                                  sensors=True, axes=ax, cmap='RdBu_r',
-                                  vlim=vlim, show=False,
+    im, cn = mne.viz.plot_topomap(eigenvectors[:, i],
+                                  pos,
+                                  sensors=True,
+                                  axes=ax,
+                                  cmap='RdBu_r',
+                                  vlim=vlim,
+                                  show=False,
                                   sphere=0.9)
     CORE = r'\u208'
-    SUBSCRIPT = [(CORE+i+'').encode().decode('unicode_escape')
-                 for i in str(i+1)]
+    SUBSCRIPT = [(CORE + i + '').encode().decode('unicode_escape')
+                 for i in str(i + 1)]
     SUBSCRIPT = ''.join(SUBSCRIPT)
-    ax.text(-0.9, -1.3, r'$\lambda$' + SUBSCRIPT +
-            ' = ' + f'{eigenvalues[i]:.3f}')
+    ax.text(-0.9, -1.3,
+            r'$\lambda$' + SUBSCRIPT + ' = ' + f'{eigenvalues[i]:.3f}')
 
 fig.subplots_adjust(0, 0, 0.85, 1, 0, -0.5)
 cbar = fig.add_axes([0.87, 0.1, 0.05, 0.8])

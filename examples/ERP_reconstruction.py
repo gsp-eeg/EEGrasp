@@ -5,16 +5,18 @@ ERP Construction
 Example on how to interpolate missing channels.
 """
 
-# %% Import libraries
-import numpy as np
+import os
+
 import matplotlib.pyplot as plt
 import mne
+# %% Import libraries
+import numpy as np
+
 from eegrasp import EEGrasp
-import os
 
 current_dir = os.getcwd()
 os.chdir(os.path.dirname(current_dir))
-data_dir ="./datasets"
+data_dir = "./datasets"
 #os.makedirs("./datasets", exist_ok=True)
 #os.environ['MNE_EEGBCI_PATH'] = './datasets/'
 
@@ -25,14 +27,15 @@ runs = [4, 8, 12]
 # Download eegbci dataset through MNE
 # Comment the following line if already downloaded
 
-raw_fnames = [mne.datasets.eegbci.load_data(
-    s, runs, path=data_dir, update_path=True) for s in subjects]
+raw_fnames = [
+    mne.datasets.eegbci.load_data(s, runs, path=data_dir, update_path=True)
+    for s in subjects
+]
 raw_fnames = np.reshape(raw_fnames, -1)
 raws = [mne.io.read_raw_edf(f, preload=True) for f in raw_fnames]
 raw = mne.concatenate_raws(raws)
 mne.datasets.eegbci.standardize(raw)
 raw.annotations.rename(dict(T1="left", T2="right"))
-
 
 montage = mne.channels.make_standard_montage('standard_1005')
 raw.set_montage(montage)
@@ -51,11 +54,19 @@ events, events_id = mne.events_from_annotations(raw)
 # %% Epoch data
 # Exclude bad channels
 TMIN, TMAX = -1.0, 3.0
-picks = mne.pick_types(raw.info, meg=False, eeg=True,
-                       stim=False, eog=False, exclude="bads")
-epochs = mne.Epochs(raw, events, events_id,
-                    picks=picks, tmin=TMIN,
-                    tmax=TMAX, baseline=(-1, 0),
+picks = mne.pick_types(raw.info,
+                       meg=False,
+                       eeg=True,
+                       stim=False,
+                       eog=False,
+                       exclude="bads")
+epochs = mne.Epochs(raw,
+                    events,
+                    events_id,
+                    picks=picks,
+                    tmin=TMIN,
+                    tmax=TMAX,
+                    baseline=(-1, 0),
                     detrend=1)
 
 # %%
@@ -78,10 +89,12 @@ eegsp = EEGrasp(data, eeg_pos, ch_names)
 # 3. Compute the electrode distance matrix
 dist_mat = eegsp.compute_distance(normalize=True)
 # 4. Find the best parameter for the channel
-results = eegsp.fit_sigma(missing_idx=MISSING_IDX, 
-                         distances=dist_mat, 
-                         epsilon=0.5,min_sigma=0.01, 
-                         max_sigma=0.5, step=0.05)
+results = eegsp.fit_sigma(missing_idx=MISSING_IDX,
+                          distances=dist_mat,
+                          epsilon=0.5,
+                          min_sigma=0.01,
+                          max_sigma=0.5,
+                          step=0.05)
 
 # %% Plot error graph and results of the interpolation
 
@@ -93,11 +106,8 @@ vdistances = results['sigma']
 
 plt.subplot(211)
 plt.plot(vdistances, error, color='black')
-plt.scatter(vdistances, error, color='teal', marker='x',
-            alpha=0.5)
-plt.scatter(best_sigma,
-            error[vdistances == best_sigma],
-            color='red')
+plt.scatter(vdistances, error, color='teal', marker='x', alpha=0.5)
+plt.scatter(best_sigma, error[vdistances == best_sigma], color='red')
 plt.xlabel(r'$\sigma$')
 plt.ylabel(r'RMSE')
 plt.title('Error')
@@ -128,7 +138,8 @@ interpolated = eegsp.interpolate_channel(data=new_data,
 # %% Plot Interpolated Channel
 
 plt.plot(interpolated[MISSING_IDX, :],
-         label='Interpolated Data', color='purple')
+         label='Interpolated Data',
+         color='purple')
 plt.plot(original[MISSING_IDX, :], label='Original Data', color='teal')
 plt.xlabel('Samples')
 plt.ylabel('Voltage')

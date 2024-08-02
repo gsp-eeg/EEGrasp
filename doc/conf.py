@@ -36,9 +36,7 @@ plot_include_source = True
 plot_html_show_source_link = False
 plot_html_show_formats = False
 plot_working_directory = '.'
-plot_rcparams = {
-    'figure.figsize': (10, 4)
-}
+plot_rcparams = {'figure.figsize': (10, 4)}
 plot_pre_code = """
 import numpy as np
 from eegrasp import graphs, filters, utils, plotting
@@ -49,7 +47,9 @@ sphinx_gallery_conf = {
     'examples_dirs': '../examples',
     'gallery_dirs': 'examples',
     'filename_pattern': '/',
-    'reference_url': {'eegrasp': None},
+    'reference_url': {
+        'eegrasp': None
+    },
     'backreferences_dir': 'backrefs',
     'doc_module': 'eegrasp',
     'show_memory': True,
@@ -66,8 +66,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 project = 'EEGraSP'
-version = '0.0.4' #eegrasp.__version__
-release = '0.0.4' #eegrasp.__version__
+version = '0.0.4'  #eegrasp.__version__
+release = '0.0.4'  #eegrasp.__version__
 copyright = 'GSP-EEG'
 
 pygments_style = 'sphinx'
@@ -80,6 +80,5 @@ latex_elements = {
     'pointsize': '10pt',
 }
 latex_documents = [
-    ('index', 'eegrasp.tex', 'eegrasp documentation',
-     'EPFL LTS2', 'manual'),
+    ('index', 'eegrasp.tex', 'eegrasp documentation', 'EPFL LTS2', 'manual'),
 ]

@@ -41,7 +41,7 @@ EEGraSP: EEG GRaph Signal Processing
 
 
 
-This module is meant to be used as a tool for EEG signal analysis based on graph signal analysis methods. The developement of this toolbox takes place in `GitHub <https://github.com/gsp-eeg/EEGraSP>`_.
+This module is meant to be used as a tool for EEG signal analysis based on graph signal analysis methods. The development of this toolbox takes place in `GitHub <https://github.com/gsp-eeg/EEGraSP>`_.
 
 EEGraSP package uses other libraries like PyGSP2 and mne for most of the processing and graph signal analysis.
 
@@ -64,7 +64,7 @@ Installation from source (User Installation)
 
 1. Clone the EEGraSP repository into a local directory with git: ``git clone https://github.com/gsp-eeg/eegrasp``
 2. Change the current directory to the directory of the downloaded repository. ``cd eegrasp``
-3. Install the cloned repository in your prefered Python enviorment through git. Use: ``pip install -e .``.
+3. Install the cloned repository in your preferred Python environment through git. Use: ``pip install -e .``.
 
 Now you are ready to contribute!
 
@@ -114,7 +114,7 @@ MIT licence
 
 Project status
 --------------
-Still in developement.
+Still in development.
 
 Acknowledgments
 ---------------
