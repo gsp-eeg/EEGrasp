@@ -1,4 +1,4 @@
-name: lint
+name: linting
 
 on:
   push:
@@ -32,3 +32,12 @@ jobs:
       - name: Running yapf
         run: |
           yapf -ir .
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add .
+          git commit -m 'Apply linting fixes'
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
