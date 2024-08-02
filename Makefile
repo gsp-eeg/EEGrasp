@@ -14,10 +14,12 @@ clean:
 	jupyter nbconvert --inplace --ClearOutputPreprocessor.enabled=True $(NB)
 
 lint:
-	ruff check . --fix --ignore=F401
-	codespell -w
 	isort .
 	yapf -ir .
+	ruff check .
+	codespell -w
+	
+	
 
 # Matplotlib doesn't print to screen. Also faster.
 export MPLBACKEND = agg
