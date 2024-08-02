@@ -32,10 +32,19 @@ jobs:
       - name: Running yapf
         run: |
           yapf -ir .
-      - name: Commit and push changes
+      - name: Check for changes
+        id: changes
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "##[set-output name=changes_detected;]true"
+          else
+            echo "##[set-output name=changes_detected;]false"
+          fi
+      - name: Commit and push changes
+        if: steps.changes.outputs.changes_detected == 'true'
+        run: |
           git add .
           git commit -m 'Apply linting fixes'
           git push
