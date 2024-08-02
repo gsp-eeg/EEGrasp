@@ -39,6 +39,10 @@ EEGraSP: EEG GRaph Signal Processing
    :target: https://github.com/gsp-eeg/EEGraSP/actions
    :alt: GitHub Actions Workflow Linting Status
 
+.. image:: https://img.shields.io/github/actions/workflow/status/gsp-eeg/EEGraSP/codespell.yml?label=linting
+   :target: https://github.com/gsp-eeg/EEGraSP/actions
+   :alt: GitHub Actions Workflow Linting Status
+
 
 
 This module is meant to be used as a tool for EEG signal analysis based on graph signal analysis methods. The development of this toolbox takes place in `GitHub <https://github.com/gsp-eeg/EEGraSP>`_.
