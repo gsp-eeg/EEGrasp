@@ -1,0 +1,21 @@
+name: PR Reminder Comment Bot
+on:
+  pull_request_target:
+    types: [opened]
+
+jobs:
+  pr_reminder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remind to run full CI on PR
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '👋 Hi! Thank you for contributing to the EEGraSP project.\n Just a reminder: Any PR opened on any branch, other than `main` will automatically merge once the `test-merge.yml` test is passed. The other lint test are optional, and will not interfere with the automerge if they fail.\n\n🚀'
+            })
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
