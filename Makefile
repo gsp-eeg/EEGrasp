@@ -14,7 +14,12 @@ clean:
 	jupyter nbconvert --inplace --ClearOutputPreprocessor.enabled=True $(NB)
 
 lint:
-	flake8 --doctests --exclude=doc
+	isort .
+	yapf -ir .
+	ruff check .
+	codespell -w
+	
+	
 
 # Matplotlib doesn't print to screen. Also faster.
 export MPLBACKEND = agg
@@ -33,9 +38,7 @@ doc:
 	sphinx-build -b linkcheck -d doc/_build/doctrees doc doc/_build/linkcheck
 
 dist: clean
-	python setup.py sdist
-	python setup.py bdist_wheel --universal
-	ls -lh dist/*
+	python -m build
 	twine check dist/*
 
 release: dist

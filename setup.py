@@ -94,6 +94,12 @@ setup(
             # Build and upload packages.
             'wheel',
             'twine',
+            'ruff',
+            'codespell',
+            'tomli',
+            'isort',
+            'toml',
+            'yapf'
         ],
     },
     keywords='graph signal processing',
