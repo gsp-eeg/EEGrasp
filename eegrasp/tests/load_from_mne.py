@@ -62,7 +62,7 @@ Z = gsp.compute_distance(eeg_pos)
 np.testing.assert_array_equal(Z, Z_epochs)
 np.testing.assert_array_equal(Z, Z_evoked)
 
-# %% Test Graph Learning usign Epochs
+# %% Test Graph Learning using Epochs
 
 # Initialize EEGrass object
 gsp = EEGrasp(epochs)
@@ -71,7 +71,7 @@ W0, Z = gsp.learn_graph(a=0.5, b=0.5, mode='Trials')
 if not (W0.ndim == 3 and Z.ndim == 3):
     raise ValueError('W0 and Zs should have 2 and 2 dimensions, respectively')
 
-# %% Test Graph Learning usign Evoked
+# %% Test Graph Learning using Evoked
 # Initialize EEGrass object
 gsp = EEGrasp(evoked)
 W1, Z = gsp.learn_graph(a=0.5, b=0.5)
