@@ -1,22 +1,22 @@
-r"""
-Interpolate Channel
+r"""Interpolate Channel.
 ===================
 
 Channel interpolation example.
 """
 # %% Import libraries
 import os
-import numpy as np
-import mne
+
 import matplotlib.pyplot as plt
+import mne
+import numpy as np
+
 from eegrasp import EEGrasp
 
 current_dir = os.getcwd()
 os.chdir(os.path.dirname(current_dir))
-data_dir ="./datasets"
+data_dir = './datasets'
 #os.makedirs(data_dir, exist_ok=True)
 #os.environ['MNE_EEGBCI_PATH'] = data_dir
-
 
 # %% Load Electrode montage and dataset
 subjects = np.arange(1, 10)
@@ -25,13 +25,15 @@ runs = [4, 8, 12]
 # Download eegbci dataset through MNE
 # Comment the following line if already downloaded
 
-raw_fnames = [mne.datasets.eegbci.load_data(
-    s, runs, path=data_dir, update_path=True) for s in subjects]
+raw_fnames = [
+    mne.datasets.eegbci.load_data(s, runs, path=data_dir, update_path=True)
+    for s in subjects
+]
 raw_fnames = np.reshape(raw_fnames, -1)
 raws = [mne.io.read_raw_edf(f, preload=True) for f in raw_fnames]
 raw = mne.concatenate_raws(raws)
 mne.datasets.eegbci.standardize(raw)
-raw.annotations.rename(dict(T1="left", T2="right"))
+raw.annotations.rename(dict(T1='left', T2='right'))
 
 montage = mne.channels.make_standard_montage('standard_1005')
 raw.set_montage(montage)
@@ -50,11 +52,19 @@ events, events_id = mne.events_from_annotations(raw)
 # %% Epoch data
 # Exclude bad channels
 TMIN, TMAX = -1.0, 3.0
-picks = mne.pick_types(raw.info, meg=False, eeg=True,
-                       stim=False, eog=False, exclude="bads")
-epochs = mne.Epochs(raw, events, events_id,
-                    picks=picks, tmin=TMIN,
-                    tmax=TMAX, baseline=(-1, 0),
+picks = mne.pick_types(raw.info,
+                       meg=False,
+                       eeg=True,
+                       stim=False,
+                       eog=False,
+                       exclude='bads')
+epochs = mne.Epochs(raw,
+                    events,
+                    events_id,
+                    picks=picks,
+                    tmin=TMIN,
+                    tmax=TMAX,
+                    baseline=(-1, 0),
                     detrend=1)
 
 data = epochs.average().get_data()
@@ -68,7 +78,7 @@ data[MISSING_IDX, :] = np.nan  # delete channel info from array
 eegsp = EEGrasp(data, eeg_pos, ch_names)
 # 3. Compute the electrode distance matrix
 dist_mat = eegsp.compute_distance(normalize=True)
-# 4. Compute the graph weights and make graph strucutre
+# 4. Compute the graph weights and make graph structure
 graph = eegsp.compute_graph(epsilon=0.5, sigma=0.1)
 W = eegsp.graph_weights
 # 5. Interpolate missing channel

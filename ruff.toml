@@ -18,6 +18,7 @@ exclude = [
     ".ruff_cache",
     ".svn",
     ".tox",
+    "venv",
     ".venv",
     ".vscode",
     "__pypackages__",
@@ -27,8 +28,6 @@ exclude = [
     "dist",
     "node_modules",
     "site-packages",
-    "venv",
-    ".venv"
 ]
 
 # Same as Black.
@@ -85,9 +84,9 @@ order-by-type = true
 detect-same-package = true
 from-first = false
 section-order = ["future", "standard-library", "first-party", "local-folder", "third-party"]
-forced-separate = ["source"]
-known-local-folder = ["source"]
-known-third-party = ["source"]
+#forced-separate = ["source"]
+#known-local-folder = ["source"]
+#known-third-party = ["source"]
 combine-as-imports = true
 
 [lint.pycodestyle]

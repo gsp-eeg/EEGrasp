@@ -1,10 +1,13 @@
 # %% Load Packages
-import mne
-from eegrasp import EEGrasp
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy import spatial
 from timeit import timeit
+
+import matplotlib.pyplot as plt
+import mne
+import numpy as np
+from scipy import spatial
+
+from eegrasp import EEGrasp
+
 # %matplotlib qt
 # %%
 
@@ -20,8 +23,11 @@ epsilon = 0.5
 # %% Method 2
 # % timeit
 # Method 1. From PyGSP2 (using scipy)
-D, NN = kdt.query(EEG_pos, k=len(EEG_pos), distance_upper_bound=epsilon,
-                  p=2, workers=-1)
+D, NN = kdt.query(EEG_pos,
+                  k=len(EEG_pos),
+                  distance_upper_bound=epsilon,
+                  p=2,
+                  workers=-1)
 
 # Reorder the matrix into the original shape
 W = np.zeros(D.shape)
@@ -64,7 +70,7 @@ plt.show()
 
 not_equal_idx = np.where(np.not_equal(W[tril_indices], W2[tril_indices]))[0]
 
-error = (W[tril_indices]-W2[tril_indices])[not_equal_idx]
+error = (W[tril_indices] - W2[tril_indices])[not_equal_idx]
 
 plt.title('Error')
 plt.bar(range(len(not_equal_idx)), error)

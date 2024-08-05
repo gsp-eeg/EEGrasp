@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup, find_packages
 import os
+
+from setuptools import find_packages, setup
+
 
 def read_license():
     license_path = os.path.join(os.path.dirname(__file__), 'LICENSE')
     if os.path.exists(license_path):
         with open(license_path, 'r') as file:
             return file.read().strip()
-    return 'MIT' 
+    return 'MIT'
 
 
 setup(
@@ -94,12 +96,13 @@ setup(
             # Build and upload packages.
             'wheel',
             'twine',
+            # Lint packages.
             'ruff',
             'codespell',
             'tomli',
             'isort',
             'toml',
-            'yapf'
+            'yapf',
         ],
     },
     keywords='graph signal processing',

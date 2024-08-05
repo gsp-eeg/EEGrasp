@@ -1,17 +1,17 @@
-r"""
-Electrode Distance
+r"""Electrode Distance.
 ==================
 
 creation date: 21/03/2024
-autor: jrodino14@gmail.com
+author: jrodino14@gmail.com
 description:
 Example script to calculate distance from an electrode montage from MNE.
 Requirements: None
 """
+import matplotlib.pyplot as plt
 # %% Load Packages
 import mne
 import numpy as np
-import matplotlib.pyplot as plt
+
 from eegrasp import EEGrasp
 
 # %%
