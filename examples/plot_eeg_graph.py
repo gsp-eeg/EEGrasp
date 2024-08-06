@@ -1,11 +1,12 @@
-""" Example to plot EEG graph using EEGrasp package. The EEG graph is constructed using the 
+"""Example to plot EEG graph using EEGrasp package. The EEG graph is constructed using the
 electrode positions from the Biosemi 64 channel montage. The graph is plotted in 3D and topoplot
 formats.
 """
+import matplotlib.pyplot as plt
 # %% Load Packages
 import mne
 import numpy as np
-import matplotlib.pyplot as plt
+
 from eegrasp import EEGrasp
 
 # %%

@@ -1,5 +1,4 @@
-r"""
-Utils
+r"""Utils.
 =====
 
 Utils functions used in EEGrasp.
@@ -9,7 +8,7 @@ import numpy as np
 
 
 def euc_dist(pos):
-    """Compute the euclidean distance based on a given set of possitions.
+    """Compute the euclidean distance based on a given set of positions.
 
     Parameters
     ----------
@@ -25,14 +24,14 @@ def euc_dist(pos):
     from scipy.spatial import distance_matrix
 
     distance = np.zeros([pos.shape[0], pos.shape[0]],
-                        dtype=np.float64)  # Alocate variable
+                        dtype=np.float64)  # Allocate variable
     pos = pos.astype(float)
     distance = distance_matrix(pos, pos)
     return distance
 
 
 def compute_distance(coordinates=None, method='Euclidean', normalize=True):
-    """Computing the distance based on electrode coordinates.
+    """Compute the distance based on electrode coordinates.
 
     Parameters
     ----------
@@ -52,7 +51,6 @@ def compute_distance(coordinates=None, method='Euclidean', normalize=True):
     distances : ndarray
         Distances to be used for the graph computation.
     """
-
     # Otherwise use the instance's coordinates
     if method == 'Euclidean':
         distances = euc_dist(coordinates)

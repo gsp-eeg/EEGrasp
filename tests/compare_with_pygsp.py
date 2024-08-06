@@ -1,14 +1,15 @@
 """"
-This code tests the graph construction by comparing to the results
+Tests the graph construction by comparing to the results
 obtained with PyGSP2.
 """
 
+import matplotlib.pyplot as plt
 # %% Load libraries
 import numpy as np
 import pandas as pd
 import scipy.interpolate as interp
-import matplotlib.pyplot as plt
 from pygsp2 import graphs, learning
+
 from eegrasp import EEGrasp
 
 # %% Load Data
@@ -22,7 +23,7 @@ signal = df_100.iloc[0, 1:].to_numpy()
 
 X = df_pos[['x', 'y']].to_numpy()
 
-# Make a mesurement with missing channels
+# Make a measurement with missing channels
 mask = np.ones(len(signal), dtype=bool)
 MISSING_IDX = 5
 mask[MISSING_IDX] = False
@@ -37,8 +38,7 @@ error_rbf = np.abs(rbfi(X[~mask, 0], X[~mask, 1]) - signal[~mask])[0]
 sigmas = np.linspace(0.02, 0.08, 200)
 errors = np.zeros(len(sigmas))
 for i, sigma in enumerate(sigmas):
-    G = graphs.NNGraph(X, 'radius', sigma=sigma,
-                       epsilon=0.5, rescale=True, center=True)
+    G = graphs.NNGraph(X, 'radius', sigma=sigma, epsilon=0.5, rescale=True, center=True)
     G.estimate_lmax()
     # Solve the classification problem by reconstructing the signal:
     recovery = learning.regression_tikhonov(G, measures, mask, tau=0)
@@ -50,7 +50,7 @@ for i, sigma in enumerate(sigmas):
 eeggsp = EEGrasp(measures[:, None], X)
 distance = eeggsp.compute_distance()
 
-sigmas2 = np.sqrt(sigmas/2)
+sigmas2 = np.sqrt(sigmas / 2)
 errors2 = np.zeros(len(sigmas2))
 for i, sigma in enumerate(sigmas2):
     eeggsp.compute_graph(epsilon=0.5, sigma=sigma)
@@ -63,9 +63,9 @@ plt.close('all')
 plt.plot(sigmas, errors, color='blue', label='PyGSP2')
 plt.plot(sigmas, errors2, color='magenta', label='EEGRASP')
 plt.xlabel(r'$\sigma$')
-plt.xticks(sigmas[::22],
-           labels=[f'{s:0.2f}\n{s2:0.2f}' for s, s2 in zip(sigmas[::22],
-                                                           sigmas2[::22])])
+plt.xticks(
+    sigmas[::22],
+    labels=[f'{s:0.2f}\n{s2:0.2f}' for s, s2 in zip(sigmas[::22], sigmas2[::22])])
 plt.axhline(error_rbf, color='red', label='RBF interpolation', linestyle='--')
 plt.axhline(0.02, color='purple', label='y = 0.0003', linestyle='--')
 plt.grid()
@@ -85,8 +85,8 @@ X_norm = X_norm / np.amax(X_norm)
 sigmas = np.linspace(0.02, 0.08, 200)
 errors = np.zeros(len(sigmas))
 for i, sigma in enumerate(sigmas):
-    G = graphs.NNGraph(X_norm, 'radius', sigma=sigma,
-                       epsilon=0.5, rescale=False, center=False)
+    G = graphs.NNGraph(X_norm, 'radius', sigma=sigma, epsilon=0.5, rescale=False,
+                       center=False)
     G.estimate_lmax()
     # Solve the classification problem by reconstructing the signal:
     recovery = learning.regression_tikhonov(G, measures, mask, tau=0)
@@ -98,9 +98,9 @@ plt.figure()
 plt.plot(sigmas, errors, color='blue', label='PyGSP2 - No rescale, No Center')
 plt.plot(sigmas, errors2, color='magenta', label='EEGRASP')
 plt.xlabel(r'$\sigma$')
-plt.xticks(sigmas[::22],
-           labels=[f'{s:0.2f}\n{s2:0.2f}' for s, s2 in zip(sigmas[::22],
-                                                           sigmas2[::22])])
+plt.xticks(
+    sigmas[::22],
+    labels=[f'{s:0.2f}\n{s2:0.2f}' for s, s2 in zip(sigmas[::22], sigmas2[::22])])
 plt.axhline(error_rbf, color='red', label='RBF interpolation', linestyle='--')
 plt.axhline(0.02, color='purple', label='y = 0.02', linestyle='--')
 plt.grid()

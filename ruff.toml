@@ -28,7 +28,7 @@ exclude = [
     "node_modules",
     "site-packages",
     "venv",
-    ".venv"
+    ".git"
 ]
 
 # Same as Black.
@@ -67,7 +67,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [lint.pydocstyle]
 # Use Google-style docstrings.
-convention = "google"
+convention = "numpy"
 
 [lint.per-file-ignores]
 "__init__.py" = ["E402"]
@@ -85,9 +85,9 @@ order-by-type = true
 detect-same-package = true
 from-first = false
 section-order = ["future", "standard-library", "first-party", "local-folder", "third-party"]
-forced-separate = ["source"]
-known-local-folder = ["source"]
-known-third-party = ["source"]
+#forced-separate = ["source"]
+#known-local-folder = ["source"]
+#known-third-party = ["source"]
 combine-as-imports = true
 
 [lint.pycodestyle]
