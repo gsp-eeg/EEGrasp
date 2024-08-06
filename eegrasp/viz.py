@@ -103,8 +103,9 @@ def _separate_kwargs(kwargs, names):
     return var1, var2
 
 
-def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coordinates=None, labels=None, montage=None,
-               colorbar=True, axis=None, clabel='Edge Weights', kind='topoplot', show_names=True, **kwargs):
+def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None,
+               coordinates=None, labels=None, montage=None, colorbar=True, axis=None,
+               clabel='Edge Weights', kind='topoplot', show_names=True, **kwargs):
     """Plot the graph over the eeg montage.
 
     Parameters
@@ -203,8 +204,7 @@ def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coo
 
     if montage is None:
         ch_pos = dict(zip(labels, coordinates))
-        montage = mne.channels.make_dig_montage(
-            ch_pos=ch_pos, coord_frame='head')
+        montage = mne.channels.make_dig_montage(ch_pos=ch_pos, coord_frame='head')
     elif isinstance(montage, str):
         try:
             montage = mne.channels.make_standard_montage(montage)
@@ -212,9 +212,13 @@ def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coo
             kwargs_mne_plot['sphere'] = None
         except ValueError:
             print(
-                f'{montage} Montage not found. Creating custom montage based on eegrasp.coordinates...')
-            fig, axis = plot_graph(eegrasp, graph=graph, signal=signal, coordinates=coordinates, labels=labels, montage=montage,
-                                   colorbar=colorbar, axis=axis, clabel=clabel, kind=kind, show_names=show_names, **original_kwargs)
+                f'{montage} Montage not found. Creating custom montage based on eegrasp.coordinates...'
+            )
+            fig, axis = plot_graph(eegrasp, graph=graph, signal=signal,
+                                   coordinates=coordinates, labels=labels,
+                                   montage=montage, colorbar=colorbar, axis=axis,
+                                   clabel=clabel, kind=kind, show_names=show_names,
+                                   **original_kwargs)
             return fig, axis
     else:
         kwargs_mne_plot['sphere'] = None
@@ -224,7 +228,8 @@ def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coo
         # Plot edge color depending on the edge weights
         edge_weights = graph.get_edge_list()[2]
         fig, axis = plot_graph(eegrasp, graph, edge_weights, coordinates, labels,
-                               montage, colorbar, axis, clabel, kind, show_names, **original_kwargs)
+                               montage, colorbar, axis, clabel, kind, show_names,
+                               **original_kwargs)
         return fig, axis
 
     # if vertex size was not given, use weighted degree
@@ -232,8 +237,9 @@ def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coo
         degree = np.array(graph.dw, dtype=float)
         degree /= np.max(degree)
         original_kwargs['vertex_size'] = degree
-        fig, axis = plot_graph(eegrasp, graph, signal, coordinates, labels,
-                               montage, colorbar, axis, clabel, kind, show_names, **original_kwargs)
+        fig, axis = plot_graph(eegrasp, graph, signal, coordinates, labels, montage,
+                               colorbar, axis, clabel, kind, show_names,
+                               **original_kwargs)
         return fig, axis
 
     if isinstance(signal, (list, np.ndarray)):
@@ -241,15 +247,12 @@ def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coo
         norm_signal = np.array(signal, dtype=float)
         norm_signal -= np.min(norm_signal)
         norm_signal /= np.max(norm_signal)
-        kwargs_pygsp_plot['edge_color'] = plt.get_cmap(
-            cmap)(norm_signal)
+        kwargs_pygsp_plot['edge_color'] = plt.get_cmap(cmap)(norm_signal)
 
     if colorbar and signal is not None:
-        cbar = fig.colorbar(plt.cm.ScalarMappable(cmap=cmap),
-                            ax=axis, label=clabel)
+        cbar = fig.colorbar(plt.cm.ScalarMappable(cmap=cmap), ax=axis, label=clabel)
         cbar.set_ticks([0, 0.5, 1])
-        cbar.ax.set_yticklabels(
-            np.round([0, np.max(signal)/2, np.max(signal)], 2))
+        cbar.ax.set_yticklabels(np.round([0, np.max(signal) / 2, np.max(signal)], 2))
 
     # Plot the montage
     if kind == 'topoplot':
@@ -257,13 +260,13 @@ def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coo
         info = mne.create_info(labels, sfreq=250, ch_types='eeg')
         info.set_montage(montage)
 
-        xy = _auto_topomap_coords(
-            info, None, True, to_sphere=True, sphere=kwargs_mne_plot['sphere'])
+        xy = _auto_topomap_coords(info, None, True, to_sphere=True,
+                                  sphere=kwargs_mne_plot['sphere'])
         graph.set_coordinates(xy)
-        figure = mne.viz.plot_sensors(info, kind='topomap', show_names=show_names, ch_type='eeg',
-                                      axes=axis, show=False, **kwargs_mne_plot)
-        figure, axis = graph.plot(ax=axis, colorbar=colorbar,
-                                  **kwargs_pygsp_plot)
+        figure = mne.viz.plot_sensors(info, kind='topomap', show_names=show_names,
+                                      ch_type='eeg', axes=axis, show=False,
+                                      **kwargs_mne_plot)
+        figure, axis = graph.plot(ax=axis, colorbar=colorbar, **kwargs_pygsp_plot)
 
     elif kind == '3d':
 
@@ -276,10 +279,9 @@ def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coo
         eeg_pos = mne.transforms.apply_trans(dev_head_t, eeg_pos)
         graph.set_coordinates(eeg_pos)
 
-        figure = mne.viz.plot_sensors(
-            info, kind='3d', show_names=True, axes=axis, show=False, **kwargs_mne_plot)
-        figure, axis = graph.plot(
-            ax=axis, colorbar=colorbar, **kwargs_pygsp_plot)
+        figure = mne.viz.plot_sensors(info, kind='3d', show_names=True, axes=axis,
+                                      show=False, **kwargs_mne_plot)
+        figure, axis = graph.plot(ax=axis, colorbar=colorbar, **kwargs_pygsp_plot)
 
     return (figure, axis)
 

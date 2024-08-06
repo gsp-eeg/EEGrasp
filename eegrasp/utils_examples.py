@@ -9,16 +9,14 @@ import os
 
 import numpy as np
 
-ASSETS_GRAPH_LEARNING = [
-    {
-        'filename': 'data_set_IVa_aa.mat',
-        'url': 'https://www.bbci.de/competition/download/competition_iii/berlin/100Hz/data_set_IVa_aa_mat.zip'
-    }
-]
+ASSETS_GRAPH_LEARNING = [{
+    'filename':
+    'data_set_IVa_aa.mat',
+    'url':
+    'https://www.bbci.de/competition/download/competition_iii/berlin/100Hz/data_set_IVa_aa_mat.zip'
+}]
 
-ASSETS = {
-    'graph_learning': ASSETS_GRAPH_LEARNING
-}
+ASSETS = {'graph_learning': ASSETS_GRAPH_LEARNING}
 
 
 def fetch_data(output_dir, database='graph_learning'):

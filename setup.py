@@ -11,7 +11,7 @@ def read_license():
     if os.path.exists(license_path):
         with open(license_path, 'r') as file:
             return file.read().strip()
-    return 'MIT' 
+    return 'MIT'
 
 
 setup(
