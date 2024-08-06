@@ -17,8 +17,7 @@ lint:
 	isort .
 	yapf -ir .
 	ruff check .
-	codespell -w
-	
+	codespell -w --skip="*.edf,*.js,*.css,doc,examples/datasets"
 	
 
 # Matplotlib doesn't print to screen. Also faster.
