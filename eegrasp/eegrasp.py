@@ -24,7 +24,7 @@ class EEGrasp():
 
     Notes
     -----
-    Gaussian Kernel functionallity overlapping with PyGSP2 toolbox. This has
+    Gaussian Kernel functionality overlapping with PyGSP2 toolbox. This has
     been purposefully added.
     """
 

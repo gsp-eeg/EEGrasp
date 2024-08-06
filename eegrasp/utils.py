@@ -8,7 +8,7 @@ import numpy as np
 
 
 def euc_dist(pos):
-    """Compute the euclidean distance based on a given set of possitions.
+    """Compute the euclidean distance based on a given set of positions.
 
     Parameters
     ----------
@@ -24,7 +24,7 @@ def euc_dist(pos):
     from scipy.spatial import distance_matrix
 
     distance = np.zeros([pos.shape[0], pos.shape[0]],
-                        dtype=np.float64)  # Alocate variable
+                        dtype=np.float64)  # Allocate variable
     pos = pos.astype(float)
     distance = distance_matrix(pos, pos)
     return distance

@@ -288,7 +288,7 @@ def fit_epsilon(missing_idx: int | list[int] | tuple[int], data=None,
 
     Notes
     -----
-    It will itterate through all the unique values of the distance matrix.
+    It will iterate through all the unique values of the distance matrix.
     data : 2-dimensional array. The first dim. is Channels
     and second is time. It can be passed to the instance class or the method
     """
@@ -366,7 +366,7 @@ def _return_results(error, signal, vparameter, param_name):
 
     Notes
     -----
-    In order to keep everyting under the same structure this function
+    In order to keep everything under the same structure this function
     should be used to return the results of any self.fit_* function.
     """
     best_idx = np.argmin(np.abs(error))
@@ -381,7 +381,7 @@ def _return_results(error, signal, vparameter, param_name):
 
 
 def _vectorize_matrix(mat):
-    """Vectorize a simetric matrix using the lower triangle.
+    """Vectorize a symmetric matrix using the lower triangle.
 
     Returns
     -------

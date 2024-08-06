@@ -69,7 +69,7 @@ data[MISSING_IDX, :] = np.nan  # delete channel info from array
 eegsp = EEGrasp(data, eeg_pos, ch_names)
 # 3. Compute the electrode distance matrix
 dist_mat = eegsp.compute_distance(normalize=True)
-# 4. Compute the graph weights and make graph strucutre
+# 4. Compute the graph weights and make graph structure
 graph = eegsp.compute_graph(epsilon=0.5, sigma=0.1)
 W = eegsp.graph_weights
 # 5. Interpolate missing channel

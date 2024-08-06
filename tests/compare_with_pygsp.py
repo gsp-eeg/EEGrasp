@@ -23,7 +23,7 @@ signal = df_100.iloc[0, 1:].to_numpy()
 
 X = df_pos[['x', 'y']].to_numpy()
 
-# Make a mesurement with missing channels
+# Make a measurement with missing channels
 mask = np.ones(len(signal), dtype=bool)
 MISSING_IDX = 5
 mask[MISSING_IDX] = False

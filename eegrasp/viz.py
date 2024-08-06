@@ -123,7 +123,7 @@ def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coo
     labels : list | ndarray | None.
         Labels to be plotted with vertices. If `None`, the instance's labels will be used.
     montage : str | mne RawBase | mne EpochsBase | mne EvokedBase | None.
-        If `None`, the instance's coordenates will be used to build a custom montage. Since it
+        If `None`, the instance's coordinates will be used to build a custom montage. Since it
         will only use the coordinateds tu build the custom montage, the sphere outline will
         not be adjusted to contain the electrodes. If a string is used, it will try to build
         a montage from the standard built-in mne library. If a ` mne DigiMontage` Class is
@@ -212,7 +212,7 @@ def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coo
             kwargs_mne_plot['sphere'] = None
         except ValueError:
             print(
-                f'{montage} Montage not found. Creating custom montage based on eegrasp.coordenates...')
+                f'{montage} Montage not found. Creating custom montage based on eegrasp.coordinates...')
             fig, axis = plot_graph(eegrasp, graph=graph, signal=signal, coordinates=coordinates, labels=labels, montage=montage,
                                    colorbar=colorbar, axis=axis, clabel=clabel, kind=kind, show_names=show_names, **original_kwargs)
             return fig, axis

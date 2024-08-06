@@ -41,7 +41,7 @@ except (FileNotFoundError, OSError):
     print(f'File {file_name} not found')
     sys.exit(-1)
 
-eeg = (data['cnt']).astype(float) * 1e-7  # Recomendation: to set to V
+eeg = (data['cnt']).astype(float) * 1e-7  # Recommendation: to set to V
 events = np.squeeze(data['mrk'][0, 0][0])
 info = data['nfo'][0, 0]
 ch_names = [ch_name[0] for ch_name in info[2][0, :]]
