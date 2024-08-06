@@ -1,10 +1,13 @@
 # %% Load Packages
-import mne
-from eegrasp import EEGrasp
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy import spatial
 from timeit import timeit
+
+import matplotlib.pyplot as plt
+import mne
+import numpy as np
+from scipy import spatial
+
+from eegrasp import EEGrasp
+
 # %matplotlib qt
 # %%
 

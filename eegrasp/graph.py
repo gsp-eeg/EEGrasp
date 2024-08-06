@@ -6,8 +6,9 @@ Contains the functions used in EEGrasp to create Graphs
 
 
 import numpy as np
+from pygsp2 import graph_learning, graphs
 from tqdm import tqdm
-from pygsp2 import graphs, graph_learning
+
 from .interpolate import interpolate_channel
 
 
@@ -118,9 +119,9 @@ def learn_graph(Z=None, a=0.1, b=0.1,
         dim corresponds to trials.
     """
     from .utils import euc_dist
+
     # If no distance matrix is given compute based on
     # data's euclidean distance
-
     # Check if data contains trials
     if data.ndim == 3:
 

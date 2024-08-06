@@ -5,9 +5,11 @@ Channel interpolation example.
 """
 # %% Import libraries
 import os
-import numpy as np
-import mne
+
 import matplotlib.pyplot as plt
+import mne
+import numpy as np
+
 from eegrasp import EEGrasp
 
 current_dir = os.getcwd()

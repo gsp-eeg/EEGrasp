@@ -5,8 +5,9 @@ Contains the class EEGrasp which is used to analyze EEG signals
 based graph signal processing.
 """
 
-import numpy as np
 import mne
+import numpy as np
+
 
 class EEGrasp():
     """Class containing functionality to analyze EEG signals.

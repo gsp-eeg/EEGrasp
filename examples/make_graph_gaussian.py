@@ -5,10 +5,11 @@ This example demonstrates how to create a graph from EEG electrode positions usi
 kernel. The example uses the Biosemi 64 channel montage. The graph is created with two different
 values of sigma (0.1 and 0.3) and epsilon=0.5.
 """
+import matplotlib.pyplot as plt
 # %% Load Packages
 import mne
 import numpy as np
-import matplotlib.pyplot as plt
+
 from eegrasp import EEGrasp
 
 # %% Select one montage

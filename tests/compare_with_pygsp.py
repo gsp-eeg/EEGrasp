@@ -3,12 +3,13 @@ Tests the graph construction by comparing to the results
 obtained with PyGSP2.
 """
 
+import matplotlib.pyplot as plt
 # %% Load libraries
 import numpy as np
 import pandas as pd
 import scipy.interpolate as interp
-import matplotlib.pyplot as plt
 from pygsp2 import graphs, learning
+
 from eegrasp import EEGrasp
 
 # %% Load Data

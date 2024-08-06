@@ -5,8 +5,9 @@ Define default values and functions used for plotting function in eegrasp main m
 """
 
 import dataclasses
-import mne
+
 import matplotlib.pyplot as plt
+import mne
 import numpy as np
 from mne.channels.layout import _auto_topomap_coords
 from pygsp2 import graphs

@@ -11,14 +11,16 @@ https://www.bbci.de/competition/download/competition_iii/berlin/100Hz/data_set_I
 
 You need to decompress the file and place the file in a directory named `data`.
 """
+import os
 # %% Import libraries
 import sys
-import os
 from pathlib import Path
-import numpy as np
+
 import matplotlib.pyplot as plt
 import mne
+import numpy as np
 from scipy.io import loadmat
+
 from eegrasp import EEGrasp
 from eegrasp.utils_examples import fetch_data
 

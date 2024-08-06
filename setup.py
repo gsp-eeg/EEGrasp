@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup, find_packages
 import os
+
+from setuptools import find_packages, setup
+
 
 def read_license():
     license_path = os.path.join(os.path.dirname(__file__), 'LICENSE')

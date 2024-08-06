@@ -6,6 +6,7 @@ mne epochs object and the other by passing the electrode positions directly.
 # %% Load Packages
 import mne
 import numpy as np
+
 from eegrasp import EEGrasp
 
 # %% Load data

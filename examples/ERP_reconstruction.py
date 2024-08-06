@@ -4,12 +4,14 @@ r"""ERP Construction.
 Example on how to interpolate missing channels.
 """
 
-# %% Import libraries
-import numpy as np
+import os
+
 import matplotlib.pyplot as plt
 import mne
+# %% Import libraries
+import numpy as np
+
 from eegrasp import EEGrasp
-import os
 
 current_dir = os.getcwd()
 os.chdir(os.path.dirname(current_dir))
