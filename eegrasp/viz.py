@@ -1,5 +1,4 @@
-r"""
-Viz
+r"""Viz.
 ===
 
 Define default values and functions used for plotting function in eegrasp main module.
@@ -40,6 +39,7 @@ class PlottingDefaults:
     DEFAULT_ALPHAV : float.
         Default alpha value for the vertices.
     """
+
     DEFAULT_CMAP: str = 'Spectral_r'
     DEFAULT_VERTEX_COLOR: str = 'teal'
     DEFAULT_SPHERE: str = 'eeglab'
@@ -74,7 +74,8 @@ class PlottingDefaults:
 
 def _update_locals(kwargs, local_vars):
     """Update local variables with the kwargs dict.
-    Parameters
+
+    Parameters.
     ----------
     kwargs : dict.
         Dictionary containing the variables to be updated.
@@ -103,8 +104,7 @@ def _separate_kwargs(kwargs, names):
 
 def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coordinates=None, labels=None, montage=None,
                colorbar=True, axis=None, clabel='Edge Weights', kind='topoplot', show_names=True, **kwargs):
-    """
-    Plot the graph over the eeg montage.
+    """Plot the graph over the eeg montage.
 
     Parameters
     ----------
@@ -243,7 +243,7 @@ def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coo
         kwargs_pygsp_plot['edge_color'] = plt.get_cmap(
             cmap)(norm_signal)
 
-    if colorbar and not signal is None:
+    if colorbar and signal is not None:
         cbar = fig.colorbar(plt.cm.ScalarMappable(cmap=cmap),
                             ax=axis, label=clabel)
         cbar.set_ticks([0, 0.5, 1])
@@ -253,7 +253,7 @@ def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coo
     # Plot the montage
     if kind == 'topoplot':
 
-        info = mne.create_info(labels, sfreq=250, ch_types="eeg")
+        info = mne.create_info(labels, sfreq=250, ch_types='eeg')
         info.set_montage(montage)
 
         xy = _auto_topomap_coords(
@@ -266,12 +266,12 @@ def plot_graph(eegrasp=None, graph: graphs.Graph | None = None, signal=None, coo
 
     elif kind == '3d':
 
-        info = mne.create_info(labels, sfreq=250, ch_types="eeg")
+        info = mne.create_info(labels, sfreq=250, ch_types='eeg')
         info.set_montage(montage)
         eeg_pos = montage.get_positions()['ch_pos']
         eeg_pos = np.array([pos for _, pos in eeg_pos.items()])
 
-        dev_head_t = info["dev_head_t"]
+        dev_head_t = info['dev_head_t']
         eeg_pos = mne.transforms.apply_trans(dev_head_t, eeg_pos)
         graph.set_coordinates(eeg_pos)
 

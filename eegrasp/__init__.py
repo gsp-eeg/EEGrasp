@@ -1,5 +1,4 @@
-"""
-EEGraSP
+"""EEGraSP.
 =======
 
 EEGraSP is Python package for the analysis of EEG using Graph Signal Processing

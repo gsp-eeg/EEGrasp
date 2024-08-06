@@ -1,5 +1,4 @@
-r"""
-Graph Creation
+r"""Graph Creation.
 ==============
 
 Contains the functions used in EEGrasp to create Graphs 
@@ -54,7 +53,6 @@ def compute_graph(W=None, epsilon=.5, sigma=.1, distances=None, graph=None, coor
     -------
     G: PyGSP2 Graph object.
     """
-
     # If passed, used the W matrix
     if W is None:
         # Check that there is a weight matrix is not a None
@@ -202,7 +200,6 @@ def fit_sigma(missing_idx: int | list[int] | tuple[int], data=None,
     computed in the instance class. The distance threshold is maintained.
 
     """
-
     # Create array of parameter values
     vsigma = np.arange(min_sigma, max_sigma, step=step)
 
@@ -294,7 +291,6 @@ def fit_epsilon(missing_idx: int | list[int] | tuple[int], data=None,
     data : 2-dimensional array. The first dim. is Channels
     and second is time. It can be passed to the instance class or the method
     """
-
     # Vectorize the distance matrix
     dist_tril = _vectorize_matrix(distances)
 
@@ -356,7 +352,7 @@ def fit_epsilon(missing_idx: int | list[int] | tuple[int], data=None,
 
 
 def _return_results(error, signal, vparameter, param_name):
-    """Function to wrap results into a dictionary.
+    """Wrap results into a dictionary.
 
     Parameters
     ----------
@@ -384,8 +380,7 @@ def _return_results(error, signal, vparameter, param_name):
 
 
 def _vectorize_matrix(mat):
-    """
-    Vectorize a simetric matrix using the lower triangle.
+    """Vectorize a simetric matrix using the lower triangle.
 
     Returns
     -------

@@ -1,5 +1,4 @@
-r"""
-Electrode Distance
+r"""Electrode Distance.
 ==================
 
 creation date: 21/03/2024

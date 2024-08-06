@@ -1,5 +1,4 @@
-r"""
-Graph Learning
+r"""Graph Learning.
 ==============
 
 Learn the graph from EEG signals using the algorithm proposed by
@@ -30,8 +29,8 @@ gsp = EEGrasp()
 current_dir = os.getcwd()
 os.chdir(os.path.dirname(current_dir))
 assets_dir = Path('..') / Path('data')
-fetch_data(assets_dir, database="graph_learning")
-file_name = os.path.join(assets_dir, "100Hz", 'data_set_IVa_aa.mat')
+fetch_data(assets_dir, database='graph_learning')
+file_name = os.path.join(assets_dir, '100Hz', 'data_set_IVa_aa.mat')
 
 
 try:
@@ -132,7 +131,7 @@ for i in range(len(tril_idx[0])):
         wh.append(weights[x, y])
 
 
-G.plot(vertex_color=eigenvectors[:, 5], vertex_size=size, cmap="magma",
+G.plot(vertex_color=eigenvectors[:, 5], vertex_size=size, cmap='magma',
        alphan=0.9, alphav=0.5, edge_weights=wh)
 
 # %% Plot Eigenvalue index vs eivenvalue

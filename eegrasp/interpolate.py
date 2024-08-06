@@ -1,5 +1,4 @@
-r"""
-Interpolate
+r"""Interpolate.
 ===========
 
 Contains the functions used in EEGrasp interpolate data
@@ -12,7 +11,8 @@ from pygsp2 import learning
 
 def interpolate_channel(missing_idx: int | list[int] | tuple[int], graph=None, data=None):
     """Interpolate missing channel.
-    Parameters
+
+    Parameters.
     ----------
     missing_idx : int | list of int | tuple of int
         Index of the missing channel. Not optional.
@@ -31,7 +31,6 @@ def interpolate_channel(missing_idx: int | list[int] | tuple[int], graph=None, d
     reconstructed : ndarray
         Reconstructed signal.
     """
-
     time = np.arange(data.shape[1])  # create time array
     mask = np.ones(data.shape[0], dtype=bool)  # Maksing array
     mask[missing_idx] = False

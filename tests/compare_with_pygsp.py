@@ -1,5 +1,5 @@
 """"
-This code tests the graph construction by comparing to the results
+Tests the graph construction by comparing to the results
 obtained with PyGSP2.
 """
 

@@ -1,5 +1,4 @@
-r"""
-Interpolate Channel
+r"""Interpolate Channel.
 ===================
 
 Channel interpolation example.
@@ -13,7 +12,7 @@ from eegrasp import EEGrasp
 
 current_dir = os.getcwd()
 os.chdir(os.path.dirname(current_dir))
-data_dir ="./datasets"
+data_dir ='./datasets'
 #os.makedirs(data_dir, exist_ok=True)
 #os.environ['MNE_EEGBCI_PATH'] = data_dir
 
@@ -31,7 +30,7 @@ raw_fnames = np.reshape(raw_fnames, -1)
 raws = [mne.io.read_raw_edf(f, preload=True) for f in raw_fnames]
 raw = mne.concatenate_raws(raws)
 mne.datasets.eegbci.standardize(raw)
-raw.annotations.rename(dict(T1="left", T2="right"))
+raw.annotations.rename(dict(T1='left', T2='right'))
 
 montage = mne.channels.make_standard_montage('standard_1005')
 raw.set_montage(montage)
@@ -51,7 +50,7 @@ events, events_id = mne.events_from_annotations(raw)
 # Exclude bad channels
 TMIN, TMAX = -1.0, 3.0
 picks = mne.pick_types(raw.info, meg=False, eeg=True,
-                       stim=False, eog=False, exclude="bads")
+                       stim=False, eog=False, exclude='bads')
 epochs = mne.Epochs(raw, events, events_id,
                     picks=picks, tmin=TMIN,
                     tmax=TMAX, baseline=(-1, 0),

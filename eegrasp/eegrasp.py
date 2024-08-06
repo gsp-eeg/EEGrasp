@@ -1,5 +1,4 @@
-r"""
-EEGRasP module
+r"""EEGRasP module.
 ==============
 
 Contains the class EEGrasp which is used to analyze EEG signals
@@ -29,8 +28,7 @@ class EEGrasp():
     """
 
     def __init__(self, data=None, coordinates=None, labels=None):
-        """
-        Parameters
+        """Parameters
         ----------
         data : ndarray | mne.Evoked | mne.BaseRaw | mne.BaseEpochs | None
             2D array. Where the first dim are channels and the second is
@@ -51,7 +49,6 @@ class EEGrasp():
             the labels will be set to a range of numbers from 0 to the number
             of channels in the data. Default is `None`.
         """
-
         # Detect if data is a mne object
         if self._validate_MNE(data):
             self._init_from_mne(data)
@@ -96,15 +93,15 @@ class EEGrasp():
         return is_mne
 
     def euc_dist(self, pos):
-        """ Calculates euclidean distance.
-        %(eegrasp.utils.euc_dist)
+        """Calculate euclidean distance.
+        %(eegrasp.utils.euc_dist).
         """
         from .utils import euc_dist
         return euc_dist(pos)
 
     def compute_distance(self, coordinates=None, method='Euclidean', normalize=True):
-        """ Computes distance.
-        %(eegrasp.utils.compute_distance)
+        """Compute distance.
+        %(eegrasp.utils.compute_distance).
         """
         # If passed, use the coordinates argument
         if coordinates is None:
@@ -116,15 +113,15 @@ class EEGrasp():
         return self.distances
 
     def gaussian_kernel(self, x, sigma=0.1):
-        """ Calculates Gaussian Kernel.
-        %(eegrasp.graph_creation.gaussian_kernel)
+        """Calculate Gaussian Kernel.
+        %(eegrasp.graph_creation.gaussian_kernel).
         """
         from .graph import gaussian_kernel
         return gaussian_kernel(x, sigma)
 
     def compute_graph(self, W=None, epsilon=.5, sigma=.1, distances=None, graph=None, coordinates=None):
-        """ Computes graph.
-        %(eegrasp.graph_creation.compute_graph)
+        """Compute graph.
+        %(eegrasp.graph_creation.compute_graph).
         """
         if W is None:
             distances = self.distances
@@ -135,8 +132,8 @@ class EEGrasp():
         return self.graph
 
     def interpolate_channel(self, missing_idx: int | list[int] | tuple[int], graph=None, data=None):
-        """ Interpolates channel.
-        %(eegrasp.interpolate.interpolate_channel)
+        """Interpolates channel.
+        %(eegrasp.interpolate.interpolate_channel).
         """
         # Check if values are passed or use the instance's
         if data is None:
@@ -150,7 +147,7 @@ class EEGrasp():
     def fit_epsilon(self, missing_idx: int | list[int] | tuple[int], data=None,
                     distances=None, sigma=0.1):
         """Find the best distance to use as threshold.
-        %(eegrasp.graph.fit_epsilon)
+        %(eegrasp.graph.fit_epsilon).
         """
         # Check if values are passed or use the instance's
         if data is None:
@@ -168,8 +165,8 @@ class EEGrasp():
     def fit_sigma(self, missing_idx: int | list[int] | tuple[int], data=None,
                   distances=None, epsilon=0.5, min_sigma=0.1, max_sigma=1.,
                   step=0.1):
-        """ Find the best parameter for the gaussian kernel.
-        %(eegrasp.graph.fit_sigma)
+        """Find the best parameter for the gaussian kernel.
+        %(eegrasp.graph.fit_sigma).
         """
         # Check if values are passed or use the instance's
         if data is None:
@@ -188,8 +185,8 @@ class EEGrasp():
     def learn_graph(self, Z=None, a=0.1, b=0.1,
                     gamma=0.04, maxiter=1000, w_max=np.inf,
                     mode='Average', data=None):
-        """ Learns graph using PyGSP2.
-        %(eegrasp.graph.learn_graph)
+        """Learns graph using PyGSP2.
+        %(eegrasp.graph.learn_graph).
         """
         if Z is None:
             data = self.data
@@ -199,8 +196,8 @@ class EEGrasp():
 
     def plot(self, graph=None, signal=None, coordinates=None, labels=None, montage=None,
              colorbar=True, axis=None, clabel='Edge Weights', kind='topoplot', show_names=True, **kwargs):
-        """ Plot graph over the eeg montage.
-        %(eegrasp.viz.plot_graph)s
+        """Plot graph over the eeg montage.
+        %(eegrasp.viz.plot_graph)s.
         """
         from .viz import plot_graph
         return plot_graph(eegrasp=self, graph=graph, signal=signal, coordinates=coordinates, labels=labels, montage=montage,

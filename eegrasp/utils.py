@@ -1,5 +1,4 @@
-r"""
-Utils
+r"""Utils.
 =====
 
 Utils functions used in EEGrasp.
@@ -32,7 +31,7 @@ def euc_dist(pos):
 
 
 def compute_distance(coordinates=None, method='Euclidean', normalize=True):
-    """Computing the distance based on electrode coordinates.
+    """Compute the distance based on electrode coordinates.
 
     Parameters
     ----------
@@ -52,7 +51,6 @@ def compute_distance(coordinates=None, method='Euclidean', normalize=True):
     distances : ndarray
         Distances to be used for the graph computation.
     """
-
     # Otherwise use the instance's coordinates
     if method == 'Euclidean':
         distances = euc_dist(coordinates)
